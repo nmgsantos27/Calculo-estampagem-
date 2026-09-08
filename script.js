@@ -126,7 +126,7 @@ function selecionarArtigoBD() {
   calcular();
 }
 
-// Abertura/fecho 100% garantida no telemóvel
+// Abertura/fecho garantida
 function alternarFormNovoArtigo() {
   const box = document.getElementById('formNovoArtigo');
   if (!box) return;
@@ -245,10 +245,10 @@ function calcular() {
   const custoTotalUnComIva = custoPecaBaseComIva + resImpressao.custoUnComIva + portesPorPecaComIva;
   const custoTotalLoteComIva = custoTotalUnComIva * qtd;
 
-  // CÁLCULO DA MARGEM (Diluída se for valor Fixo)
+  // CÁLCULO DA MARGEM
   let lucroUn = 0;
   if (tipoMargem === 'fixo') {
-    lucroUn = valMargem / qtd; // Dilui o valor fixo da margem pela quantidade do lote
+    lucroUn = valMargem / qtd;
   } else {
     lucroUn = custoTotalUnComIva * (valMargem / 100);
   }
@@ -292,12 +292,12 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
 
     const custoUn = custoPecaComIva + res.custoUnComIva + (portesComIva / q);
     
-    // Diluição da margem fixa na tabela comparativa
+    // Cálculo rigoroso da margem para cada escalão
     let lucroUn = 0;
     if (tipoMargem === 'fixo') {
-      lucroUn = valMargem / q;
+      lucroUn = valMargem / q; // Dilui o valor fixo pela quantidade
     } else {
-      lucroUn = custoUn * (valMargem / 100);
+      lucroUn = custoUn * (valMargem / 100); // Aplica a % sobre o custo unitário do escalão
     }
 
     const precoVendaUn = custoUn + lucroUn;
@@ -335,4 +335,4 @@ document.addEventListener('DOMContentLoaded', () => {
   alternarTecnica();
   carregarBD();
 });
-        
+       
