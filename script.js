@@ -19,26 +19,28 @@ const ARTIGOS_PADRAO = [
 
 let artigosBD = [];
 
-const ESCALAO_MARGEM_FIXA = [
-  { min: 1, max: 4, margemUn: 7.00 },
-  { min: 5, max: 9, margemUn: 6.80 },
-  { min: 10, max: 24, margemUn: 6.50 },
-  { min: 25, max: 49, margemUn: 5.50 },
-  { min: 50, max: 99, margemUn: 4.50 },
-  { min: 100, max: Infinity, margemUn: 3.50 }
-];
-
+// CALCULO DA MARGEM DINÂMICA
 function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
   if (tipoMargem === 'percentagem') {
     return custoUnComIva * (valMargemInput / 100);
   }
   
-  const escalao = ESCALAO_MARGEM_FIXA.find(e => qtd >= e.min && qtd <= e.max);
-  if (escalao) {
-    return escalao.margemUn;
+  // Aplica desconto progressivo a partir da margem base introduzida no campo
+  const margemBase = valMargemInput;
+
+  if (qtd >= 100) {
+    return Math.max(0, margemBase - 3.50);
+  } else if (qtd >= 50) {
+    return Math.max(0, margemBase - 2.50);
+  } else if (qtd >= 25) {
+    return Math.max(0, margemBase - 1.50);
+  } else if (qtd >= 10) {
+    return Math.max(0, margemBase - 0.50);
+  } else if (qtd >= 5) {
+    return Math.max(0, margemBase - 0.20);
   }
   
-  return valMargemInput;
+  return margemBase;
 }
 
 const TECNICAS = {
@@ -93,7 +95,7 @@ const TECNICAS = {
   }
 };
 
-// FUNÇÕES DE MEMÓRIA (Guarda e repõe os últimos valores introduzidos)
+// GUARDA E REANIMA O ÚLTIMO ESTADO DOS CAMPOS
 function guardarEstadoCampos() {
   const estado = {
     quantidade: document.getElementById('quantidade').value,
@@ -341,7 +343,6 @@ function calcular() {
 
   gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
 
-  // Guarda as alterações efetuadas nos campos
   guardarEstadoCampos();
 }
 
@@ -400,7 +401,7 @@ function copiarResumo() {
 // INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
   carregarBD();
-  carregarEstadoCampos(); // Restaura o último estado gravado
+  carregarEstadoCampos();
   alternarTecnica();
   calcular();
 });
