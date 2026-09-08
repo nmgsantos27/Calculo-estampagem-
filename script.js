@@ -93,6 +93,54 @@ const TECNICAS = {
   }
 };
 
+// FUNÇÕES DE MEMÓRIA (Guarda e repõe os últimos valores introduzidos)
+function guardarEstadoCampos() {
+  const estado = {
+    quantidade: document.getElementById('quantidade').value,
+    custoPeca: document.getElementById('custoPeca').value,
+    portesFornecedor: document.getElementById('portesFornecedor').value,
+    tecnica: document.getElementById('tecnica').value,
+    custoMetroDTF: document.getElementById('custoMetroDTF').value,
+    alturaEstampaDTF: document.getElementById('alturaEstampaDTF').value,
+    larguraEstampaDTF: document.getElementById('larguraEstampaDTF').value,
+    numCores: document.getElementById('numCores').value,
+    tipoMargem: document.getElementById('tipoMargem').value,
+    valMargem: document.getElementById('valMargem').value,
+    artigoId: document.getElementById('seletorArtigo') ? document.getElementById('seletorArtigo').value : ''
+  };
+  localStorage.setItem('ultimoEstadoOrcamento', JSON.stringify(estado));
+}
+
+function carregarEstadoCampos() {
+  const guardado = localStorage.getItem('ultimoEstadoOrcamento');
+  if (!guardado) return;
+
+  try {
+    const estado = JSON.parse(guardado);
+    if (estado.quantidade !== undefined) document.getElementById('quantidade').value = estado.quantidade;
+    if (estado.custoPeca !== undefined) document.getElementById('custoPeca').value = estado.custoPeca;
+    if (estado.portesFornecedor !== undefined) document.getElementById('portesFornecedor').value = estado.portesFornecedor;
+    if (estado.tecnica !== undefined) document.getElementById('tecnica').value = estado.tecnica;
+    if (estado.custoMetroDTF !== undefined) document.getElementById('custoMetroDTF').value = estado.custoMetroDTF;
+    if (estado.alturaEstampaDTF !== undefined) document.getElementById('alturaEstampaDTF').value = estado.alturaEstampaDTF;
+    if (estado.larguraEstampaDTF !== undefined) document.getElementById('larguraEstampaDTF').value = estado.larguraEstampaDTF;
+    if (estado.numCores !== undefined) document.getElementById('numCores').value = estado.numCores;
+    if (estado.tipoMargem !== undefined) document.getElementById('tipoMargem').value = estado.tipoMargem;
+    if (estado.valMargem !== undefined) document.getElementById('valMargem').value = estado.valMargem;
+
+    if (estado.artigoId && document.getElementById('seletorArtigo')) {
+      document.getElementById('seletorArtigo').value = estado.artigoId;
+      const artigo = artigosBD.find(a => a.id === estado.artigoId);
+      if (artigo) {
+        document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
+        document.getElementById('custoArtigoAtivo').innerText = `${parseNum(artigo.preco).toFixed(2).replace('.', ',')} € s/ IVA`;
+      }
+    }
+  } catch (e) {
+    console.warn("Erro ao carregar último estado:", e);
+  }
+}
+
 function carregarBD() {
   try {
     const guardados = localStorage.getItem('artigosBD');
@@ -113,7 +161,7 @@ function guardarBD() {
   try {
     localStorage.setItem('artigosBD', JSON.stringify(artigosBD));
   } catch(e) {
-    console.warn("Não foi possível guardar na cache do navegador.");
+    console.warn("Não foi possível guardar na cache.");
   }
 }
 
@@ -138,12 +186,6 @@ function atualizarSeletorArtigos() {
     opt.textContent = `${artigo.nome} (${parseNum(artigo.preco).toFixed(2)} €)`;
     select.appendChild(opt);
   });
-
-  const artigo = artigosBD[0];
-  if (artigo) {
-    document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
-    document.getElementById('custoArtigoAtivo').innerText = `${parseNum(artigo.preco).toFixed(2).replace('.', ',')} € s/ IVA`;
-  }
 }
 
 function selecionarArtigoBD() {
@@ -298,6 +340,9 @@ function calcular() {
   }
 
   gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
+
+  // Guarda as alterações efetuadas nos campos
+  guardarEstadoCampos();
 }
 
 function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargemInput) {
@@ -352,15 +397,10 @@ function copiarResumo() {
   });
 }
 
-// Inicialização
+// INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
-  alternarTecnica();
   carregarBD();
+  carregarEstadoCampos(); // Restaura o último estado gravado
+  alternarTecnica();
   calcular();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker Registado!'))
-      .catch((err) => console.log('Erro ao registar Service Worker:', err));
-  }
 });
