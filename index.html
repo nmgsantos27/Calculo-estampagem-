@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard de Orçamentos PRO</title>
+  <title>Gestor de Orçamentos PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
       </div>
       <div class="topbar-actions">
         <button type="button" class="btn btn-outline" onclick="copiarResumo()">📋 Copiar Resumo</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Exportar / Imprimir</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
       </div>
     </header>
 
@@ -41,8 +41,8 @@
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-sm btn-outline" onclick="alternarFormNovoArtigo()">+ Novo Artigo</button>
-          <button type="button" class="btn btn-sm btn-danger-outline" onclick="eliminarArtigoAtivo()">🗑️ Eliminar</button>
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoArtigo()">+ Novo Artigo</button>
+          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarArtigoAtivo()">🗑️ Eliminar</button>
         </div>
 
         <!-- FORMULÁRIO NOVO ARTIGO -->
@@ -50,18 +50,18 @@
           <h4>Adicionar à Base de Dados</h4>
           <div class="form-group">
             <label for="novoNomeArtigo">Nome do Artigo:</label>
-            <input type="text" id="novoNomeArtigo" placeholder="Ex: Hoody Unisexo Premium">
+            <input type="text" id="novoNomeArtigo" placeholder="Ex: Hoody Unisexo">
           </div>
           <div class="form-group">
-            <label for="novoPrecoArtigo">Custo Fornecedor (s/ IVA):</label>
+            <label for="novoPrecoArtigo">Custo s/ IVA:</label>
             <div class="input-symbol">
               <input type="text" id="novoPrecoArtigo" placeholder="0.00">
               <span>€</span>
             </div>
           </div>
           <div class="form-row">
-            <button type="button" class="btn btn-sm btn-primary" onclick="guardarNovoArtigoBD()">Guardar</button>
-            <button type="button" class="btn btn-sm btn-secondary" onclick="alternarFormNovoArtigo()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarNovoArtigoBD()">Guardar</button>
+            <button type="button" class="btn btn-outline" onclick="alternarFormNovoArtigo()">Cancelar</button>
           </div>
         </div>
 
@@ -81,12 +81,12 @@
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="flex: 1;">
             <label for="quantidade">Quantidade (un):</label>
             <input type="number" id="quantidade" value="10" min="1" oninput="calcular()">
           </div>
-          <div class="form-group">
-            <label for="custoPeca">Custo Artigo Base (s/ IVA):</label>
+          <div class="form-group" style="flex: 1;">
+            <label for="custoPeca">Custo Base s/ IVA:</label>
             <div class="input-symbol">
               <input type="number" id="custoPeca" value="3.50" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
               <span>€</span>
@@ -95,7 +95,7 @@
         </div>
 
         <div class="form-group">
-          <label for="portesFornecedor">Portes Envio Fornecedor (s/ IVA):</label>
+          <label for="portesFornecedor">Portes Envio s/ IVA:</label>
           <div class="input-symbol">
             <input type="number" id="portesFornecedor" value="4.50" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
             <span>€</span>
@@ -114,18 +114,18 @@
         <!-- CAMPOS DTF -->
         <div id="grupoDTF" class="grupo-tecnica">
           <div class="form-group">
-            <label for="custoMetroDTF">Custo Metro DTF (s/ IVA):</label>
+            <label for="custoMetroDTF">Custo Metro DTF s/ IVA:</label>
             <div class="input-symbol">
               <input type="number" id="custoMetroDTF" value="6.00" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
               <span>€</span>
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label for="alturaEstampaDTF">Altura (cm):</label>
               <input type="number" id="alturaEstampaDTF" value="25" min="1" oninput="calcular()">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label for="larguraEstampaDTF">Largura (cm):</label>
               <input type="number" id="larguraEstampaDTF" value="20" min="1" oninput="calcular()">
             </div>
@@ -141,14 +141,14 @@
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="flex: 1;">
             <label for="tipoMargem">Margem:</label>
             <select id="tipoMargem" onchange="calcular()">
-              <option value="fixo">Fixo (€ no lote)</option>
+              <option value="fixo">Fixo (€ Tabela)</option>
               <option value="percentagem">Percentual (%)</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="flex: 1;">
             <label for="valMargem">Valor Margem:</label>
             <input type="number" id="valMargem" value="7.00" step="0.1" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
           </div>
@@ -163,17 +163,17 @@
         </div>
 
         <div class="price-banner">
-          <span class="price-title">Preço de Venda / Unidade (c/ IVA)</span>
+          <span class="price-title">Preço Venda / Unidade (c/ IVA)</span>
           <div class="price-value" id="resPrecoUn">0,00 €</div>
         </div>
 
         <div class="metrics-grid">
           <div class="metric-item">
-            <span class="m-label">Total Comercial (lote)</span>
+            <span class="m-label">Total Lote:</span>
             <span class="m-value" id="resTotalComercial">0,00 €</span>
           </div>
           <div class="metric-item success">
-            <span class="m-label">Lucro Total Estimado</span>
+            <span class="m-label">Lucro Total:</span>
             <span class="m-value" id="resLucroTotal">0,00 €</span>
           </div>
         </div>
@@ -189,8 +189,12 @@
             <strong id="resCustoImprUn">0,00 €</strong>
           </div>
           <div class="d-row">
-            <span>Portes Fornecedor (lote):</span>
+            <span>Portes Fornecedor:</span>
             <strong id="resPortes">0,00 €</strong>
+          </div>
+          <div class="d-row highlight">
+            <span>Margem / Lucro (un):</span>
+            <strong id="resMargemUn" style="color: #10b981;">0,00 €</strong>
           </div>
           <div class="d-row highlight">
             <span>Custo Total do Lote:</span>
@@ -203,7 +207,7 @@
         </div>
 
         <!-- ESCALÕES COMPARATIVOS -->
-        <div class="escaloes-box no-print">
+        <div class="escaloes-box no-print" style="margin-top: 16px;">
           <h3>Comparativo por Quantidade</h3>
           <div id="tabelaComparativa" class="escaloes-list">
             <!-- Preenchido via JS -->
@@ -211,7 +215,7 @@
         </div>
 
         <div class="print-footer print-only">
-          <p>Orçamento válido por 15 dias. Todos os valores incluem IVA à taxa legal em vigor (23%).</p>
+          <p>Orçamento válido por 15 dias. Todos os valores incluem IVA (23%).</p>
         </div>
       </section>
 
@@ -220,4 +224,5 @@
 
   <script src="script.js"></script>
 </body>
-</html>
+              </html>
+              
