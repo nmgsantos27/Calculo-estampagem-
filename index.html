@@ -15,6 +15,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="GrafiSantos">
   <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Biblioteca para gerar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div class="app-layout">
@@ -26,8 +29,9 @@
         <h1>Gestor de Orçamentos <span class="badge-pro">PRO</span></h1>
       </div>
       <div class="topbar-actions">
-        <button type="button" class="btn btn-outline" onclick="copiarResumo()">📋 Copiar Resumo</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+        <button type="button" class="btn btn-outline" onclick="copiarResumo()">📋 Copiar</button>
+        <button type="button" class="btn btn-primary" onclick="guardarPDF()">📄 Descarregar PDF</button>
+        <button type="button" class="btn btn-outline" onclick="window.print()">🖨️ Imprimir</button>
       </div>
     </header>
 
@@ -163,7 +167,7 @@
       </section>
 
       <!-- COLUNA 3: RESUMO E RESULTADOS -->
-      <section class="card results-card printable-area">
+      <section class="card results-card printable-area" id="areaParaPdf">
         <div class="card-header">
           <h2>📊 Resumo do Orçamento</h2>
           <span class="badge" id="escalaoBadge">Escalão Activo</span>
@@ -232,7 +236,6 @@
     </main>
   </div>
 
-  <!-- Adicionado v=2.0 para forçar o navegador a recarregar sem cache -->
-  <script src="script.js?v=2.0"></script>
+  <script src="script.js?v=2.1"></script>
 </body>
 </html>

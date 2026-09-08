@@ -25,7 +25,6 @@ function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
     return custoUnComIva * (valMargemInput / 100);
   }
   
-  // Aplica desconto progressivo a partir da margem base introduzida no campo
   const margemBase = valMargemInput;
 
   if (qtd >= 100) {
@@ -95,7 +94,6 @@ const TECNICAS = {
   }
 };
 
-// GUARDA E REANIMA O ÚLTIMO ESTADO DOS CAMPOS
 function guardarEstadoCampos() {
   const estado = {
     quantidade: document.getElementById('quantidade').value,
@@ -396,6 +394,22 @@ function copiarResumo() {
   navigator.clipboard.writeText(texto).then(() => {
     alert('Resumo copiado com sucesso!');
   });
+}
+
+// FUNÇÃO PARA GERAR E DESCARREGAR PDF
+function guardarPDF() {
+  const elemento = document.getElementById('areaParaPdf');
+  const nomeArtigo = document.getElementById('nomeArtigoAtivo').innerText.replace(/[^a-zA-Z0-9]/g, '_');
+  
+  const opcoes = {
+    margin:       10,
+    filename:     `Orcamento_GrafiSantos_${nomeArtigo || 'Print'}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opcoes).from(elemento).save();
 }
 
 // INICIALIZAÇÃO
