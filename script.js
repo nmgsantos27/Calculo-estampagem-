@@ -8,6 +8,7 @@ function parseNum(valor) {
   return isNaN(num) ? 0 : num;
 }
 
+// BD PADRÃO DE ARTIGOS
 const ARTIGOS_PADRAO = [
   { id: '1', nome: 'T-Shirt Algodão 150g', preco: 1.85 },
   { id: '2', nome: 'T-Shirt Premium 180g', preco: 2.90 },
@@ -17,9 +18,19 @@ const ARTIGOS_PADRAO = [
   { id: '6', nome: 'Saco Tote Bag Algodão', preco: 0.95 }
 ];
 
-let artigosBD = [];
+// BD PADRÃO DE FORNECEDORES DE PORTES
+const FORNECEDORES_PADRAO = [
+  { id: 'p1', nome: 'Portes Padrão', preco: 3.00 },
+  { id: 'p2', nome: 'Roly (Envio Normal)', preco: 4.50 },
+  { id: 'p3', nome: 'Makito (Volume Médio)', preco: 6.00 },
+  { id: 'p4', nome: 'Envio Expresso / CTT', preco: 8.50 },
+  { id: 'p5', nome: 'Isento / Levantar em Loja', preco: 0.00 }
+];
 
-// CALCULO DA MARGEM DINÂMICA
+let artigosBD = [];
+let fornecedoresBD = [];
+
+// CÁLCULO DA MARGEM DINÂMICA
 function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
   if (tipoMargem === 'percentagem') {
     return custoUnComIva * (valMargemInput / 100);
@@ -106,7 +117,8 @@ function guardarEstadoCampos() {
     numCores: document.getElementById('numCores').value,
     tipoMargem: document.getElementById('tipoMargem').value,
     valMargem: document.getElementById('valMargem').value,
-    artigoId: document.getElementById('seletorArtigo') ? document.getElementById('seletorArtigo').value : ''
+    artigoId: document.getElementById('seletorArtigo') ? document.getElementById('seletorArtigo').value : '',
+    fornecedorId: document.getElementById('seletorFornecedor') ? document.getElementById('seletorFornecedor').value : ''
   };
   localStorage.setItem('ultimoEstadoOrcamento', JSON.stringify(estado));
 }
@@ -136,30 +148,46 @@ function carregarEstadoCampos() {
         document.getElementById('custoArtigoAtivo').innerText = `${parseNum(artigo.preco).toFixed(2).replace('.', ',')} € s/ IVA`;
       }
     }
+
+    if (estado.fornecedorId && document.getElementById('seletorFornecedor')) {
+      document.getElementById('seletorFornecedor').value = estado.fornecedorId;
+    }
   } catch (e) {
     console.warn("Erro ao carregar último estado:", e);
   }
 }
 
+// --- LOGICA BASE DE DADOS DE ARTIGOS ---
 function carregarBD() {
   try {
-    const guardados = localStorage.getItem('artigosBD');
-    if (guardados) {
-      let lidos = JSON.parse(guardados);
+    const guardadosArtigos = localStorage.getItem('artigosBD');
+    if (guardadosArtigos) {
+      let lidos = JSON.parse(guardadosArtigos);
       artigosBD = lidos.filter(a => a && a.id && a.nome && a.nome !== 'undefined');
     } else {
       artigosBD = [...ARTIGOS_PADRAO];
     }
+
+    const guardadosForn = localStorage.getItem('fornecedoresBD');
+    if (guardadosForn) {
+      let lidosForn = JSON.parse(guardadosForn);
+      fornecedoresBD = lidosForn.filter(f => f && f.id && f.nome && f.nome !== 'undefined');
+    } else {
+      fornecedoresBD = [...FORNECEDORES_PADRAO];
+    }
   } catch (e) {
     artigosBD = [...ARTIGOS_PADRAO];
+    fornecedoresBD = [...FORNECEDORES_PADRAO];
   }
   guardarBD();
   atualizarSeletorArtigos();
+  atualizarSeletorFornecedores();
 }
 
 function guardarBD() {
   try {
     localStorage.setItem('artigosBD', JSON.stringify(artigosBD));
+    localStorage.setItem('fornecedoresBD', JSON.stringify(fornecedoresBD));
   } catch(e) {
     console.warn("Não foi possível guardar na cache.");
   }
@@ -204,12 +232,7 @@ function selecionarArtigoBD() {
 function alternarFormNovoArtigo() {
   const box = document.getElementById('formNovoArtigo');
   if (!box) return;
-
-  if (box.style.display === 'none' || box.style.display === '') {
-    box.style.display = 'block';
-  } else {
-    box.style.display = 'none';
-  }
+  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
 }
 
 function guardarNovoArtigoBD() {
@@ -231,12 +254,7 @@ function guardarNovoArtigoBD() {
     return;
   }
 
-  const novoArtigo = {
-    id: Date.now().toString(),
-    nome: nome,
-    preco: preco
-  };
-
+  const novoArtigo = { id: Date.now().toString(), nome: nome, preco: preco };
   artigosBD.push(novoArtigo);
   guardarBD();
   atualizarSeletorArtigos();
@@ -260,6 +278,84 @@ function eliminarArtigoAtivo() {
   }
 }
 
+// --- LOGICA BASE DE DADOS DE FORNECEDORES DE PORTES ---
+function atualizarSeletorFornecedores() {
+  const select = document.getElementById('seletorFornecedor');
+  if (!select) return;
+  select.innerHTML = '';
+
+  if (fornecedoresBD.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = "";
+    opt.textContent = "Nenhum fornecedor registado";
+    select.appendChild(opt);
+    return;
+  }
+
+  fornecedoresBD.forEach(forn => {
+    const opt = document.createElement('option');
+    opt.value = forn.id;
+    opt.textContent = `${forn.nome} (${parseNum(forn.preco).toFixed(2)} €)`;
+    select.appendChild(opt);
+  });
+}
+
+function selecionarFornecedorBD() {
+  const idSel = document.getElementById('seletorFornecedor').value;
+  const forn = fornecedoresBD.find(f => f.id === idSel);
+
+  if (forn) {
+    const precoNum = parseNum(forn.preco);
+    document.getElementById('portesFornecedor').value = precoNum.toFixed(2);
+  }
+  calcular();
+}
+
+function alternarFormNovoFornecedor() {
+  const box = document.getElementById('formNovoFornecedor');
+  if (!box) return;
+  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+}
+
+function guardarNovoFornecedorBD() {
+  const inputNome = document.getElementById('novoNomeFornecedor');
+  const inputPreco = document.getElementById('novoPrecoPorte');
+
+  if (!inputNome || !inputPreco) return;
+
+  const nome = inputNome.value.trim();
+  const preco = parseNum(inputPreco.value);
+
+  if (!nome) {
+    alert('Por favor introduza o nome do fornecedor.');
+    return;
+  }
+
+  const novoForn = { id: 'p_' + Date.now().toString(), nome: nome, preco: preco };
+  fornecedoresBD.push(novoForn);
+  guardarBD();
+  atualizarSeletorFornecedores();
+
+  document.getElementById('seletorFornecedor').value = novoForn.id;
+  selecionarFornecedorBD();
+
+  inputNome.value = '';
+  inputPreco.value = '';
+  alternarFormNovoFornecedor();
+}
+
+function eliminarFornecedorAtivo() {
+  const idSel = document.getElementById('seletorFornecedor').value;
+  if (!idSel) return;
+
+  if (confirm('Tem a certeza que deseja eliminar este fornecedor?')) {
+    fornecedoresBD = fornecedoresBD.filter(f => f.id !== idSel);
+    guardarBD();
+    atualizarSeletorFornecedores();
+  }
+}
+
+// --- FUNÇÕES UTILITÁRIAS E CÁLCULO ---
 function formatarMoeda(valor) {
   return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
 }

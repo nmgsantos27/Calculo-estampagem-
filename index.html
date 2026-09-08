@@ -38,7 +38,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="dashboard-grid">
 
-      <!-- COLUNA 1: BASE DE DADOS DE ARTIGOS -->
+      <!-- COLUNA 1: BASE DE DADOS DE ARTIGOS & PORTES -->
       <section class="card database-card no-print">
         <div class="card-header">
           <h2>📦 Base de Dados de Artigos</h2>
@@ -82,6 +82,45 @@
           <span class="db-info-label">Artigo Selecionado:</span>
           <strong id="nomeArtigoAtivo" class="db-info-title">-</strong>
           <span id="custoArtigoAtivo" class="db-info-price">0,00 € s/ IVA</span>
+        </div>
+
+        <hr class="divider" style="margin: 20px 0;">
+
+        <!-- BASE DE DADOS DE PORTES / FORNECEDORES -->
+        <div class="card-header" style="padding: 0 0 10px 0;">
+          <h2>🚚 Base de Dados de Portes</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="seletorFornecedor">Selecionar Fornecedor:</label>
+          <select id="seletorFornecedor" onchange="selecionarFornecedorBD()">
+            <!-- Preenchido via JS -->
+          </select>
+        </div>
+
+        <div class="db-actions">
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoFornecedor()">+ Novo Fornecedor</button>
+          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarFornecedorAtivo()">🗑️ Eliminar</button>
+        </div>
+
+        <!-- FORMULÁRIO NOVO FORNECEDOR -->
+        <div id="formNovoFornecedor" class="novo-artigo-box" style="display: none;">
+          <h4>Adicionar Fornecedor</h4>
+          <div class="form-group">
+            <label for="novoNomeFornecedor">Nome do Fornecedor:</label>
+            <input type="text" id="novoNomeFornecedor" placeholder="Ex: Roly / Makito / CTT">
+          </div>
+          <div class="form-group">
+            <label for="novoPrecoPorte">Valor Portes s/ IVA:</label>
+            <div class="input-symbol">
+              <input type="text" id="novoPrecoPorte" placeholder="0.00">
+              <span>€</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="button" class="btn btn-primary" onclick="guardarNovoFornecedorBD()">Guardar</button>
+            <button type="button" class="btn btn-outline" onclick="alternarFormNovoFornecedor()">Cancelar</button>
+          </div>
         </div>
       </section>
 
@@ -236,6 +275,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=2.1"></script>
+  <script src="script.js?v=2.2"></script>
 </body>
 </html>
