@@ -1,123 +1,116 @@
 :root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --success: #16a34a;
-  --success-light: #f0fdf4;
-  --danger: #dc2626;
-  --danger-light: #fef2f2;
-  --bg-main: #f1f5f9;
+  --bg-color: #f8fafc;
   --card-bg: #ffffff;
-  --text-title: #0f172a;
-  --text-body: #334155;
+  --text-main: #0f172a;
   --text-muted: #64748b;
-  --border: #e2e8f0;
-  --radius: 10px;
+  --border-color: #e2e8f0;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --radius: 12px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
+/* Base e Reset */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg-main);
-  color: var(--text-body);
-  padding: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.5;
+  padding: 12px;
 }
 
 .app-layout {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* TOPBAR */
+/* Header / Topbar */
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: var(--card-bg);
-  padding: 16px 24px;
+  padding: 16px;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .brand h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-title);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .badge-pro {
-  background: var(--primary);
-  color: #fff;
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: #dbeafe;
+  color: var(--primary);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 20px;
 }
 
 .topbar-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* BOTÕES */
-.btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
+.topbar-actions .btn {
+  flex: 1;
 }
 
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-hover); }
-.btn-secondary { background: #cbd5e1; color: var(--text-title); }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-body); }
-.btn-outline:hover { background: #f8fafc; }
-.btn-danger-outline { background: transparent; border: 1px solid #fca5a5; color: var(--danger); }
-.btn-danger-outline:hover { background: var(--danger-light); }
-.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-
-/* DASHBOARD GRID (3 COLUNAS) */
+/* Dashboard Grid System */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 320px 1fr 1fr;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
-@media (max-width: 1100px) {
+/* Media Query para Tablet / Desktop */
+@media (min-width: 900px) {
+  body {
+    padding: 24px;
+  }
+  
+  .topbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .topbar-actions {
+    flex: initial;
+  }
+  
   .dashboard-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 320px 1fr 360px;
   }
 }
 
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* CARDS */
+/* Cartões */
 .card {
   background: var(--card-bg);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 16px;
   box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
 }
 
 .card-header {
@@ -125,50 +118,53 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
 }
 
 .card-header h2 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-title);
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-/* FORMULÁRIOS */
+/* Formulários e Inputs no Telemóvel */
 .form-group {
   margin-bottom: 14px;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--text-muted);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-.form-group input, .form-group select {
+input[type="text"],
+input[type="number"],
+select {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  color: var(--text-title);
+  height: 44px; /* Tamanho tátil ideal para telemóveis */
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
   background-color: #fff;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-.form-group input:focus, .form-group select:focus {
-  outline: none;
+input:focus, select:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
-.form-row .form-group { flex: 1; }
 
 .input-symbol {
   position: relative;
@@ -176,73 +172,141 @@ body {
   align-items: center;
 }
 
-.input-symbol input { padding-right: 25px; }
-.input-symbol span { position: absolute; right: 10px; font-weight: 600; color: var(--text-muted); }
+.input-symbol input {
+  padding-right: 30px;
+}
 
-.hidden { display: none !important; }
+.input-symbol span {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Botões */
+.btn {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:active {
+  background-color: var(--primary-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-danger-outline {
+  background-color: transparent;
+  border: 1px solid #fca5a5;
+  color: var(--danger);
+}
+
+.btn-secondary {
+  background-color: #e2e8f0;
+  color: var(--text-main);
+}
+
+.btn-sm {
+  height: 36px;
+  font-size: 0.85rem;
+}
+
+/* Caixas e Módulos Específicos */
+.db-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.novo-artigo-box {
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.novo-artigo-box h4 {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
 
 .divider {
   border: 0;
   height: 1px;
-  background: var(--border);
+  background: var(--border-color);
   margin: 16px 0;
 }
 
-/* BASE DE DADOS */
-.db-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.novo-artigo-box {
-  background: #f8fafc;
-  border: 1px dashed var(--border);
-  padding: 12px;
-  border-radius: 6px;
-  margin-top: 10px;
-}
-
-.novo-artigo-box h4 {
-  font-size: 0.85rem;
-  margin-bottom: 10px;
-  color: var(--text-title);
-}
-
 .db-info-box {
-  background: var(--primary-light);
-  border: 1px solid #bfdbfe;
+  background: #eff6ff;
   padding: 12px;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
 }
 
-.db-info-label { font-size: 0.75rem; color: var(--text-muted); }
-.db-info-title { font-size: 0.95rem; color: var(--primary); margin: 2px 0; }
-.db-info-price { font-size: 0.85rem; font-weight: 600; color: var(--text-title); }
-
-/* RESULTADOS */
-.badge {
-  background: var(--primary-light);
-  color: var(--primary);
-  padding: 3px 8px;
-  border-radius: 12px;
+.db-info-label {
   font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.db-info-title {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.db-info-price {
+  font-size: 0.85rem;
+  color: var(--primary);
   font-weight: 600;
 }
 
+/* Cartão de Resultados e Preço */
 .price-banner {
-  background: var(--primary);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-align: center;
   margin-bottom: 16px;
 }
 
-.price-title { font-size: 0.8rem; opacity: 0.9; }
-.price-value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+.price-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+}
+
+.price-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
 
 .metrics-grid {
   display: grid;
@@ -253,83 +317,114 @@ body {
 
 .metric-item {
   background: #f8fafc;
-  border: 1px solid var(--border);
   padding: 10px;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
 }
 
 .metric-item.success {
-  background: var(--success-light);
+  background: #f0fdf4;
   border-color: #bbf7d0;
 }
 
-.metric-item.success .m-value { color: var(--success); }
+.m-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+}
 
-.m-label { font-size: 0.75rem; color: var(--text-muted); }
-.m-value { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
+.m-value {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 2px;
+  display: block;
+}
+
+.metric-item.success .m-value {
+  color: var(--success);
+}
 
 .details-list {
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .details-list h3, .escaloes-box h3 {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .d-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   padding: 4px 0;
 }
 
 .d-row.highlight {
-  border-top: 1px dashed var(--border);
+  border-top: 1px dashed var(--border-color);
   padding-top: 8px;
-  margin-top: 4px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-.d-row.info { color: var(--text-muted); font-size: 0.8rem; }
-
-/* COMPARATIVO ESCALÕES */
+/* Escalões em Grelha Horizontal Scrollável no Telemóvel */
 .escaloes-list {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .escalao-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.8rem;
+  flex: 0 0 auto;
+  min-width: 90px;
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.escalao-item span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.escalao-item strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-top: 2px;
 }
 
 .escalao-item.active {
-  background: var(--primary-light);
-  border-color: #bfdbfe;
-  font-weight: 700;
+  background: #eff6ff;
+  border-color: var(--primary);
 }
 
-.print-only { display: none; }
+.escalao-item.active strong {
+  color: var(--primary);
+}
 
-/* IMPRESSÃO */
+.badge {
+  background: #e2e8f0;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Impressão */
+.print-only {
+  display: none;
+}
+
 @media print {
-  body { background: #fff; padding: 0; }
   .no-print { display: none !important; }
-  .dashboard-grid { grid-template-columns: 1fr; }
-  .card { box-shadow: none; border: none; padding: 0; }
-  .print-only { display: block; margin-top: 30px; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+  .print-only { display: block !important; }
+  body { background: white; padding: 0; }
+  .card { box-shadow: none; border: none; }
 }
