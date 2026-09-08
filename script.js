@@ -12,12 +12,38 @@ const ARTIGOS_PADRAO = [
 
 let artigosBD = [];
 
+// ESCALA REGRESSIVA DE MARGEM POR UNIDADE (€)
+// Ajusta aqui os teus patamares de lucro por t-shirt:
+const ESCALAO_MARGEM_FIXA = [
+  { min: 1, max: 4, margemUn: 7.00 },   // 1 a 4 un: 7,00 € de lucro por peça
+  { min: 5, max: 9, margemUn: 6.80 },   // 5 a 9 un: 6,80 € de lucro por peça
+  { min: 10, max: 24, margemUn: 6.50 }, // 10 a 24 un: 6,50 € de lucro por peça
+  { min: 25, max: 49, margemUn: 5.50 }, // 25 a 49 un: 5,50 € de lucro por peça
+  { min: 50, max: 99, margemUn: 4.50 }, // 50 a 99 un: 4,50 € de lucro por peça
+  { min: 100, max: Infinity, margemUn: 3.50 } // 100+ un: 3,50 € de lucro por peça
+];
+
+function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
+  if (tipoMargem === 'percentagem') {
+    return custoUnComIva * (valMargemInput / 100);
+  }
+  
+  // Se for "fixo", procura o escalão regressivo
+  const escalao = ESCALAO_MARGEM_FIXA.find(e => qtd >= e.min && qtd <= e.max);
+  if (escalao) {
+    return escalao.margemUn;
+  }
+  
+  // Caso a quantidade não se enquadre, assume o valor do input
+  return valMargemInput;
+}
+
 // Tabela de Preços de Personalização
 const TECNICAS = {
   dtf: {
     obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
-      const margemPerda = 1.05; // 5% de margem de perda
-      const larguraFilmeCm = 28; // Rolo A3 / 30cm (área útil 28cm)
+      const margemPerda = 1.05; // 5% de perda
+      const larguraFilmeCm = 28; // Área útil 28cm
       
       const areaTotal = (alturaCm / 100) * (larguraCm / 100) * qtd * margemPerda;
       const metrosTotais = areaTotal / (larguraFilmeCm / 100);
@@ -92,6 +118,7 @@ function guardarBD() {
 
 function atualizarSeletorArtigos() {
   const select = document.getElementById('seletorArtigo');
+  if (!select) return;
   select.innerHTML = '';
 
   if (artigosBD.length === 0) {
@@ -126,7 +153,6 @@ function selecionarArtigoBD() {
   calcular();
 }
 
-// Abertura/fecho garantida
 function alternarFormNovoArtigo() {
   const box = document.getElementById('formNovoArtigo');
   if (!box) return;
@@ -138,7 +164,6 @@ function alternarFormNovoArtigo() {
   }
 }
 
-// Guardar artigo com suporte a vírgulas e pontos
 function guardarNovoArtigoBD() {
   const inputNome = document.getElementById('novoNomeArtigo');
   const inputPreco = document.getElementById('novoPrecoArtigo');
@@ -240,22 +265,18 @@ function calcular() {
     resImpressao = config.obterCusto(qtd, numCores);
   }
 
-  // Totais de Custo
+  // Custo por unidade com IVA
   const portesPorPecaComIva = portesFornecedorComIva / qtd;
   const custoTotalUnComIva = custoPecaBaseComIva + resImpressao.custoUnComIva + portesPorPecaComIva;
-  const custoTotalLoteComIva = custoTotalUnComIva * qtd;
 
-  // CÁLCULO DA MARGEM
-  let lucroUn = 0;
-  if (tipoMargem === 'fixo') {
-    lucroUn = valMargem / qtd;
-  } else {
-    lucroUn = custoTotalUnComIva * (valMargem / 100);
-  }
+  // Lógica da Margem Unitária Regressiva
+  const lucroUn = obterMargemPorUnidade(qtd, valMargem, tipoMargem, custoTotalUnComIva);
+  const lucroTotal = lucroUn * qtd;
 
+  // Preço de venda unitário e totais
   const precoVendaUn = custoTotalUnComIva + lucroUn;
   const totalComercial = precoVendaUn * qtd;
-  const lucroTotal = lucroUn * qtd;
+  const custoTotalLoteComIva = custoTotalUnComIva * qtd;
 
   // Atualizar UI
   document.getElementById('escalaoBadge').innerText = `Escalão ≥ ${resImpressao.minEscalao} un`;
@@ -268,12 +289,18 @@ function calcular() {
   document.getElementById('resPortes').innerText = formatarMoeda(portesFornecedorComIva);
   document.getElementById('resCustoTotalLote').innerText = formatarMoeda(custoTotalLoteComIva);
 
+  const elMargemUn = document.getElementById('resMargemUn');
+  if (elMargemUn) {
+    elMargemUn.innerText = `${formatarMoeda(lucroUn)} / un`;
+  }
+
   gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargem);
 }
 
 function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargem) {
   const listaEscaloes = [1, 10, 25, 50, 100];
   const container = document.getElementById('tabelaComparativa');
+  if (!container) return;
   container.innerHTML = '';
 
   listaEscaloes.forEach(q => {
@@ -291,15 +318,7 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
     }
 
     const custoUn = custoPecaComIva + res.custoUnComIva + (portesComIva / q);
-    
-    // Cálculo rigoroso da margem para cada escalão
-    let lucroUn = 0;
-    if (tipoMargem === 'fixo') {
-      lucroUn = valMargem / q; // Dilui o valor fixo pela quantidade
-    } else {
-      lucroUn = custoUn * (valMargem / 100); // Aplica a % sobre o custo unitário do escalão
-    }
-
+    const lucroUn = obterMargemPorUnidade(q, valMargem, tipoMargem, custoUn);
     const precoVendaUn = custoUn + lucroUn;
 
     const div = document.createElement('div');
@@ -335,4 +354,4 @@ document.addEventListener('DOMContentLoaded', () => {
   alternarTecnica();
   carregarBD();
 });
-       
+          
