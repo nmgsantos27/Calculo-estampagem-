@@ -98,7 +98,6 @@ function carregarBD() {
     const guardados = localStorage.getItem('artigosBD');
     if (guardados) {
       let lidos = JSON.parse(guardados);
-      // Filtra e remove automaticamente itens inválidos ou "undefined"
       artigosBD = lidos.filter(a => a && a.id && a.nome && a.nome !== 'undefined');
     } else {
       artigosBD = [...ARTIGOS_PADRAO];
@@ -140,7 +139,12 @@ function atualizarSeletorArtigos() {
     select.appendChild(opt);
   });
 
-  selecionarArtigoBD();
+  // Mostra o nome do primeiro artigo na caixa, mas NAO altera o valor digitado no HTML
+  const artigo = artigosBD[0];
+  if (artigo) {
+    document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
+    document.getElementById('custoArtigoAtivo').innerText = `${parseNum(artigo.preco).toFixed(2).replace('.', ',')} € s/ IVA`;
+  }
 }
 
 function selecionarArtigoBD() {
@@ -349,10 +353,11 @@ function copiarResumo() {
   });
 }
 
-// Inicialização e Registo do Service Worker para PWA
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
   alternarTecnica();
   carregarBD();
+  calcular(); // Recalcula com base estrita no HTML
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
@@ -360,3 +365,4 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch((err) => console.log('Erro ao registar Service Worker:', err));
   }
 });
+    
