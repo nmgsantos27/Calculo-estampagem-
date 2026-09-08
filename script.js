@@ -1,5 +1,14 @@
 const TAXA_IVA = 1.23;
 
+// Função auxiliar crítica: Converte input (mesmo com vírgula) em número real válido
+function parseNum(valor) {
+  if (typeof valor === 'number') return valor;
+  if (!valor) return 0;
+  const limpo = valor.toString().replace(',', '.');
+  const num = parseFloat(limpo);
+  return isNaN(num) ? 0 : num;
+}
+
 // Base de Dados Padrão Inicial
 const ARTIGOS_PADRAO = [
   { id: '1', nome: 'T-Shirt Algodão 150g', preco: 1.85 },
@@ -13,14 +22,13 @@ const ARTIGOS_PADRAO = [
 let artigosBD = [];
 
 // ESCALA REGRESSIVA DE MARGEM POR UNIDADE (€)
-// Ajusta aqui os teus patamares de lucro por t-shirt:
 const ESCALAO_MARGEM_FIXA = [
-  { min: 1, max: 4, margemUn: 7.00 },   // 1 a 4 un: 7,00 € de lucro por peça
-  { min: 5, max: 9, margemUn: 6.80 },   // 5 a 9 un: 6,80 € de lucro por peça
-  { min: 10, max: 24, margemUn: 6.50 }, // 10 a 24 un: 6,50 € de lucro por peça
-  { min: 25, max: 49, margemUn: 5.50 }, // 25 a 49 un: 5,50 € de lucro por peça
-  { min: 50, max: 99, margemUn: 4.50 }, // 50 a 99 un: 4,50 € de lucro por peça
-  { min: 100, max: Infinity, margemUn: 3.50 } // 100+ un: 3,50 € de lucro por peça
+  { min: 1, max: 4, margemUn: 7.00 },   // 1 a 4 un: 7,00 € de lucro/un
+  { min: 5, max: 9, margemUn: 6.80 },   // 5 a 9 un: 6,80 € de lucro/un
+  { min: 10, max: 24, margemUn: 6.50 }, // 10 a 24 un: 6,50 € de lucro/un
+  { min: 25, max: 49, margemUn: 5.50 }, // 25 a 49 un: 5,50 € de lucro/un
+  { min: 50, max: 99, margemUn: 4.50 }, // 50 a 99 un: 4,50 € de lucro/un
+  { min: 100, max: Infinity, margemUn: 3.50 } // 100+ un: 3,50 € de lucro/un
 ];
 
 function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
@@ -28,13 +36,12 @@ function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
     return custoUnComIva * (valMargemInput / 100);
   }
   
-  // Se for "fixo", procura o escalão regressivo
+  // Se for "fixo", procura o escalão regressivo de lucro unitário
   const escalao = ESCALAO_MARGEM_FIXA.find(e => qtd >= e.min && qtd <= e.max);
   if (escalao) {
     return escalao.margemUn;
   }
   
-  // Caso a quantidade não se enquadre, assume o valor do input
   return valMargemInput;
 }
 
@@ -134,7 +141,7 @@ function atualizarSeletorArtigos() {
   artigosBD.forEach(artigo => {
     const opt = document.createElement('option');
     opt.value = artigo.id;
-    opt.textContent = `${artigo.nome} (${artigo.preco.toFixed(2)} €)`;
+    opt.textContent = `${artigo.nome} (${parseNum(artigo.preco).toFixed(2)} €)`;
     select.appendChild(opt);
   });
 
@@ -146,9 +153,10 @@ function selecionarArtigoBD() {
   const artigo = artigosBD.find(a => a.id === idSel);
 
   if (artigo) {
+    const precoNum = parseNum(artigo.preco);
     document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
-    document.getElementById('custoArtigoAtivo').innerText = `${artigo.preco.toFixed(2).replace('.', ',')} € s/ IVA`;
-    document.getElementById('custoPeca').value = artigo.preco.toFixed(2);
+    document.getElementById('custoArtigoAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
+    document.getElementById('custoPeca').value = precoNum.toFixed(2);
   }
   calcular();
 }
@@ -171,15 +179,14 @@ function guardarNovoArtigoBD() {
   if (!inputNome || !inputPreco) return;
 
   const nome = inputNome.value.trim();
-  const precoValor = inputPreco.value.replace(',', '.');
-  const preco = parseFloat(precoValor);
+  const preco = parseNum(inputPreco.value);
 
   if (!nome) {
     alert('Por favor introduza o nome do artigo.');
     return;
   }
 
-  if (isNaN(preco) || preco <= 0) {
+  if (preco <= 0) {
     alert('Por favor introduza um preço válido maior que 0.');
     return;
   }
@@ -216,12 +223,12 @@ function eliminarArtigoAtivo() {
 // --- FUNÇÕES DE CÁLCULO E INTERFACE ---
 
 function formatarMoeda(valor) {
-  return (parseFloat(valor) || 0).toFixed(2).replace('.', ',') + ' €';
+  return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
 }
 
 function formatarInputDecimal(input) {
   if (input.value !== "") {
-    input.value = (parseFloat(input.value) || 0).toFixed(2);
+    input.value = parseNum(input.value).toFixed(2);
   }
 }
 
@@ -243,21 +250,25 @@ function alternarTecnica() {
 }
 
 function calcular() {
-  const qtd = parseInt(document.getElementById('quantidade').value) || 1;
-  const custoPecaBaseComIva = (parseFloat(document.getElementById('custoPeca').value) || 0) * TAXA_IVA;
-  const portesFornecedorComIva = (parseFloat(document.getElementById('portesFornecedor').value) || 0) * TAXA_IVA;
+  // Leitura segura de todos os inputs numéricos
+  const qtd = Math.max(1, parseInt(document.getElementById('quantidade').value) || 1);
+  const custoPecaBase = parseNum(document.getElementById('custoPeca').value);
+  const portesFornecedorBase = parseNum(document.getElementById('portesFornecedor').value);
+  
+  const custoPecaBaseComIva = custoPecaBase * TAXA_IVA;
+  const portesFornecedorComIva = portesFornecedorBase * TAXA_IVA;
   
   const tecnica = document.getElementById('tecnica').value;
   const tipoMargem = document.getElementById('tipoMargem').value;
-  const valMargem = parseFloat(document.getElementById('valMargem').value) || 0;
+  const valMargemInput = parseNum(document.getElementById('valMargem').value);
 
   const config = TECNICAS[tecnica];
   let resImpressao = { custoUnComIva: 0, minEscalao: 1, metrosTotais: 0 };
 
   if (tecnica === 'dtf') {
-    const custoMetro = parseFloat(document.getElementById('custoMetroDTF').value) || 0;
-    const alt = parseFloat(document.getElementById('alturaEstampaDTF').value) || 0;
-    const larg = parseFloat(document.getElementById('larguraEstampaDTF').value) || 0;
+    const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
+    const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
+    const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
     resImpressao = config.obterCusto(qtd, custoMetro, alt, larg);
     document.getElementById('resConsumoFilme').innerText = `${resImpressao.metrosTotais.toFixed(2).replace('.', ',')} m`;
   } else {
@@ -265,20 +276,20 @@ function calcular() {
     resImpressao = config.obterCusto(qtd, numCores);
   }
 
-  // Custo por unidade com IVA
+  // 1. Custo por unidade com IVA
   const portesPorPecaComIva = portesFornecedorComIva / qtd;
   const custoTotalUnComIva = custoPecaBaseComIva + resImpressao.custoUnComIva + portesPorPecaComIva;
 
-  // Lógica da Margem Unitária Regressiva
-  const lucroUn = obterMargemPorUnidade(qtd, valMargem, tipoMargem, custoTotalUnComIva);
+  // 2. Lucro/Margem por unidade (Número garantido)
+  const lucroUn = parseNum(obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoTotalUnComIva));
   const lucroTotal = lucroUn * qtd;
 
-  // Preço de venda unitário e totais
+  // 3. Preço de Venda Final por Unidade = CUSTO + MARGEM (Soma numal matemática)
   const precoVendaUn = custoTotalUnComIva + lucroUn;
   const totalComercial = precoVendaUn * qtd;
   const custoTotalLoteComIva = custoTotalUnComIva * qtd;
 
-  // Atualizar UI
+  // Atualização na Interface
   document.getElementById('escalaoBadge').innerText = `Escalão ≥ ${resImpressao.minEscalao} un`;
   document.getElementById('resPrecoUn').innerText = formatarMoeda(precoVendaUn);
   document.getElementById('resTotalComercial').innerText = formatarMoeda(totalComercial);
@@ -294,10 +305,10 @@ function calcular() {
     elMargemUn.innerText = `${formatarMoeda(lucroUn)} / un`;
   }
 
-  gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargem);
+  gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
 }
 
-function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargem) {
+function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargemInput) {
   const listaEscaloes = [1, 10, 25, 50, 100];
   const container = document.getElementById('tabelaComparativa');
   if (!container) return;
@@ -308,9 +319,9 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
     let res = { custoUnComIva: 0 };
 
     if (tecnica === 'dtf') {
-      const custoMetro = parseFloat(document.getElementById('custoMetroDTF').value) || 0;
-      const alt = parseFloat(document.getElementById('alturaEstampaDTF').value) || 0;
-      const larg = parseFloat(document.getElementById('larguraEstampaDTF').value) || 0;
+      const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
+      const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
+      const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
       res = config.obterCusto(q, custoMetro, alt, larg);
     } else {
       const numCores = parseInt(document.getElementById('numCores').value) || 1;
@@ -318,7 +329,7 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
     }
 
     const custoUn = custoPecaComIva + res.custoUnComIva + (portesComIva / q);
-    const lucroUn = obterMargemPorUnidade(q, valMargem, tipoMargem, custoUn);
+    const lucroUn = parseNum(obterMargemPorUnidade(q, valMargemInput, tipoMargem, custoUn));
     const precoVendaUn = custoUn + lucroUn;
 
     const div = document.createElement('div');
@@ -354,4 +365,4 @@ document.addEventListener('DOMContentLoaded', () => {
   alternarTecnica();
   carregarBD();
 });
-          
+      
