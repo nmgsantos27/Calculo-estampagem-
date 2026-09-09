@@ -5,7 +5,7 @@
 // ============================================================
 
 var TAXA_IVA = 1.23;
-var STORAGE_KEY = "grafisantos_v2";
+var STORAGE_KEY = "grafisantos_v3";
 
 // ============================================================
 //  UTILITÁRIOS
@@ -27,7 +27,7 @@ function gerarId() {
 }
 
 // ============================================================
-//  DADOS PADRÃO (BASE DE DADOS INICIAL)
+//  DADOS PADRÃO
 // ============================================================
 
 var DADOS_PADRAO = {
@@ -75,7 +75,7 @@ var materialId = null;
 var tecnicaId = null;
 
 // ============================================================
-//  PERSISTÊNCIA (localStorage)
+//  PERSISTÊNCIA
 // ============================================================
 
 function carregarDados() {
@@ -118,7 +118,7 @@ function obterTecnica(id) {
 }
 
 // ============================================================
-//  FORNECEDORES - CRUD
+//  FORNECEDORES
 // ============================================================
 
 function renderFornecedores() {
@@ -203,7 +203,7 @@ function eliminarFornecedor() {
 }
 
 // ============================================================
-//  MATERIAIS - CRUD
+//  MATERIAIS
 // ============================================================
 
 function renderMateriais() {
@@ -307,7 +307,7 @@ function eliminarMaterial() {
 }
 
 // ============================================================
-//  TÉCNICAS - CRUD
+//  TÉCNICAS
 // ============================================================
 
 function renderTecnicas() {
@@ -621,30 +621,4 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         console.log("Erro:", e);
     }
-});
-
-// ============================================================
-//  SUPORTE PARA CLIQUE EM DISPOSITIVOS MÓVEIS
-// ============================================================
-
-// Adicionar suporte touch para todos os botões com onclick
-document.addEventListener('DOMContentLoaded', function() {
-    var botoes = document.querySelectorAll('[onclick]');
-    botoes.forEach(function(btn) {
-        btn.addEventListener('touchstart', function(e) {
-            // Prevenir duplo clique
-            if (this._clicado) return;
-            this._clicado = true;
-            // Executar o onclick
-            var funcao = this.getAttribute('onclick');
-            if (funcao) {
-                try {
-                    eval(funcao);
-                } catch (er) {}
-            }
-            setTimeout(function() {
-                btn._clicado = false;
-            }, 300);
-        });
-    });
 });
