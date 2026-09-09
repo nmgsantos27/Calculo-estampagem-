@@ -1,1 +1,1746 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    <title>GrafiSantos Print</title>
+    <style>
+        /* ===== VARIÁVEIS ===== */
+        :root {
+            --primary: #1e293b;
+            --primary-light: #334155;
+            --secondary: #2563eb;
+            --secondary-light: #3b82f6;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --transition: all 0.2s ease;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 520px;
+            width: 100%;
+        }
+
+        /* ===== HEADER COM LOGO ===== */
+        .header {
+            background: var(--primary);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(30, 41, 59, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(37, 99, 235, 0.10);
+            border-radius: 50%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1;
+        }
+
+        .header-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-title {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header-title span {
+            color: #93c5fd;
+        }
+
+        .header-sub {
+            color: #94a3b8;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            z-index: 1;
+        }
+
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-actions .btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ===== BOTÕES ===== */
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.78rem;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-cancel {
+            background: #94a3b8;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:active {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        /* ===== ÍCONES ===== */
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: var(--transition);
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+            background: #f1f5f9;
+        }
+
+        .btn-icon-danger {
+            border-color: #fca5a5;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .btn-icon-danger:active {
+            background: #fecaca;
+        }
+
+        .btn-pequeno {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-resultados {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .card-resultados .result-row {
+            border-bottom: 1px solid rgba(191, 219, 254, 0.4);
+            padding: 5px 0;
+        }
+
+        .card-resultados .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== FLEX E CAMPOS ===== */
+        .flex {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .flex-grow {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+        }
+
+        .field label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .field input,
+        .field select {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            width: 100%;
+            background: #fff;
+            touch-action: manipulation;
+            transition: var(--transition);
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .field input:read-only {
+            background: #f8fafc;
+            cursor: default;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== FORMULÁRIOS ===== */
+        .form-panel {
+            background: #f8fafc;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1.5px dashed var(--border);
+            margin-top: 8px;
+        }
+
+        .form-panel h4 {
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-panel input {
+            margin-bottom: 8px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-row .btn {
+            flex: 1;
+        }
+
+        /* ===== VARIANTES ===== */
+        .variante-item {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .variante-item span {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .variante-item .preco {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .variante-item .cor-bolinha {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .lista-variantes {
+            margin-top: 6px;
+        }
+
+        .btn-add-variante {
+            margin-top: 6px;
+            padding: 8px 12px;
+            border: 1.5px dashed var(--secondary);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .btn-add-variante:active {
+            background: #eff6ff;
+        }
+
+        .variante-form {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .variante-form input {
+            flex: 1;
+            min-width: 60px;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .variante-form .btn {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+        }
+
+        .variante-form .input-cor {
+            width: 40px;
+            height: 40px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* ===== RESULTADOS ===== */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85rem;
+        }
+
+        .result-destaque {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .result-total {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            border-top: 2px solid #bfdbfe;
+            padding-top: 6px;
+            margin-top: 4px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid #bfdbfe;
+            margin: 8px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .grid-escaloes {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .escalao-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 6px 2px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        .escalao-item.active {
+            background: var(--secondary);
+            color: #fff;
+            border-color: var(--secondary);
+        }
+
+        .escalao-item strong {
+            display: block;
+            font-size: 0.8rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer-info {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .footer-info strong {
+            color: var(--text);
+        }
+
+        /* ===== EURO ===== */
+        .campo-euro {
+            position: relative;
+        }
+
+        .campo-euro input {
+            padding-left: 24px;
+        }
+
+        .campo-euro .simbolo-euro {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .campo-euro .simbolo-euro-topo {
+            position: absolute;
+            left: 10px;
+            top: 28px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        /* ===== DEBUG ===== */
+        #debugErro {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none;
+            font-size: 0.8rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .flex {
+                gap: 6px;
+            }
+            .header-title {
+                font-size: 0.95rem;
+            }
+            .header-logo {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+            .btn-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+            .header-actions .btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            .card {
+                border: 1px solid #ccc;
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+            .header {
+                background: #1e293b !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .header-title {
+                color: #fff !important;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+    </script>
+</head>
+<body>
+
+    <div class="container" id="areaParaPdf">
+
+        <div id="debugErro"></div>
+
+        <!-- ===== HEADER COM LOGO ===== -->
+        <div class="header no-print">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="icon-192.png" alt="GrafiSantos" onerror="this.innerHTML='GS'">
+                </div>
+                <div>
+                    <div class="header-title">Grafi<span>Santos</span></div>
+                    <div class="header-sub">Calculadora de Estampagem</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="copiarResumo()">📋</button>
+                <button class="btn" onclick="gerarPDF()">📄</button>
+                <button class="btn" onclick="window.print()">🖨️</button>
+            </div>
+        </div>
+
+        <!-- ===== FORNECEDORES ===== -->
+        <div class="card no-print">
+            <div class="section-title">📦 Fornecedor</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar</label>
+                    <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
+                </div>
+            </div>
+            <div class="form-panel hidden" id="formFornecedor">
+                <h4 id="tituloFornecedor">Novo fornecedor</h4>
+                <input type="hidden" id="editFornecedorId">
+                <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
+                <div class="campo-euro">
+                    <span class="simbolo-euro">€</span>
+                    <input type="number" id="inputPortesFornecedor" placeholder="Portes" step="0.01">
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MATERIAIS ===== -->
+        <div class="card no-print">
+            <div class="section-title">👕 Material</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar</label>
+                    <select id="selMaterial" onchange="onChangeMaterial()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
+                </div>
+            </div>
+
+            <div id="listaVariantes" class="lista-variantes">
+                <div style="font-size:0.7rem;color:var(--text-light);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">Cores disponíveis</div>
+                <div id="variantesContainer"></div>
+            </div>
+
+            <div class="form-panel hidden" id="formMaterial">
+                <h4 id="tituloMaterial">Novo material</h4>
+                <input type="hidden" id="editMaterialId">
+                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material">
+
+                <div style="margin-top:8px;font-size:0.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.3px;">Cores e Preços</div>
+                <div id="variantesFormContainer">
+                    <div class="variante-form" id="varianteFormTemplate">
+                        <input type="color" class="inputCor" value="#ffffff" style="width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer;">
+                        <input type="text" class="inputVarianteNome" placeholder="Nome da cor" style="flex:1.5;">
+                        <div class="campo-euro" style="flex:1;">
+                            <span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>
+                            <input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;">
+                        </div>
+                        <button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>
+                    </div>
+                </div>
+                <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
+
+                <div class="btn-row" style="margin-top:8px;">
+                    <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TÉCNICAS ===== -->
+        <div class="card no-print">
+            <div class="section-title">🖨️ Técnica</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar</label>
+                    <select id="selTecnica" onchange="onChangeTecnica()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
+                </div>
+            </div>
+            <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:var(--text-light);background:#f8fafc;padding:6px 12px;border-radius:8px;border:1px solid var(--border);">
+                <span id="infoTecNome">Nenhuma técnica selecionada</span>
+                <span id="infoTecDetalhes"></span>
+            </div>
+            <div class="form-panel hidden" id="formTecnica">
+                <h4 id="tituloTecnica">Nova técnica</h4>
+                <input type="hidden" id="editTecnicaId">
+                <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica">
+                <div class="grid-2">
+                    <div class="field" style="margin-bottom:0;">
+                        <label>Custo/Metro (€)</label>
+                        <div class="campo-euro">
+                            <span class="simbolo-euro">€</span>
+                            <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
+                        </div>
+                    </div>
+                    <div class="field" style="margin-bottom:0;">
+                        <label>Largura (cm)</label>
+                        <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
+                    </div>
+                </div>
+                <div class="btn-row" style="margin-top:8px;">
+                    <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CÁLCULO ===== -->
+        <div class="card">
+            <div class="section-title">📐 Dimensões</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Altura (cm)</label>
+                    <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
+                </div>
+                <div class="field" style="background:#f8fafc;border-radius:8px;padding:4px 12px;border:1.5px solid var(--border);">
+                    <label style="color:var(--text-light);">Largura (técnica)</label>
+                    <div style="font-size:1.1rem;font-weight:700;color:var(--secondary);padding:6px 0;" id="larguraExibida">28 cm</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Quantidade</label>
+                    <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
+                </div>
+                <div class="field">
+                    <label>Cor</label>
+                    <select id="selVariante" onchange="onChangeVariante()">
+                        <option value="">Selecione uma cor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field campo-euro">
+                    <label>Custo Peça (s/IVA)</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;">
+                </div>
+                <div class="field campo-euro">
+                    <label>Portes (s/IVA)</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field campo-euro">
+                    <label>Margem</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                    <label>Tipo</label>
+                    <select id="tipoMargem" onchange="calcular()">
+                        <option value="valor">Valor Fixo (€)</option>
+                        <option value="percentagem">Percentagem (%)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RESULTADOS ===== -->
+        <div class="card card-resultados">
+            <div class="result-row result-destaque">
+                <span>💰 Preço Venda / Un (c/IVA)</span>
+                <strong id="resPrecoUn">0,00 €</strong>
+            </div>
+            <div class="result-row result-total">
+                <span>📊 Total Comercial</span>
+                <strong id="resTotalComercial">0,00 €</strong>
+            </div>
+            <hr>
+            <div class="result-row"><span>🧾 Material</span><span id="resCustoMaterial">0,00 €</span></div>
+            <div class="result-row"><span>🖨️ Impressão</span><span id="resCustoImpr">0,00 €</span></div>
+            <div class="result-row"><span>📦 Portes</span><span id="resPortes">0,00 €</span></div>
+            <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo</span><span id="resConsumo">0,00 m</span></div>
+            <div class="result-row"><span>📋 Custo Total Lote</span><span id="resCustoTotal">0,00 €</span></div>
+            <div class="result-row"><span>📈 Lucro Unitário</span><span id="resLucroUn">0,00 €</span></div>
+            <div class="result-row"><span>📈 Lucro Total</span><span id="resLucroTotal">0,00 €</span></div>
+            <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
+            <div style="margin-top:10px;">
+                <div style="font-size:0.7rem;color:var(--text-light);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">Comparativo por Quantidade</div>
+                <div class="grid-escaloes" id="tabelaComparativa"></div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer-info">
+            <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  TODO O JAVASCRIPT (MANTIDO DA VERSÃO ANTERIOR)
+        // ============================================================
+
+        "use strict";
+
+        var TAXA_IVA = 1.23;
+        var STORAGE_KEY = "grafisantos_v4";
+        var MARGEM_KEY = "grafisantos_margem";
+
+        function parseNum(v) {
+            if (typeof v === "number") return isFinite(v) ? v : 0;
+            if (!v && v !== 0) return 0;
+            var n = parseFloat(String(v).replace(",", "."));
+            return isFinite(n) ? n : 0;
+        }
+
+        function moeda(v) {
+            return parseNum(v).toFixed(2).replace(".", ",") + " €";
+        }
+
+        function formatarNumero(v, casas) {
+            casas = casas || 2;
+            return parseNum(v).toFixed(casas);
+        }
+
+        function gerarId() {
+            return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+        }
+
+        // ============================================================
+        //  GUARDAR MARGEM
+        // ============================================================
+
+        function guardarMargem() {
+            var val = document.getElementById("valMargem").value;
+            try {
+                localStorage.setItem(MARGEM_KEY, val);
+            } catch (e) {}
+            calcular();
+        }
+
+        function carregarMargem() {
+            try {
+                var val = localStorage.getItem(MARGEM_KEY);
+                if (val !== null && val !== undefined && val !== "") {
+                    document.getElementById("valMargem").value = val;
+                }
+            } catch (e) {}
+        }
+
+        // ============================================================
+        //  DADOS PADRÃO
+        // ============================================================
+
+        var DADOS_PADRAO = {
+            fornecedores: [{
+                id: "f1",
+                nome: "Roly",
+                portes: 4.50,
+                materiais: [{
+                    id: "m1",
+                    nome: "T-Shirt Beagle 150g",
+                    variantes: [
+                        { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
+                        { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 },
+                        { id: "v3", nome: "Azul", cor: "#2563eb", preco: 1.95 }
+                    ]
+                }, {
+                    id: "m2",
+                    nome: "Polo Star 200g",
+                    variantes: [
+                        { id: "v4", nome: "Branco", cor: "#ffffff", preco: 5.20 },
+                        { id: "v5", nome: "Vermelho", cor: "#dc2626", preco: 5.50 }
+                    ]
+                }, {
+                    id: "m3",
+                    nome: "Hoodie Capuz Capuchana",
+                    variantes: [
+                        { id: "v6", nome: "Preto", cor: "#000000", preco: 9.80 },
+                        { id: "v7", nome: "Cinza", cor: "#94a3b8", preco: 9.50 }
+                    ]
+                }]
+            }, {
+                id: "f2",
+                nome: "Makito",
+                portes: 6.00,
+                materiais: [{
+                    id: "m4",
+                    nome: "T-Shirt Tecnic Sport",
+                    variantes: [
+                        { id: "v8", nome: "Branco", cor: "#ffffff", preco: 1.45 },
+                        { id: "v9", nome: "Preto", cor: "#000000", preco: 1.60 }
+                    ]
+                }, {
+                    id: "m5",
+                    nome: "Saco Algodão Tabela",
+                    variantes: [
+                        { id: "v10", nome: "Cru", cor: "#f5deb3", preco: 0.95 }
+                    ]
+                }]
+            }, {
+                id: "f3",
+                nome: "Levantar em Loja",
+                portes: 0,
+                materiais: [{
+                    id: "m6",
+                    nome: "Material do Cliente",
+                    variantes: [
+                        { id: "v11", nome: "Padrão", cor: "#e2e8f0", preco: 0 }
+                    ]
+                }]
+            }],
+            tecnicas: [
+                { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
+                { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 },
+                { id: "t3", nome: "Sublimação", custoMetro: 4.50, largura: 28 },
+                { id: "t4", nome: "Serigrafia", custoMetro: 0, largura: 0 },
+                { id: "t5", nome: "Bordado", custoMetro: 0, largura: 0 }
+            ]
+        };
+
+        var dados = null;
+        var fornecedorId = null;
+        var materialId = null;
+        var varianteId = null;
+        var tecnicaId = null;
+
+        // ============================================================
+        //  PERSISTÊNCIA
+        // ============================================================
+
+        function carregarDados() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (parsed && parsed.fornecedores && parsed.tecnicas) {
+                        dados = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {}
+            dados = JSON.parse(JSON.stringify(DADOS_PADRAO));
+            guardarDados();
+        }
+
+        function guardarDados() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+            } catch (e) {}
+        }
+
+        // ============================================================
+        //  ACESSORES
+        // ============================================================
+
+        function obterFornecedor(id) {
+            return dados.fornecedores.find(function(f) { return f.id === id; });
+        }
+
+        function obterMaterial(id) {
+            var f = obterFornecedor(fornecedorId);
+            if (!f) return null;
+            return f.materiais.find(function(m) { return m.id === id; });
+        }
+
+        function obterVariante(id) {
+            var m = obterMaterial(materialId);
+            if (!m) return null;
+            return m.variantes.find(function(v) { return v.id === id; });
+        }
+
+        function obterTecnica(id) {
+            return dados.tecnicas.find(function(t) { return t.id === id; });
+        }
+
+        // ============================================================
+        //  VARIANTES
+        // ============================================================
+
+        function adicionarVarianteForm() {
+            var container = document.getElementById("variantesFormContainer");
+            var template = document.getElementById("varianteFormTemplate");
+            var clone = template.cloneNode(true);
+            clone.id = "";
+            clone.style.display = "flex";
+            clone.querySelector(".inputCor").value = "#ffffff";
+            clone.querySelector(".inputVarianteNome").value = "";
+            clone.querySelector(".inputVariantePreco").value = "";
+            clone.classList.remove("hidden");
+            container.appendChild(clone);
+        }
+
+        function removerVarianteForm(btn) {
+            var container = document.getElementById("variantesFormContainer");
+            var item = btn.parentNode;
+            if (container.children.length <= 2) {
+                alert("⚠️ É necessário manter pelo menos uma cor.");
+                return;
+            }
+            container.removeChild(item);
+        }
+
+        function carregarVariantesForm(material) {
+            var container = document.getElementById("variantesFormContainer");
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+            var template = container.firstChild;
+            template.style.display = "flex";
+
+            if (material && material.variantes && material.variantes.length) {
+                container.innerHTML = "";
+                material.variantes.forEach(function(v) {
+                    var div = document.createElement("div");
+                    div.className = "variante-form";
+                    div.innerHTML = `
+                        <input type="color" class="inputCor" value="${v.cor || '#ffffff'}" style="width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer;">
+                        <input type="text" class="inputVarianteNome" placeholder="Nome da cor" style="flex:1.5;" value="${v.nome || ''}">
+                        <div class="campo-euro" style="flex:1;">
+                            <span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>
+                            <input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="${formatarNumero(v.preco, 2)}">
+                        </div>
+                        <button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>
+                        <input type="hidden" class="inputVarianteId" value="${v.id || ''}">
+                    `;
+                    container.appendChild(div);
+                });
+            } else {
+                container.innerHTML = "";
+                var template2 = document.getElementById("varianteFormTemplate").cloneNode(true);
+                template2.id = "";
+                template2.style.display = "flex";
+                template2.querySelector(".inputCor").value = "#ffffff";
+                template2.querySelector(".inputVarianteNome").value = "";
+                template2.querySelector(".inputVariantePreco").value = "";
+                container.appendChild(template2);
+            }
+        }
+
+        function obterVariantesDoForm() {
+            var variantes = [];
+            var items = document.querySelectorAll("#variantesFormContainer .variante-form");
+            items.forEach(function(item) {
+                var nome = item.querySelector(".inputVarianteNome").value.trim();
+                var preco = parseNum(item.querySelector(".inputVariantePreco").value);
+                var cor = item.querySelector(".inputCor").value;
+                var id = item.querySelector(".inputVarianteId");
+                if (nome) {
+                    variantes.push({
+                        id: id ? id.value || gerarId() : gerarId(),
+                        nome: nome,
+                        cor: cor || "#ffffff",
+                        preco: preco
+                    });
+                }
+            });
+            return variantes;
+        }
+
+        // ============================================================
+        //  ATUALIZAR
+        // ============================================================
+
+        function atualizarPortesFornecedor() {
+            var f = obterFornecedor(fornecedorId);
+            var el = document.getElementById("portesFornecedor");
+            if (el && f) {
+                el.value = formatarNumero(f.portes, 2);
+            } else if (el) {
+                el.value = "0.00";
+            }
+        }
+
+        function atualizarSelectVariantes() {
+            var sel = document.getElementById("selVariante");
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Selecione uma cor</option>';
+
+            var m = obterMaterial(materialId);
+            if (!m || !m.variantes || !m.variantes.length) {
+                return;
+            }
+
+            m.variantes.forEach(function(v) {
+                var opt = document.createElement("option");
+                opt.value = v.id;
+                opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " €)";
+                if (v.cor) {
+                    opt.style.color = v.cor;
+                }
+                sel.appendChild(opt);
+            });
+
+            if (!varianteId || !obterVariante(varianteId)) {
+                varianteId = m.variantes[0] ? m.variantes[0].id : null;
+            }
+            if (varianteId) sel.value = varianteId;
+
+            onChangeVariante();
+        }
+
+        function onChangeVariante() {
+            var sel = document.getElementById("selVariante");
+            if (!sel) return;
+            varianteId = sel.value;
+            var v = obterVariante(varianteId);
+            var el = document.getElementById("custoPeca");
+            if (el && v) {
+                el.value = formatarNumero(v.preco, 2);
+                document.getElementById("footerPreco").textContent = moeda(v.preco) + " s/IVA";
+            } else if (el) {
+                el.value = "0.00";
+            }
+            calcular();
+        }
+
+        // ============================================================
+        //  FORNECEDORES
+        // ============================================================
+
+        function renderFornecedores() {
+            var sel = document.getElementById("selFornecedor");
+            if (!sel) return;
+            sel.innerHTML = "";
+
+            dados.fornecedores.forEach(function(f) {
+                var opt = document.createElement("option");
+                opt.value = f.id;
+                opt.textContent = f.nome + " (Portes: " + formatarNumero(f.portes, 2) + " €)";
+                sel.appendChild(opt);
+            });
+
+            if (!fornecedorId || !obterFornecedor(fornecedorId)) {
+                fornecedorId = dados.fornecedores[0] ? dados.fornecedores[0].id : null;
+            }
+            if (fornecedorId) sel.value = fornecedorId;
+
+            atualizarPortesFornecedor();
+            renderMateriais();
+        }
+
+        function onChangeFornecedor() {
+            var sel = document.getElementById("selFornecedor");
+            if (!sel) return;
+            fornecedorId = sel.value;
+            materialId = null;
+            varianteId = null;
+            atualizarPortesFornecedor();
+            renderMateriais();
+        }
+
+        function abrirFormFornecedor(editar) {
+            var f = obterFornecedor(fornecedorId);
+            document.getElementById("formFornecedor").classList.remove("hidden");
+            document.getElementById("tituloFornecedor").textContent = editar ? "✏️ Editar fornecedor" : "➕ Novo fornecedor";
+            document.getElementById("editFornecedorId").value = editar && f ? f.id : "";
+            document.getElementById("inputNomeFornecedor").value = editar && f ? f.nome : "";
+            document.getElementById("inputPortesFornecedor").value = editar && f ? formatarNumero(f.portes, 2) : "";
+        }
+
+        function fecharFormFornecedor() {
+            document.getElementById("formFornecedor").classList.add("hidden");
+        }
+
+        function guardarFornecedor() {
+            var nome = document.getElementById("inputNomeFornecedor").value.trim();
+            if (!nome) { alert("⚠️ Indica o nome do fornecedor."); return; }
+
+            var portes = Math.max(0, parseNum(document.getElementById("inputPortesFornecedor").value));
+            var eid = document.getElementById("editFornecedorId").value;
+
+            if (eid) {
+                var f = obterFornecedor(eid);
+                if (f) { f.nome = nome;
+                    f.portes = portes; }
+            } else {
+                var novo = { id: gerarId(), nome: nome, portes: portes, materiais: [] };
+                dados.fornecedores.push(novo);
+                fornecedorId = novo.id;
+            }
+
+            guardarDados();
+            fecharFormFornecedor();
+            renderFornecedores();
+        }
+
+        function eliminarFornecedor() {
+            if (!fornecedorId) return;
+            if (dados.fornecedores.length <= 1) { alert("⚠️ É necessário manter pelo menos um fornecedor."); return; }
+
+            var f = obterFornecedor(fornecedorId);
+            if (!confirm("🗑️ Eliminar \"" + (f ? f.nome : "") + "\"?")) return;
+
+            dados.fornecedores = dados.fornecedores.filter(function(x) { return x.id !== fornecedorId; });
+            fornecedorId = null;
+            materialId = null;
+            varianteId = null;
+            guardarDados();
+            renderFornecedores();
+        }
+
+        // ============================================================
+        //  MATERIAIS
+        // ============================================================
+
+        function renderMateriais() {
+            var sel = document.getElementById("selMaterial");
+            if (!sel) return;
+            sel.innerHTML = "";
+
+            var f = obterFornecedor(fornecedorId);
+            if (!f || !f.materiais || !f.materiais.length) {
+                sel.innerHTML = '<option value="">⚠️ Nenhum material</option>';
+                materialId = null;
+                varianteId = null;
+                document.getElementById("footerMaterial").textContent = "Nenhum";
+                document.getElementById("footerPreco").textContent = "0,00 €";
+                document.getElementById("custoPeca").value = "0.00";
+                document.getElementById("variantesContainer").innerHTML = "";
+                atualizarSelectVariantes();
+                calcular();
+                return;
+            }
+
+            f.materiais.forEach(function(m) {
+                var opt = document.createElement("option");
+                opt.value = m.id;
+                var qtdCores = m.variantes ? m.variantes.length : 0;
+                opt.textContent = m.nome + " (" + qtdCores + " cor" + (qtdCores > 1 ? "es" : "") + ")";
+                sel.appendChild(opt);
+            });
+
+            if (!materialId || !obterMaterial(materialId)) {
+                materialId = f.materiais[0] ? f.materiais[0].id : null;
+            }
+            if (materialId) sel.value = materialId;
+
+            atualizarVariantes();
+            atualizarSelectVariantes();
+            calcular();
+        }
+
+        function atualizarVariantes() {
+            var m = obterMaterial(materialId);
+            var container = document.getElementById("variantesContainer");
+
+            if (!m || !m.variantes || !m.variantes.length) {
+                container.innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
+                document.getElementById("footerMaterial").textContent = m ? m.nome : "Nenhum";
+                return;
+            }
+
+            var html = "";
+            m.variantes.forEach(function(v) {
+                var corStyle = v.cor ? 'background-color:' + v.cor + ';' : '';
+                html += `
+                    <div class="variante-item">
+                        <span>
+                            <span class="cor-bolinha" style="${corStyle}"></span>
+                            ${v.nome}
+                        </span>
+                        <span class="preco">${moeda(v.preco)}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.getElementById("footerMaterial").textContent = m.nome + (m.variantes.length > 1 ? " (" + m.variantes.length + " cores)" : "");
+        }
+
+        function onChangeMaterial() {
+            var sel = document.getElementById("selMaterial");
+            if (!sel) return;
+            materialId = sel.value;
+            varianteId = null;
+            atualizarVariantes();
+            atualizarSelectVariantes();
+            renderMateriais();
+        }
+
+        function abrirFormMaterial(editar) {
+            var m = obterMaterial(materialId);
+            document.getElementById("formMaterial").classList.remove("hidden");
+            document.getElementById("tituloMaterial").textContent = editar ? "✏️ Editar material" : "➕ Novo material";
+            document.getElementById("editMaterialId").value = editar && m ? m.id : "";
+            document.getElementById("inputNomeMaterial").value = editar && m ? m.nome : "";
+
+            carregarVariantesForm(m);
+        }
+
+        function fecharFormMaterial() {
+            document.getElementById("formMaterial").classList.add("hidden");
+        }
+
+        function guardarMaterial() {
+            var f = obterFornecedor(fornecedorId);
+            if (!f) return;
+
+            var nome = document.getElementById("inputNomeMaterial").value.trim();
+            if (!nome) { alert("⚠️ Indica o nome do material."); return; }
+
+            var variantes = obterVariantesDoForm();
+            if (!variantes.length) {
+                alert("⚠️ Adicione pelo menos uma cor.");
+                return;
+            }
+
+            var eid = document.getElementById("editMaterialId").value;
+
+            if (eid) {
+                var m = f.materiais.find(function(x) { return x.id === eid; });
+                if (m) { m.nome = nome;
+                    m.variantes = variantes; }
+                materialId = eid;
+            } else {
+                var novo = { id: gerarId(), nome: nome, variantes: variantes };
+                f.materiais.push(novo);
+                materialId = novo.id;
+            }
+
+            guardarDados();
+            fecharFormMaterial();
+            renderMateriais();
+        }
+
+        function eliminarMaterial() {
+            var f = obterFornecedor(fornecedorId);
+            if (!f) return;
+            if (!materialId) return;
+
+            var m = f.materiais.find(function(x) { return x.id === materialId; });
+            if (!confirm("🗑️ Eliminar \"" + (m ? m.nome : "") + "\"?")) return;
+
+            f.materiais = f.materiais.filter(function(x) { return x.id !== materialId; });
+            materialId = null;
+            varianteId = null;
+            guardarDados();
+            renderMateriais();
+        }
+
+        // ============================================================
+        //  TÉCNICAS
+        // ============================================================
+
+        function renderTecnicas() {
+            var sel = document.getElementById("selTecnica");
+            if (!sel) return;
+            sel.innerHTML = "";
+
+            dados.tecnicas.forEach(function(t) {
+                var opt = document.createElement("option");
+                opt.value = t.id;
+                var label = t.nome;
+                if (t.largura > 0) label += " (" + formatarNumero(t.largura, 0) + "cm)";
+                opt.textContent = label;
+                sel.appendChild(opt);
+            });
+
+            if (!tecnicaId || !obterTecnica(tecnicaId)) {
+                tecnicaId = dados.tecnicas[0] ? dados.tecnicas[0].id : null;
+            }
+            if (tecnicaId) sel.value = tecnicaId;
+
+            atualizarInfoTecnica();
+            calcular();
+        }
+
+        function onChangeTecnica() {
+            var sel = document.getElementById("selTecnica");
+            if (!sel) return;
+            tecnicaId = sel.value;
+            atualizarInfoTecnica();
+            calcular();
+        }
+
+        function atualizarInfoTecnica() {
+            var t = obterTecnica(tecnicaId);
+
+            document.getElementById("footerTecnica").textContent = t ? t.nome : "Nenhuma";
+            document.getElementById("infoTecNome").textContent = t ? "📌 " + t.nome : "Nenhuma técnica selecionada";
+
+            var detalhes = [];
+            if (t) {
+                if (t.custoMetro > 0) detalhes.push("💰 " + formatarNumero(t.custoMetro, 2) + "€/m");
+                if (t.largura > 0) {
+                    detalhes.push("📏 Larg: " + formatarNumero(t.largura, 0) + "cm");
+                    document.getElementById("larguraExibida").textContent = formatarNumero(t.largura, 0) + " cm";
+                } else {
+                    document.getElementById("larguraExibida").textContent = "—";
+                }
+            } else {
+                document.getElementById("larguraExibida").textContent = "—";
+            }
+            document.getElementById("infoTecDetalhes").textContent = detalhes.length ? " (" + detalhes.join(" | ") + ")" : "";
+        }
+
+        function abrirFormTecnica(editar) {
+            var t = obterTecnica(tecnicaId);
+            document.getElementById("formTecnica").classList.remove("hidden");
+            document.getElementById("tituloTecnica").textContent = editar ? "✏️ Editar técnica" : "➕ Nova técnica";
+            document.getElementById("editTecnicaId").value = editar && t ? t.id : "";
+            document.getElementById("inputNomeTecnica").value = editar && t ? t.nome : "";
+            document.getElementById("inputCustoMetro").value = editar && t ? formatarNumero(t.custoMetro, 2) : "";
+            document.getElementById("inputLarguraTecnica").value = editar && t ? formatarNumero(t.largura, 0) : "";
+        }
+
+        function fecharFormTecnica() {
+            document.getElementById("formTecnica").classList.add("hidden");
+        }
+
+        function guardarTecnica() {
+            var nome = document.getElementById("inputNomeTecnica").value.trim();
+            if (!nome) { alert("⚠️ Indica o nome da técnica."); return; }
+
+            var custoMetro = parseNum(document.getElementById("inputCustoMetro").value);
+            var largura = parseNum(document.getElementById("inputLarguraTecnica").value);
+            var eid = document.getElementById("editTecnicaId").value;
+
+            if (eid) {
+                var t = obterTecnica(eid);
+                if (t) { t.nome = nome;
+                    t.custoMetro = custoMetro;
+                    t.largura = largura; }
+            } else {
+                var novo = { id: gerarId(), nome: nome, custoMetro: custoMetro, largura: largura };
+                dados.tecnicas.push(novo);
+                tecnicaId = novo.id;
+            }
+
+            guardarDados();
+            fecharFormTecnica();
+            renderTecnicas();
+        }
+
+        function eliminarTecnica() {
+            if (!tecnicaId) return;
+            if (dados.tecnicas.length <= 1) { alert("⚠️ É necessário manter pelo menos uma técnica."); return; }
+
+            var t = obterTecnica(tecnicaId);
+            if (!confirm("🗑️ Eliminar \"" + (t ? t.nome : "") + "\"?")) return;
+
+            dados.tecnicas = dados.tecnicas.filter(function(x) { return x.id !== tecnicaId; });
+            tecnicaId = null;
+            guardarDados();
+            renderTecnicas();
+        }
+
+        // ============================================================
+        //  CÁLCULOS
+        // ============================================================
+
+        function calcularConsumo(qtd, metro, alt, larg, bobina) {
+            qtd = Math.max(1, parseInt(qtd) || 1);
+            var area = (Math.max(0, parseNum(alt)) / 100) * (Math.max(0, parseNum(larg)) / 100) * qtd * 1.05;
+            var metros = area / (bobina / 100);
+            return { custoUn: (metros * Math.max(0, parseNum(metro)) * TAXA_IVA) / qtd, metrosTotais: metros, escala: 1 };
+        }
+
+        function obterCustoImpressao(qtd, tecId) {
+            var t = obterTecnica(tecId);
+            if (!t) return { custoUn: 0, metros: 0, escala: 1 };
+
+            var alt = parseNum(document.getElementById("alturaEstampa").value) || 10;
+            var larg = t.largura || 0;
+            var cores = 1;
+            var nome = (t.nome || "").toLowerCase();
+
+            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
+                var bobina = 28;
+                if (nome.indexOf("vinil") !== -1) bobina = 50;
+                else if (nome.indexOf("sublimação") !== -1 || nome.indexOf("sublimacao") !== -1) bobina = 58;
+                var res = calcularConsumo(qtd, t.custoMetro, alt, larg, bobina);
+                return { custoUn: res.custoUn, metros: res.metrosTotais, escala: res.escala };
+            }
+
+            if (nome.indexOf("serigrafia") !== -1) {
+                var escSerigrafia = [
+                    { min: 1, max: 9, precos: [8, 10, 12] },
+                    { min: 10, max: 24, precos: [3.5, 4.5, 5.5] },
+                    { min: 25, max: 49, precos: [2.2, 2.8, 3.4] },
+                    { min: 50, max: 99, precos: [1.5, 1.9, 2.3] },
+                    { min: 100, max: Infinity, precos: [1, 1.3, 1.6] }
+                ];
+                var e = escSerigrafia.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escSerigrafia[0];
+                var idx = Math.max(0, Math.min(2, cores - 1));
+                return { custoUn: e.precos[idx] * TAXA_IVA, metros: 0, escala: e.min };
+            }
+
+            if (nome.indexOf("bordado") !== -1) {
+                var escBordado = [
+                    { min: 1, max: 9, precos: [6, 8] },
+                    { min: 10, max: 24, precos: [3.8, 5] },
+                    { min: 25, max: 49, precos: [2.5, 3.5] },
+                    { min: 50, max: Infinity, precos: [1.8, 2.5] }
+                ];
+                var e2 = escBordado.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escBordado[0];
+                var idx2 = cores > 1 ? 1 : 0;
+                return { custoUn: e2.precos[idx2] * TAXA_IVA, metros: 0, escala: e2.min };
+            }
+
+            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
+                var res2 = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
+                return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
+            }
+
+            return { custoUn: 0, metros: 0, escala: 1 };
+        }
+
+        function calcularMargem(qtd, valor, tipo, custo) {
+            var v = parseNum(valor);
+            if (tipo === "percentagem") return Math.max(0, custo * (v / 100));
+
+            var m = v;
+            if (qtd >= 100) m -= 3.50;
+            else if (qtd >= 50) m -= 2.50;
+            else if (qtd >= 25) m -= 1.50;
+            else if (qtd >= 10) m -= 0.50;
+            else if (qtd >= 5) m -= 0.20;
+            return Math.max(0, m);
+        }
+
+        function calcular() {
+            try {
+                var qtd = Math.max(1, parseInt(document.getElementById("quantidade").value) || 1);
+                var custoPeca = parseNum(document.getElementById("custoPeca").value);
+                var portes = parseNum(document.getElementById("portesFornecedor").value);
+                var tecId = document.getElementById("selTecnica").value;
+                var tipoMargem = document.getElementById("tipoMargem").value;
+                var margem = parseNum(document.getElementById("valMargem").value);
+
+                if (!tecId || !obterTecnica(tecId)) {
+                    document.getElementById("resPrecoUn").textContent = "0,00 €";
+                    document.getElementById("resTotalComercial").textContent = "0,00 €";
+                    return;
+                }
+
+                var imp = obterCustoImpressao(qtd, tecId);
+                var pIva = custoPeca * TAXA_IVA;
+                var portesIva = portes * TAXA_IVA;
+                var custoUn = pIva + imp.custoUn + (portesIva / qtd);
+                var lucro = calcularMargem(qtd, margem, tipoMargem, custoUn);
+                var venda = custoUn + lucro;
+
+                document.getElementById("resPrecoUn").textContent = moeda(venda);
+                document.getElementById("resTotalComercial").textContent = moeda(venda * qtd);
+                document.getElementById("resCustoMaterial").textContent = moeda(pIva);
+                document.getElementById("resCustoImpr").textContent = moeda(imp.custoUn);
+                document.getElementById("resPortes").textContent = moeda(portesIva);
+                document.getElementById("resCustoTotal").textContent = moeda(custoUn * qtd);
+                document.getElementById("resLucroUn").textContent = moeda(lucro);
+                document.getElementById("resLucroTotal").textContent = moeda(lucro * qtd);
+                document.getElementById("escalaoBadge").textContent = "🏷️ Escalão ≥ " + imp.escala + " un";
+
+                var t = obterTecnica(tecId);
+                var linha = document.getElementById("linhaConsumo");
+                if (linha) {
+                    if (t && t.custoMetro > 0 && t.largura > 0) {
+                        linha.style.display = "flex";
+                        document.getElementById("labelConsumo").textContent = "📏 Consumo " + t.nome + ":";
+                        document.getElementById("resConsumo").textContent = imp.metros.toFixed(2).replace(".", ",") + " m";
+                    } else {
+                        linha.style.display = "none";
+                    }
+                }
+
+                gerarComparativo(qtd, pIva, portesIva, tecId, tipoMargem, margem);
+
+            } catch (e) {
+                console.log("Erro calcular:", e);
+            }
+        }
+
+        function gerarComparativo(qAtual, pIva, portesIva, tecId, tipoMargem, margem) {
+            var el = document.getElementById("tabelaComparativa");
+            if (!el) return;
+            el.innerHTML = "";
+
+            [1, 10, 25, 50, 100].forEach(function(q) {
+                var imp = obterCustoImpressao(q, tecId);
+                var custo = pIva + imp.custoUn + (portesIva / q);
+                var lucro = calcularMargem(q, margem, tipoMargem, custo);
+                var div = document.createElement("div");
+                div.className = "escalao-item" + (q === qAtual ? " active" : "");
+                div.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
+                el.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        //  UTILITÁRIOS
+        // ============================================================
+
+        function copiarResumo() {
+            var q = document.getElementById("quantidade").value;
+            var selTec = document.getElementById("selTecnica");
+            var tec = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
+            var mat = document.getElementById("footerMaterial").textContent;
+            var selVar = document.getElementById("selVariante");
+            var varNome = selVar && selVar.selectedOptions && selVar.selectedOptions[0] ? selVar.selectedOptions[0].text : "";
+
+            var txt = "🖨️ GrafiSantos Print - Orçamento\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "📦 Material: " + mat + "\n" +
+                "🎨 Cor: " + varNome + "\n" +
+                "📐 Quantidade: " + q + "\n" +
+                "🖨️ Técnica: " + tec + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "💰 Preço/un.: " + document.getElementById("resPrecoUn").textContent + "\n" +
+                "📊 Total: " + document.getElementById("resTotalComercial").textContent + "\n" +
+                "📈 Lucro total: " + document.getElementById("resLucroTotal").textContent + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "📅 " + new Date().toLocaleDateString("pt-PT");
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(txt).then(function() { alert("✅ Resumo copiado!"); }).catch(function() { prompt("📋 Copia o resumo:", txt); });
+            } else {
+                prompt("📋 Copia o resumo:", txt);
+            }
+        }
+
+        function gerarPDF() {
+            if (typeof html2pdf === "undefined") { window.print(); return; }
+            var el = document.getElementById("areaParaPdf");
+            if (!el) return;
+
+            html2pdf().set({
+                margin: 8,
+                filename: "GrafiSantos-Orcamento.pdf",
+                image: { type: "jpeg", quality: 0.95 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+            }).from(el).save();
+        }
+
+        // ============================================================
+        //  INICIALIZAÇÃO
+        // ============================================================
+
+        document.addEventListener("DOMContentLoaded", function() {
+            try {
+                carregarDados();
+                carregarMargem();
+                renderFornecedores();
+                renderTecnicas();
+                calcular();
+                atualizarInfoTecnica();
+
+                document.getElementById("valMargem").addEventListener("blur", function() {
+                    guardarMargem();
+                });
+
+            } catch (e) {
+                var debug = document.getElementById("debugErro");
+                if (debug) {
+                    debug.style.display = "block";
+                    debug.textContent = "❌ Erro: " + e.message;
+                }
+                console.log("Erro:", e);
+            }
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('✅ Service Worker registado com sucesso!', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('❌ Erro ao registar Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+
+</body>
+</html>
