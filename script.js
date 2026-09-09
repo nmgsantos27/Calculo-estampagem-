@@ -115,7 +115,7 @@ function atualizarSelectFornecedores() {
   sf.value = fornecedorSelecionadoId;
   
   var f = baseDados.fornecedores.find(function(x) { return x.id === fornecedorSelecionadoId; });
-  var elPortes = document.getElementById("portesFornecedor");
+  var elPortes = document.getElementById("portesFornecedorInput");
   if (elPortes) elPortes.value = parseNum(f ? f.portes : 0).toFixed(2);
   
   atualizarSelectMateriais();
@@ -204,7 +204,7 @@ function atualizarSelectMateriais() {
   
   var m = materiais.find(function(x) { return x.id === materialSelecionadoId; });
   if (m) {
-    var elCusto = document.getElementById("custoPeca");
+    var elCusto = document.getElementById("custoPecaInput");
     if (elCusto) elCusto.value = parseNum(m.preco).toFixed(2);
     var nomeMat = document.getElementById("nomeMaterialAtivo");
     var detalheMat = document.getElementById("detalheMaterialAtivo");
@@ -282,7 +282,6 @@ function atualizarSelectTecnicas() {
   baseDados.tecnicas.forEach(function(t) {
     var o = document.createElement("option");
     o.value = t.id;
-    // Mostrar nome e largura
     var label = t.nome;
     if (t.largura > 0) {
       label += " (" + parseNum(t.largura).toFixed(0) + "cm)";
@@ -419,13 +418,15 @@ function obterCustoPara(qtd, tecnicaId) {
   var t = obterDadosTecnica(tecnicaId);
   if (!t) return {custoUnComIva: 0, metrosTotais: 0, minEscalao: 1};
   
-  // Usar altura e largura dos campos de cálculo (podem ser diferentes da técnica)
-  var altura = parseNum(document.getElementById("alturaEstampa") ? document.getElementById("alturaEstampa").value : 10);
-  var largura = parseNum(document.getElementById("larguraEstampa") ? document.getElementById("larguraEstampa").value : 28);
+  // Usar altura e largura dos campos de cálculo
+  var elAltura = document.getElementById("alturaEstampaInput");
+  var elLargura = document.getElementById("larguraEstampaInput");
+  var altura = elAltura ? parseNum(elAltura.value) : 10;
+  var largura = elLargura ? parseNum(elLargura.value) : 28;
   
   // Se tem custoMetro > 0, é uma técnica de filme
   if (t.custoMetro > 0 && altura > 0 && largura > 0) {
-    var bobina = 28; // padrão
+    var bobina = 28;
     var nomeLower = t.nome ? t.nome.toLowerCase() : "";
     if (nomeLower.indexOf("vinil") !== -1) bobina = 50;
     else if (nomeLower.indexOf("sublimação") !== -1 || nomeLower.indexOf("sublimacao") !== -1) bobina = 58;
@@ -481,15 +482,19 @@ function margemPorUnidade(qtd, valor, tipo, custo) {
 
 function calcular() {
   try {
-    var q = Math.max(1, parseInt(document.getElementById("quantidade") ? document.getElementById("quantidade").value : 1) || 1);
-    var p = parseNum(document.getElementById("custoPeca") ? document.getElementById("custoPeca").value : 0);
-    var portes = parseNum(document.getElementById("portesFornecedor") ? document.getElementById("portesFornecedor").value : 0);
-    
+    var elQuantidade = document.getElementById("quantidadeInput");
+    var elCustoPeca = document.getElementById("custoPecaInput");
+    var elPortes = document.getElementById("portesFornecedorInput");
     var selectTec = document.getElementById("seletorTecnicaBD");
-    var tecnicaId = selectTec ? selectTec.value : null;
+    var elTipoMargem = document.getElementById("tipoMargemInput");
+    var elValMargem = document.getElementById("valMargemInput");
     
-    var tipo = document.getElementById("tipoMargem") ? document.getElementById("tipoMargem").value : "valor";
-    var margem = parseNum(document.getElementById("valMargem") ? document.getElementById("valMargem").value : 5);
+    var q = Math.max(1, parseInt(elQuantidade ? elQuantidade.value : 1) || 1);
+    var p = parseNum(elCustoPeca ? elCustoPeca.value : 0);
+    var portes = parseNum(elPortes ? elPortes.value : 0);
+    var tecnicaId = selectTec ? selectTec.value : null;
+    var tipo = elTipoMargem ? elTipoMargem.value : "valor";
+    var margem = parseNum(elValMargem ? elValMargem.value : 5);
     
     if (!tecnicaId || !baseDados || !baseDados.tecnicas) {
       var resPreco = document.getElementById("resPrecoUn");
@@ -509,7 +514,7 @@ function calcular() {
     var elTotal = document.getElementById("resTotalComercial");
     var elCustoMat = document.getElementById("resCustoMaterialUn");
     var elCustoImpr = document.getElementById("resCustoImprUn");
-    var elPortes = document.getElementById("resPortes");
+    var elPortesRes = document.getElementById("resPortes");
     var elCustoTotal = document.getElementById("resCustoTotalLote");
     var elLucroUn = document.getElementById("resLucroUn");
     var elLucroTotal = document.getElementById("resLucroTotal");
@@ -519,7 +524,7 @@ function calcular() {
     if (elTotal) elTotal.textContent = moeda(venda * q);
     if (elCustoMat) elCustoMat.textContent = moeda(pIva);
     if (elCustoImpr) elCustoImpr.textContent = moeda(imp.custoUnComIva);
-    if (elPortes) elPortes.textContent = moeda(portesIva);
+    if (elPortesRes) elPortesRes.textContent = moeda(portesIva);
     if (elCustoTotal) elCustoTotal.textContent = moeda(custoUn * q);
     if (elLucroUn) elLucroUn.textContent = moeda(lucro);
     if (elLucroTotal) elLucroTotal.textContent = moeda(lucro * q);
@@ -569,7 +574,8 @@ function gerarComparativoEscaloes(qAtual, pComIva, portesIva, tecnicaId, tipo, m
 
 // ==================== UTILITÁRIOS ====================
 function resumoTexto() {
-  var q = document.getElementById("quantidade") ? document.getElementById("quantidade").value : "0";
+  var elQtd = document.getElementById("quantidadeInput");
+  var q = elQtd ? elQtd.value : "0";
   var selTec = document.getElementById("seletorTecnicaBD");
   var t = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
   var mat = document.getElementById("nomeMaterialAtivo") ? document.getElementById("nomeMaterialAtivo").textContent : "";
@@ -656,8 +662,8 @@ function ligarEventos() {
   acao("btnGuardarTecBD", "click", guardarTecnica);
   acao("btnFecharTecBD", "click", fecharFormTecnica);
 
-  // Cálculos - incluir altura e largura
-  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "tipoMargem", "valMargem", "alturaEstampa", "larguraEstampa"];
+  // Cálculos
+  var inputs = ["quantidadeInput", "custoPecaInput", "portesFornecedorInput", "tipoMargemInput", "valMargemInput", "alturaEstampaInput", "larguraEstampaInput"];
   inputs.forEach(function(x) { 
     acao(x, "input", calcular); 
     acao(x, "change", calcular);
