@@ -20,7 +20,7 @@ window.onerror = function(msg, url, line) {
 
 var TAXA_IVA = 1.23;
 var STORAGE_KEY = "baseDadosGrafiSantos";
-var TECNICAS_STORAGE_KEY = "tecnicasGrafiSantos";
+var TECNICAS_STORAGE_KEY = "tecnicasGrafiSantos_v2";
 
 function parseNum(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
@@ -49,24 +49,34 @@ var VALORES_PADRAO_TECNICAS = {
 function carregarTecnicas() {
   try {
     var raw = localStorage.getItem(TECNICAS_STORAGE_KEY);
-    var data = raw ? JSON.parse(raw) : null;
-    if (data && typeof data === 'object') {
-      // Mesclar com os padrões para garantir que todas as técnicas existem
-      var tecnicas = JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS));
-      for (var chave in data) {
-        if (data.hasOwnProperty(chave) && tecnicas.hasOwnProperty(chave)) {
-          for (var prop in data[chave]) {
-            if (data[chave].hasOwnProperty(prop)) {
-              tecnicas[chave][prop] = data[chave][prop];
+    if (raw) {
+      var data = JSON.parse(raw);
+      if (data && typeof data === 'object') {
+        // Mesclar com os padrões para garantir que todas as técnicas existem
+        var tecnicas = {};
+        // Copiar valores padrão
+        for (var chave in VALORES_PADRAO_TECNICAS) {
+          if (VALORES_PADRAO_TECNICAS.hasOwnProperty(chave)) {
+            tecnicas[chave] = JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS[chave]));
+          }
+        }
+        // Sobrescrever com valores guardados
+        for (var chave2 in data) {
+          if (data.hasOwnProperty(chave2) && tecnicas.hasOwnProperty(chave2)) {
+            for (var prop in data[chave2]) {
+              if (data[chave2].hasOwnProperty(prop)) {
+                tecnicas[chave2][prop] = data[chave2][prop];
+              }
             }
           }
         }
+        return tecnicas;
       }
-      return tecnicas;
     }
   } catch(e) {
     console.log("Erro ao carregar técnicas:", e);
   }
+  // Se não houver dados guardados, usar padrão
   return JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS));
 }
 
@@ -74,12 +84,22 @@ function carregarTecnicas() {
 function guardarTecnicas(tecnicas) {
   try {
     localStorage.setItem(TECNICAS_STORAGE_KEY, JSON.stringify(tecnicas));
+    console.log("Técnicas guardadas:", tecnicas);
   } catch(e) {
     console.log("Erro ao guardar técnicas:", e);
   }
 }
 
+// Carregar técnicas uma vez e manter
 var memoriaTecnicas = carregarTecnicas();
+
+// Verificar se há técnicas guardadas e garantir que estão no localStorage
+(function verificarTecnicasGuardadas() {
+  var raw = localStorage.getItem(TECNICAS_STORAGE_KEY);
+  if (!raw) {
+    guardarTecnicas(memoriaTecnicas);
+  }
+})();
 
 var BASE_DADOS_PADRAO = [
   {id:"f1", nome:"Roly", portes:4.50, materiais:[
@@ -228,16 +248,23 @@ function margemPorUnidade(qtd, valor, tipo, custo) {
 
 function guardarValoresTecnicaAtual(t) {
   if (!document.getElementById("tecnica")) return;
+  
   if (["dtf", "vinil", "sublimacao"].indexOf(t) !== -1) {
+    var custoMetro = parseNum(document.getElementById("custoMetroDTF").value);
+    var altura = parseNum(document.getElementById("alturaEstampaDTF").value);
+    var largura = parseNum(document.getElementById("larguraEstampaDTF").value);
+    
     memoriaTecnicas[t] = {
-      custoMetro: parseNum(document.getElementById("custoMetroDTF").value),
-      altura: parseNum(document.getElementById("alturaEstampaDTF").value),
-      largura: parseNum(document.getElementById("larguraEstampaDTF").value)
+      custoMetro: custoMetro,
+      altura: altura,
+      largura: largura
     };
   } else {
-    memoriaTecnicas[t] = { numCores: Math.max(1, parseInt(document.getElementById("numCores").value) || 1) };
+    var numCores = Math.max(1, parseInt(document.getElementById("numCores").value) || 1);
+    memoriaTecnicas[t] = { numCores: numCores };
   }
-  // Guardar no localStorage após cada alteração
+  
+  // Guardar no localStorage imediatamente
   guardarTecnicas(memoriaTecnicas);
 }
 
@@ -246,7 +273,9 @@ function alternarTecnica() {
   if (!t) return;
   
   // Guardar valores da técnica anterior antes de mudar
-  guardarValoresTecnicaAtual(tecnicaAnterior);
+  if (tecnicaAnterior && tecnicaAnterior !== t) {
+    guardarValoresTecnicaAtual(tecnicaAnterior);
+  }
   tecnicaAnterior = t;
   
   var film = ["dtf", "vinil", "sublimacao"].indexOf(t) !== -1;
@@ -254,11 +283,16 @@ function alternarTecnica() {
   document.getElementById("grupoCores").classList.toggle("hidden", film);
   document.getElementById("linhaConsumoFilme").style.display = film ? "flex" : "none";
   
+  // Carregar os valores da técnica selecionada
   if (film) {
     var d = memoriaTecnicas[t];
-    document.getElementById("custoMetroDTF").value = d.custoMetro;
-    document.getElementById("alturaEstampaDTF").value = d.altura;
-    document.getElementById("larguraEstampaDTF").value = d.largura;
+    if (!d) {
+      d = JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS[t]));
+      memoriaTecnicas[t] = d;
+    }
+    document.getElementById("custoMetroDTF").value = d.custoMetro !== undefined ? d.custoMetro : 5.50;
+    document.getElementById("alturaEstampaDTF").value = d.altura !== undefined ? d.altura : 10;
+    document.getElementById("larguraEstampaDTF").value = d.largura !== undefined ? d.largura : 28;
     var nomes = {
       dtf: ["Custo Metro DTF (28cm) s/ IVA:", "Consumo Filme DTF:"],
       vinil: ["Custo Metro Vinil (50cm) s/ IVA:", "Consumo Vinil Flex:"],
@@ -267,7 +301,12 @@ function alternarTecnica() {
     document.getElementById("labelCustoMetro").textContent = nomes[t][0];
     document.getElementById("labelConsumoFilme").textContent = nomes[t][1];
   } else {
-    document.getElementById("numCores").value = memoriaTecnicas[t].numCores || 1;
+    var d2 = memoriaTecnicas[t];
+    if (!d2) {
+      d2 = JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS[t]));
+      memoriaTecnicas[t] = d2;
+    }
+    document.getElementById("numCores").value = d2.numCores !== undefined ? d2.numCores : 1;
   }
   calcular();
 }
@@ -486,4 +525,46 @@ function ligarEventos() {
   acao("btnGuardarMatBD", "click", guardarMaterial);
   acao("btnFecharMatBD", "click", fecharFormMaterial);
 
-  acao("tecnic
+  acao("tecnica", "change", alternarTecnica);
+
+  // Função para guardar e calcular quando os inputs mudam
+  function guardarECalcular() {
+    var t = document.getElementById("tecnica").value;
+    guardarValoresTecnicaAtual(t);
+    calcular();
+  }
+
+  acao("custoMetroDTF", "input", guardarECalcular);
+  acao("custoMetroDTF", "change", guardarECalcular);
+  acao("alturaEstampaDTF", "input", guardarECalcular);
+  acao("alturaEstampaDTF", "change", guardarECalcular);
+  acao("larguraEstampaDTF", "input", guardarECalcular);
+  acao("larguraEstampaDTF", "change", guardarECalcular);
+  acao("numCores", "input", guardarECalcular);
+  acao("numCores", "change", guardarECalcular);
+
+  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "tipoMargem", "valMargem"];
+  inputs.forEach(function(x) { 
+    acao(x, "input", calcular); 
+    acao(x, "change", calcular);
+  });
+
+  acao("btnCopiarResumo", "click", copiarResumo);
+  acao("btnGuardarPDF", "click", guardarPDF);
+  acao("btnImprimir", "click", imprimir);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Recarregar técnicas do localStorage
+  memoriaTecnicas = carregarTecnicas();
+  
+  carregarBD();
+  atualizarSelectsDinamicos();
+  ligarEventos();
+  alternarTecnica();
+  calcular();
+  
+  // Forçar guardar após carregar
+  var t = document.getElementById("tecnica").value;
+  guardarValoresTecnicaAtual(t);
+});
