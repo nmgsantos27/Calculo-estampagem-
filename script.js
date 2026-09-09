@@ -508,4 +508,5 @@ document.addEventListener("DOMContentLoaded", () => {
   associarAcaoBotao('btnGuardarPDF', guardarPDF);
   associarAcaoBotao('btnImprimir', () => window.print());
 
-  ['seletorFornecedorBD', 'seletorMaterialBD', 'tecnica', 'tipoMargem'].forEach
+  // Ligar as alterações dos seletores principais às respetivas funções
+  docum
