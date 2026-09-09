@@ -222,15 +222,17 @@ function selecionarMaterialBD() {
 
 // --- FORNECEDORES: NOVO / EDITAR / ELIMINAR ---
 function prepararFormNovoFornecedor() {
+  const form = document.getElementById('formNovoFornecedor');
   document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
   document.getElementById('editFornecedorId').value = '';
   document.getElementById('novoNomeFornecedor').value = '';
   document.getElementById('novoPortesFornecedor').value = '';
-  document.getElementById('formNovoFornecedor').style.display = 'block';
+  form.style.display = 'block';
 }
 
 function prepararFormEditarFornecedor() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const select = document.getElementById('seletorFornecedorBD');
+  const fornId = select ? select.value : null;
   const forn = baseDados.find(f => f.id === fornId);
 
   if (!forn) {
@@ -238,11 +240,12 @@ function prepararFormEditarFornecedor() {
     return;
   }
 
+  const form = document.getElementById('formNovoFornecedor');
   document.getElementById('tituloFormFornecedor').innerText = 'Editar Fornecedor';
   document.getElementById('editFornecedorId').value = forn.id;
   document.getElementById('novoNomeFornecedor').value = forn.nome;
   document.getElementById('novoPortesFornecedor').value = parseNum(forn.portes).toFixed(2);
-  document.getElementById('formNovoFornecedor').style.display = 'block';
+  form.style.display = 'block';
 }
 
 function fecharFormFornecedor() {
@@ -259,15 +262,15 @@ function guardarFornecedorBD() {
     return;
   }
 
+  let targetId = editId;
+
   if (editId) {
-    // Modo Edição
     const forn = baseDados.find(f => f.id === editId);
     if (forn) {
       forn.nome = nome;
       forn.portes = portes;
     }
   } else {
-    // Modo Novo
     const novoForn = {
       id: 'f_' + Date.now(),
       nome: nome,
@@ -275,15 +278,14 @@ function guardarFornecedorBD() {
       materiais: []
     };
     baseDados.push(novoForn);
-    document.getElementById('editFornecedorId').value = novoForn.id;
+    targetId = novoForn.id;
   }
 
-  const idAtivo = document.getElementById('editFornecedorId').value || editId;
   guardarBD();
   atualizarSeletorFornecedoresBD();
 
-  if (idAtivo) {
-    document.getElementById('seletorFornecedorBD').value = idAtivo;
+  if (targetId) {
+    document.getElementById('seletorFornecedorBD').value = targetId;
     selecionarFornecedorBD();
   }
 
@@ -309,16 +311,18 @@ function prepararFormNovoMaterial() {
     return;
   }
 
+  const form = document.getElementById('formNovoMaterial');
   document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
   document.getElementById('editMaterialId').value = '';
   document.getElementById('novoNomeMaterial').value = '';
   document.getElementById('novoPrecoMaterial').value = '';
-  document.getElementById('formNovoMaterial').style.display = 'block';
+  form.style.display = 'block';
 }
 
 function prepararFormEditarMaterial() {
   const fornId = document.getElementById('seletorFornecedorBD').value;
-  const matId = document.getElementById('seletorMaterialBD').value;
+  const selectMat = document.getElementById('seletorMaterialBD');
+  const matId = selectMat ? selectMat.value : null;
 
   const forn = baseDados.find(f => f.id === fornId);
   if (!forn) return;
@@ -329,11 +333,12 @@ function prepararFormEditarMaterial() {
     return;
   }
 
+  const form = document.getElementById('formNovoMaterial');
   document.getElementById('tituloFormMaterial').innerText = 'Editar Material';
   document.getElementById('editMaterialId').value = mat.id;
   document.getElementById('novoNomeMaterial').value = mat.nome;
   document.getElementById('novoPrecoMaterial').value = parseNum(mat.preco).toFixed(2);
-  document.getElementById('formNovoMaterial').style.display = 'block';
+  form.style.display = 'block';
 }
 
 function fecharFormMaterial() {
@@ -361,14 +366,12 @@ function guardarMaterialBD() {
   let matTargetId = editId;
 
   if (editId) {
-    // Modo Edição
     const mat = (forn.materiais || []).find(m => m.id === editId);
     if (mat) {
       mat.nome = nome;
       mat.preco = preco;
     }
   } else {
-    // Modo Novo
     const novoMat = {
       id: 'm_' + Date.now(),
       nome: nome,
@@ -573,4 +576,4 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
 
 function copiarResumo() {
   const artigo = document.getElementById('nomeMaterialAtivo').innerText;
-  const qtd = d
+  co
