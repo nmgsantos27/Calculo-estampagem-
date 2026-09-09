@@ -279,6 +279,15 @@
             font-weight: 600;
             pointer-events: none;
         }
+        .campo-euro .simbolo-euro-topo {
+            position: absolute;
+            left: 10px;
+            top: 28px;
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 600;
+            pointer-events: none;
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -450,19 +459,19 @@
                 </div>
                 <div class="field campo-euro">
                     <label>Custo Peça (s/IVA) €:</label>
-                    <span class="simbolo-euro">€</span>
+                    <span class="simbolo-euro-topo">€</span>
                     <input type="number" id="custoPeca" value="0.00" step="0.01" oninput="calcular()" onchange="calcular()">
                 </div>
             </div>
             <div class="grid-2">
                 <div class="field campo-euro">
                     <label>Portes Lote (s/IVA) €:</label>
-                    <span class="simbolo-euro">€</span>
-                    <input type="number" id="portesFornecedor" value="0.00" step="0.01" oninput="calcular()" onchange="calcular()">
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
                 </div>
                 <div class="field campo-euro">
                     <label>Margem Lucro:</label>
-                    <span class="simbolo-euro">€</span>
+                    <span class="simbolo-euro-topo">€</span>
                     <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
                 </div>
             </div>
@@ -659,6 +668,20 @@
         }
 
         // ============================================================
+        //  ATUALIZAR PORTES DO FORNECEDOR
+        // ============================================================
+
+        function atualizarPortesFornecedor() {
+            var f = obterFornecedor(fornecedorId);
+            var el = document.getElementById("portesFornecedor");
+            if (el && f) {
+                el.value = formatarNumero(f.portes, 2);
+            } else if (el) {
+                el.value = "0.00";
+            }
+        }
+
+        // ============================================================
         //  FORNECEDORES
         // ============================================================
 
@@ -679,10 +702,7 @@
             }
             if (fornecedorId) sel.value = fornecedorId;
 
-            var f = obterFornecedor(fornecedorId);
-            var el = document.getElementById("portesFornecedor");
-            if (el && f) el.value = formatarNumero(f.portes, 2);
-
+            atualizarPortesFornecedor();
             renderMateriais();
         }
 
@@ -691,6 +711,7 @@
             if (!sel) return;
             fornecedorId = sel.value;
             materialId = null;
+            atualizarPortesFornecedor();
             renderMateriais();
         }
 
@@ -1151,7 +1172,6 @@
                 calcular();
                 atualizarInfoTecnica();
 
-                // Adicionar evento para guardar margem quando o campo perde foco
                 document.getElementById("valMargem").addEventListener("blur", function() {
                     guardarMargem();
                 });
