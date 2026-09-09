@@ -933,7 +933,6 @@
             m.variantes.forEach(function(v) {
                 var opt = document.createElement("option");
                 opt.value = v.id;
-                var bolinha = v.cor ? '●' : '';
                 opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " €)";
                 if (v.cor) {
                     opt.style.color = v.cor;
@@ -949,6 +948,10 @@
             onChangeVariante();
         }
 
+        // ============================================================
+        //  FUNÇÃO CORRIGIDA - ATUALIZA O PREÇO E FORÇA O CÁLCULO
+        // ============================================================
+
         function onChangeVariante() {
             var sel = document.getElementById("selVariante");
             if (!sel) return;
@@ -961,6 +964,7 @@
             } else if (el) {
                 el.value = "0.00";
             }
+            // FORÇAR O CÁLCULO
             calcular();
         }
 
