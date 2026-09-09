@@ -87,7 +87,7 @@ function carregarBD() {
 function guardarBD() {
   try { 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(baseDados)); 
-    console.log("Dados guardados:", baseDados);
+    console.log("Dados guardados");
   } catch(e) {
     console.log("Erro ao guardar dados:", e);
   }
@@ -184,8 +184,10 @@ function atualizarSelectMateriais() {
   if (!materiais || !materiais.length) {
     sm.innerHTML = '<option value="">Nenhum material</option>';
     materialSelecionadoId = null;
-    document.getElementById("nomeMaterialAtivo").textContent = "Nenhum";
-    document.getElementById("detalheMaterialAtivo").textContent = "0,00 €";
+    var nomeMat = document.getElementById("nomeMaterialAtivo");
+    var detalheMat = document.getElementById("detalheMaterialAtivo");
+    if (nomeMat) nomeMat.textContent = "Nenhum";
+    if (detalheMat) detalheMat.textContent = "0,00 €";
     calcular();
     return;
   }
@@ -206,8 +208,10 @@ function atualizarSelectMateriais() {
   if (m) {
     var elCusto = document.getElementById("custoPeca");
     if (elCusto) elCusto.value = parseNum(m.preco).toFixed(2);
-    document.getElementById("nomeMaterialAtivo").textContent = m.nome + (f ? " (" + f.nome + ")" : "");
-    document.getElementById("detalheMaterialAtivo").textContent = moeda(m.preco) + " s/ IVA";
+    var nomeMat = document.getElementById("nomeMaterialAtivo");
+    var detalheMat = document.getElementById("detalheMaterialAtivo");
+    if (nomeMat) nomeMat.textContent = m.nome + (f ? " (" + f.nome + ")" : "");
+    if (detalheMat) detalheMat.textContent = moeda(m.preco) + " s/ IVA";
   }
   calcular();
 }
@@ -296,8 +300,9 @@ function atualizarSelectTecnicas() {
   st.value = tecnicaSelecionadaId;
   
   var t = baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; });
-  if (t) {
-    document.getElementById("nomeTecnicaAtiva").textContent = t.nome;
+  var nomeTec = document.getElementById("nomeTecnicaAtiva");
+  if (nomeTec && t) {
+    nomeTec.textContent = t.nome;
   }
   calcular();
 }
@@ -333,7 +338,6 @@ function guardarTecnica() {
       t.custoMetro = custoMetro; 
       t.altura = altura; 
       t.largura = largura;
-      // Manter numCores se existir
       if (t.numCores === undefined) t.numCores = 1;
     }
   } else {
@@ -370,9 +374,10 @@ function eliminarTecnica() {
 
 // ==================== CÁLCULOS ====================
 function obterDadosTecnica(idTec) {
+  if (!idTec) return null;
+  if (!baseDados || !baseDados.tecnicas) return null;
   var t = baseDados.tecnicas.find(function(x) { return x.id === idTec; });
-  if (!t) return null;
-  return t;
+  return t || null;
 }
 
 function custoMetroCalculo(qtd, metro, alt, larg, bobina) {
@@ -389,15 +394,17 @@ function obterCustoPara(qtd, tecnicaId) {
   // Se tem custoMetro > 0, é uma técnica de filme (DTF, Vinil, Sublimação)
   if (t.custoMetro > 0 && t.altura > 0 && t.largura > 0) {
     var bobina = 28; // padrão
-    if (t.nome.toLowerCase().indexOf("vinil") !== -1) bobina = 50;
-    else if (t.nome.toLowerCase().indexOf("sublimação") !== -1 || t.nome.toLowerCase().indexOf("sublimacao") !== -1) bobina = 58;
+    var nomeLower = t.nome ? t.nome.toLowerCase() : "";
+    if (nomeLower.indexOf("vinil") !== -1) bobina = 50;
+    else if (nomeLower.indexOf("sublimação") !== -1 || nomeLower.indexOf("sublimacao") !== -1) bobina = 58;
     return custoMetroCalculo(qtd, t.custoMetro, t.altura, t.largura, bobina);
   }
   
   // Para serigrafia e bordado - usar escalões
   var cores = t.numCores || 1;
-  var precos;
-  if (t.nome.toLowerCase().indexOf("serigrafia") !== -1) {
+  var nomeLower2 = t.nome ? t.nome.toLowerCase() : "";
+  
+  if (nomeLower2.indexOf("serigrafia") !== -1) {
     var escaloesSerigrafia = [
       {min:1,max:9,precos:[8,10,12]},
       {min:10,max:24,precos:[3.5,4.5,5.5]},
@@ -408,7 +415,7 @@ function obterCustoPara(qtd, tecnicaId) {
     var e = escaloesSerigrafia.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escaloesSerigrafia[0];
     var idx = Math.max(0, Math.min(2, cores - 1));
     return {custoUnComIva: e.precos[idx] * TAXA_IVA, minEscalao: e.min, metrosTotais: 0};
-  } else if (t.nome.toLowerCase().indexOf("bordado") !== -1) {
+  } else if (nomeLower2.indexOf("bordado") !== -1) {
     var escaloesBordado = [
       {min:1,max:9,precos:[6,8]},
       {min:10,max:24,precos:[3.8,5]},
@@ -418,6 +425,11 @@ function obterCustoPara(qtd, tecnicaId) {
     var e2 = escaloesBordado.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escaloesBordado[0];
     var idx2 = cores > 1 ? 1 : 0;
     return {custoUnComIva: e2.precos[idx2] * TAXA_IVA, minEscalao: e2.min, metrosTotais: 0};
+  }
+  
+  // Técnica genérica com custoMetro (sem bobina específica)
+  if (t.custoMetro > 0) {
+    return custoMetroCalculo(qtd, t.custoMetro, t.altura || 10, t.largura || 28, 28);
   }
   
   return {custoUnComIva: 0, metrosTotais: 0, minEscalao: 1};
@@ -436,76 +448,71 @@ function margemPorUnidade(qtd, valor, tipo, custo) {
 }
 
 function calcular() {
-  var q = Math.max(1, parseInt(document.getElementById("quantidade") ? document.getElementById("quantidade").value : 1) || 1);
-  var p = parseNum(document.getElementById("custoPeca") ? document.getElementById("custoPeca").value : 0);
-  var portes = parseNum(document.getElementById("portesFornecedor") ? document.getElementById("portesFornecedor").value : 0);
-  var tecnicaId = document.getElementById("seletorTecnicaBD") ? document.getElementById("seletorTecnicaBD").value : null;
-  var tipo = document.getElementById("tipoMargem") ? document.getElementById("tipoMargem").value : "valor";
-  var margem = parseNum(document.getElementById("valMargem") ? document.getElementById("valMargem").value : 5);
-  
-  if (!tecnicaId) {
-    document.getElementById("resPrecoUn").textContent = "0,00 €";
-    document.getElementById("resTotalComercial").textContent = "0,00 €";
-    return;
-  }
-  
-  var imp = obterCustoPara(q, tecnicaId);
-  var pIva = p * TAXA_IVA, portesIva = portes * TAXA_IVA;
-  var custoUn = pIva + imp.custoUnComIva + (portesIva / q);
-  var lucro = margemPorUnidade(q, margem, tipo, custoUn);
-  var venda = custoUn + lucro;
-
-  document.getElementById("resPrecoUn").textContent = moeda(venda);
-  document.getElementById("resTotalComercial").textContent = moeda(venda * q);
-  document.getElementById("resCustoMaterialUn").textContent = moeda(pIva);
-  document.getElementById("resCustoImprUn").textContent = moeda(imp.custoUnComIva);
-  document.getElementById("resPortes").textContent = moeda(portesIva);
-  document.getElementById("resCustoTotalLote").textContent = moeda(custoUn * q);
-  document.getElementById("resLucroUn").textContent = moeda(lucro);
-  document.getElementById("resLucroTotal").textContent = moeda(lucro * q);
-  document.getElementById("escalaoBadge").textContent = "Escalão ≥ " + imp.minEscalao + " un";
-
-  var t = obterDadosTecnica(tecnicaId);
-  if (t && t.custoMetro > 0) {
-    document.getElementById("linhaConsumoFilme").style.display = "flex";
-    document.getElementById("labelConsumoFilme").textContent = "Consumo " + t.nome + ":";
-    document.getElementById("resConsumoFilme").textContent = imp.metrosTotais.toFixed(2).replace(".", ",") + " m";
-  } else {
-    document.getElementById("linhaConsumoFilme").style.display = "none";
-  }
-  
-  gerarComparativoEscaloes(q, pIva, portesIva, tecnicaId, tipo, margem);
-}
-
-function gerarComparativoEscaloes(qAtual, pComIva, portesIva, tecnicaId, tipo, margem) {
-  var c = document.getElementById("tabelaComparativa");
-  if (!c) return;
-  c.innerHTML = "";
-  var escaloes = [1, 10, 25, 50, 100];
-  escaloes.forEach(function(q) {
+  try {
+    var q = Math.max(1, parseInt(document.getElementById("quantidade") ? document.getElementById("quantidade").value : 1) || 1);
+    var p = parseNum(document.getElementById("custoPeca") ? document.getElementById("custoPeca").value : 0);
+    var portes = parseNum(document.getElementById("portesFornecedor") ? document.getElementById("portesFornecedor").value : 0);
+    
+    var selectTec = document.getElementById("seletorTecnicaBD");
+    var tecnicaId = selectTec ? selectTec.value : null;
+    
+    var tipo = document.getElementById("tipoMargem") ? document.getElementById("tipoMargem").value : "valor";
+    var margem = parseNum(document.getElementById("valMargem") ? document.getElementById("valMargem").value : 5);
+    
+    // Verificar se temos técnica selecionada
+    if (!tecnicaId || !baseDados || !baseDados.tecnicas) {
+      var resPreco = document.getElementById("resPrecoUn");
+      var resTotal = document.getElementById("resTotalComercial");
+      if (resPreco) resPreco.textContent = "0,00 €";
+      if (resTotal) resTotal.textContent = "0,00 €";
+      return;
+    }
+    
     var imp = obterCustoPara(q, tecnicaId);
-    var custo = pComIva + imp.custoUnComIva + portesIva / q;
-    var lucro = margemPorUnidade(q, margem, tipo, custo);
-    var item = document.createElement("div");
-    item.className = "escalao-item" + (q === qAtual ? " active" : "");
-    item.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
-    c.appendChild(item);
-  });
-}
+    var pIva = p * TAXA_IVA, portesIva = portes * TAXA_IVA;
+    var custoUn = pIva + imp.custoUnComIva + (portesIva / q);
+    var lucro = margemPorUnidade(q, margem, tipo, custoUn);
+    var venda = custoUn + lucro;
 
-// ==================== UTILITÁRIOS ====================
-function resumoTexto() {
-  var q = document.getElementById("quantidade").value;
-  var selTec = document.getElementById("seletorTecnicaBD");
-  var t = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
-  var mat = document.getElementById("nomeMaterialAtivo").textContent;
-  return "GrafiSantos Print\nArtigo: " + mat + "\nQuantidade: " + q + "\nTécnica: " + t + 
-    "\nPreço/un.: " + document.getElementById("resPrecoUn").textContent + 
-    "\nTotal: " + document.getElementById("resTotalComercial").textContent + 
-    "\nLucro total: " + document.getElementById("resLucroTotal").textContent;
-}
+    var elPreco = document.getElementById("resPrecoUn");
+    var elTotal = document.getElementById("resTotalComercial");
+    var elCustoMat = document.getElementById("resCustoMaterialUn");
+    var elCustoImpr = document.getElementById("resCustoImprUn");
+    var elPortes = document.getElementById("resPortes");
+    var elCustoTotal = document.getElementById("resCustoTotalLote");
+    var elLucroUn = document.getElementById("resLucroUn");
+    var elLucroTotal = document.getElementById("resLucroTotal");
+    var elEscalao = document.getElementById("escalaoBadge");
+    
+    if (elPreco) elPreco.textContent = moeda(venda);
+    if (elTotal) elTotal.textContent = moeda(venda * q);
+    if (elCustoMat) elCustoMat.textContent = moeda(pIva);
+    if (elCustoImpr) elCustoImpr.textContent = moeda(imp.custoUnComIva);
+    if (elPortes) elPortes.textContent = moeda(portesIva);
+    if (elCustoTotal) elCustoTotal.textContent = moeda(custoUn * q);
+    if (elLucroUn) elLucroUn.textContent = moeda(lucro);
+    if (elLucroTotal) elLucroTotal.textContent = moeda(lucro * q);
+    if (elEscalao) elEscalao.textContent = "Escalão ≥ " + imp.minEscalao + " un";
 
-function copiarResumo() {
-  var txt = resumoTexto();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.w
+    var t = obterDadosTecnica(tecnicaId);
+    var linhaConsumo = document.getElementById("linhaConsumoFilme");
+    var labelConsumo = document.getElementById("labelConsumoFilme");
+    var resConsumo = document.getElementById("resConsumoFilme");
+    
+    if (linhaConsumo) {
+      if (t && t.custoMetro > 0) {
+        linhaConsumo.style.display = "flex";
+        if (labelConsumo) labelConsumo.textContent = "Consumo " + t.nome + ":";
+        if (resConsumo) resConsumo.textContent = imp.metrosTotais.toFixed(2).replace(".", ",") + " m";
+      } else {
+        linhaConsumo.style.display = "none";
+      }
+    }
+    
+    gerarComparativoEscaloes(q, pIva, portesIva, tecnicaId, tipo, margem);
+  } catch(e) {
+    console.log("Erro no cálculo:", e);
+    // Mostrar erro no debug
+    var debugDiv = document.getElementById("debugErroMovil");
+    if (debugDiv) {
+      debugDiv.sty
