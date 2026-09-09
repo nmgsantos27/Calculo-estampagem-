@@ -52,13 +52,15 @@
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoFornecedor()">+ Novo Fornecedor</button>
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormNovoFornecedor()">+ Novo</button>
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormEditarFornecedor()">✏️ Editar</button>
           <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarFornecedorAtivo()">🗑️ Eliminar</button>
         </div>
 
-        <!-- FORMULÁRIO NOVO FORNECEDOR -->
+        <!-- FORMULÁRIO FORNECEDOR (NOVO / EDITAR) -->
         <div id="formNovoFornecedor" class="novo-artigo-box" style="display: none;">
-          <h4>Adicionar Fornecedor</h4>
+          <h4 id="tituloFormFornecedor">Adicionar Fornecedor</h4>
+          <input type="hidden" id="editFornecedorId" value="">
           <div class="form-group">
             <label for="novoNomeFornecedor">Nome do Fornecedor:</label>
             <input type="text" id="novoNomeFornecedor" placeholder="Ex: Roly">
@@ -71,8 +73,8 @@
             </div>
           </div>
           <div class="form-row">
-            <button type="button" class="btn btn-primary" onclick="guardarNovoFornecedorBD()">Guardar</button>
-            <button type="button" class="btn btn-outline" onclick="alternarFormNovoFornecedor()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarFornecedorBD()">Guardar</button>
+            <button type="button" class="btn btn-outline" onclick="fecharFormFornecedor()">Cancelar</button>
           </div>
         </div>
 
@@ -91,13 +93,15 @@
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoMaterial()">+ Novo Material</button>
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormNovoMaterial()">+ Novo</button>
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormEditarMaterial()">✏️ Editar</button>
           <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarMaterialAtivo()">🗑️ Eliminar</button>
         </div>
 
-        <!-- FORMULÁRIO NOVO MATERIAL -->
+        <!-- FORMULÁRIO MATERIAL (NOVO / EDITAR) -->
         <div id="formNovoMaterial" class="novo-artigo-box" style="display: none;">
-          <h4>Adicionar Material ao Fornecedor</h4>
+          <h4 id="tituloFormMaterial">Adicionar Material</h4>
+          <input type="hidden" id="editMaterialId" value="">
           <div class="form-group">
             <label for="novoNomeMaterial">Nome do Material:</label>
             <input type="text" id="novoNomeMaterial" placeholder="Ex: T-Shirt Beagle 150g">
@@ -110,8 +114,8 @@
             </div>
           </div>
           <div class="form-row">
-            <button type="button" class="btn btn-primary" onclick="guardarNovoMaterialBD()">Guardar</button>
-            <button type="button" class="btn btn-outline" onclick="alternarFormNovoMaterial()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarMaterialBD()">Guardar</button>
+            <button type="button" class="btn btn-outline" onclick="fecharFormMaterial()">Cancelar</button>
           </div>
         </div>
 
@@ -275,6 +279,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=3.0"></script>
+  <script src="script.js?v=4.0"></script>
 </body>
 </html>
