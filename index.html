@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <title>Calculadora GrafiSantos</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --border-color: #cbd5e1;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+    }
+    .container-principal {
+      width: 100%;
+      max-width: 480px;
+    }
+    .header-acoes {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .header-acoes h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    .grupo-botoes-topo {
+      display: flex;
+      gap: 6px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .linha-flex {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    .campo {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+    .campo label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .botoes-gestao {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .btn-icon {
+      background: #e2e8f0;
+      border: none;
+      border-radius: 6px;
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .btn-icon.btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn-secundario { background: #e2e8f0; color: #334155; }
+    .btn-sucesso { background: var(--success); color: #fff; width: 100%; }
+    .btn-cancelar { background: #64748b; color: #fff; width: 100%; }
+    .painel-form {
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    .painel-form h4 { margin: 0 0 8px 0; font-size: 0.95rem; }
+    .painel-form input { margin-bottom: 8px; }
+    .linha-botoes {
+      display: flex;
+      gap: 8px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .hidden { display: none !important; }
+    .resultados {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .linha-resultado {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .destaque {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .destaque-total {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #1e3a8a;
+      border-top: 2px solid #bfdbfe;
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #bfdbfe;
+      margin: 8px 0;
+    }
+    .badge-escalao {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+    .comparativo-escaloes {
+      margin-top: 10px;
+    }
+    .comparativo-escaloes h4 {
+      font-size: 0.9rem;
+      margin: 0 0 6px 0;
+    }
+    .grid-escaloes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+    .escalao-item {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 4px;
+      text-align: center;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+    .escalao-item.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .info-material-ativo {
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+  <!-- Biblioteca html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <!-- Container gerido inteiramente por script para evitar conflitos estáticos -->
+  <div id="areaParaPdf" class="container-principal"></div>
+
+  <script src="script.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js").catch(() => {}));
+  </script>
+</body>
+</html>
