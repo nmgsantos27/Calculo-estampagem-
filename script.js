@@ -8,7 +8,7 @@ function parseNum(valor) {
   return isNaN(num) ? 0 : num;
 }
 
-// MEMÓRIA INDEPENDENTE PARA CADA TÉCNICA
+// MEMÓRIA INDEPENDENTE POR TÉCNICA
 const memoriaTecnicas = {
   dtf: { custoMetro: 5.50, altura: 10, largura: 28 },
   vinil: { custoMetro: 6.50, altura: 10, largura: 28 },
@@ -202,7 +202,6 @@ function formatarMoeda(valor) {
   return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
 }
 
-// GUARDAR VALORES DA TÉCNICA ATUAL
 function guardarValoresTecnicaAtual(tecnica) {
   if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
     memoriaTecnicas[tecnica] = {
@@ -217,14 +216,9 @@ function guardarValoresTecnicaAtual(tecnica) {
   }
 }
 
-// ALTERNAR TÉCNICA E CARREGAR VALORES GUARDADOS
 function alternarTecnica() {
   const tecnicaNova = document.getElementById('tecnica').value;
-
-  // 1. Guardar o que estava inserido na técnica anterior
   guardarValoresTecnicaAtual(tecnicaAnterior);
-
-  // 2. Atualizar a variável de controlo
   tecnicaAnterior = tecnicaNova;
 
   const grupoDTF = document.getElementById('grupoDTF');
@@ -233,7 +227,6 @@ function alternarTecnica() {
   const labelCustoMetro = document.getElementById('labelCustoMetro');
   const labelConsumoFilme = document.getElementById('labelConsumoFilme');
 
-  // 3. Carregar os últimos valores registados para a nova técnica
   if (tecnicaNova === 'dtf' || tecnicaNova === 'vinil' || tecnicaNova === 'sublimacao') {
     grupoDTF.classList.remove('hidden');
     grupoCores.classList.add('hidden');
@@ -311,9 +304,6 @@ function calcular() {
   document.getElementById('resPortes').innerText = formatarMoeda(portesFornecedorComIva);
   document.getElementById('resCustoTotalLote').innerText = formatarMoeda(custoTotalLoteComIva);
 
-  const elMargemUn = document.getElementById('resMargemUn');
-  if (elMargemUn) elMargemUn.innerText = `${formatarMoeda(lucroUn)} / un`;
-
   gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
 }
 
@@ -374,7 +364,7 @@ function copiarResumo() {
 
 function guardarPDF() {
   if (typeof html2pdf === 'undefined') {
-    alert('A biblioteca de PDF ainda está a carregar ou estás sem internet.');
+    alert('A biblioteca de PDF ainda está a carregar.');
     return;
   }
   const elemento = document.getElementById('areaParaPdf');
@@ -388,33 +378,42 @@ function guardarPDF() {
   html2pdf().set(opt).from(elemento).save();
 }
 
-// VINCULAÇÃO UNIVERSAL PARA ANDROID E DESKTOP
-function associarEvento(id, evento, funcao) {
+// REGISTO UNIFICADO DE EVENTOS OTIMIZADO PARA ANDROID E ECRÃS TÁTEIS
+function associarAcaoBotao(id, acao) {
   const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener(evento, funcao);
-    if (evento === 'click') {
-      el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        funcao(e);
-      }, { passive: false });
+  if (!el) return;
+
+  let processado = false;
+
+  const executar = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-  }
+    if (processado) return;
+    processado = true;
+    setTimeout(() => { processado = false; }, 300); // Evita duplo clique acidental
+    acao();
+  };
+
+  // Suporte total a toque em telemóvel e clique de rato
+  el.addEventListener('pointerdown', executar, { passive: false });
+  el.addEventListener('click', executar);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   carregarBD();
 
-  // Botões
-  associarEvento('btnNovoForn', 'click', () => {
+  // BOTOES DE FORNECEDOR
+  associarAcaoBotao('btnNovoForn', () => {
     document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
     document.getElementById('editFornecedorId').value = '';
     document.getElementById('novoNomeFornecedor').value = '';
     document.getElementById('novoPortesFornecedor').value = '';
-    document.getElementById('formNovoFornecedor').style.display = 'block';
+    document.getElementById('formNovoFornecedor').classList.remove('hidden');
   });
 
-  associarEvento('btnEditarForn', 'click', () => {
+  associarAcaoBotao('btnEditarForn', () => {
     const fornId = document.getElementById('seletorFornecedorBD').value;
     const forn = baseDados.find(f => f.id === fornId);
     if (!forn) return alert('Selecione um fornecedor.');
@@ -422,10 +421,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('editFornecedorId').value = forn.id;
     document.getElementById('novoNomeFornecedor').value = forn.nome;
     document.getElementById('novoPortesFornecedor').value = parseNum(forn.portes).toFixed(2);
-    document.getElementById('formNovoFornecedor').style.display = 'block';
+    document.getElementById('formNovoFornecedor').classList.remove('hidden');
   });
 
-  associarEvento('btnEliminarForn', 'click', () => {
+  associarAcaoBotao('btnEliminarForn', () => {
     const fornId = document.getElementById('seletorFornecedorBD').value;
     if (fornId && confirm('Eliminar este fornecedor?')) {
       baseDados = baseDados.filter(f => f.id !== fornId);
@@ -434,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  associarEvento('btnGuardarFornBD', 'click', () => {
+  associarAcaoBotao('btnGuardarFornBD', () => {
     const editId = document.getElementById('editFornecedorId').value;
     const nome = document.getElementById('novoNomeFornecedor').value.trim();
     const portes = parseNum(document.getElementById('novoPortesFornecedor').value);
@@ -448,23 +447,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     guardarBD();
     atualizarSeletorFornecedoresBD();
-    document.getElementById('formNovoFornecedor').style.display = 'none';
+    document.getElementById('formNovoFornecedor').classList.add('hidden');
   });
 
-  associarEvento('btnFecharFornBD', 'click', () => {
-    document.getElementById('formNovoFornecedor').style.display = 'none';
+  associarAcaoBotao('btnFecharFornBD', () => {
+    document.getElementById('formNovoFornecedor').classList.add('hidden');
   });
 
-  // Botões de Material
-  associarEvento('btnNovoMat', 'click', () => {
+  // BOTOES DE MATERIAL
+  associarAcaoBotao('btnNovoMat', () => {
     document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
     document.getElementById('editMaterialId').value = '';
     document.getElementById('novoNomeMaterial').value = '';
     document.getElementById('novoPrecoMaterial').value = '';
-    document.getElementById('formNovoMaterial').style.display = 'block';
+    document.getElementById('formNovoMaterial').classList.remove('hidden');
   });
 
-  associarEvento('btnEditarMat', 'click', () => {
+  associarAcaoBotao('btnEditarMat', () => {
     const fornId = document.getElementById('seletorFornecedorBD').value;
     const matId = document.getElementById('seletorMaterialBD').value;
     const forn = baseDados.find(f => f.id === fornId);
@@ -474,10 +473,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('editMaterialId').value = mat.id;
     document.getElementById('novoNomeMaterial').value = mat.nome;
     document.getElementById('novoPrecoMaterial').value = parseNum(mat.preco).toFixed(2);
-    document.getElementById('formNovoMaterial').style.display = 'block';
+    document.getElementById('formNovoMaterial').classList.remove('hidden');
   });
 
-  associarEvento('btnEliminarMat', 'click', () => {
+  associarAcaoBotao('btnEliminarMat', () => {
     const fornId = document.getElementById('seletorFornecedorBD').value;
     const matId = document.getElementById('seletorMaterialBD').value;
     const forn = baseDados.find(f => f.id === fornId);
@@ -488,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  associarEvento('btnGuardarMatBD', 'click', () => {
+  associarAcaoBotao('btnGuardarMatBD', () => {
     const fornId = document.getElementById('seletorFornecedorBD').value;
     const forn = baseDados.find(f => f.id === fornId);
     if (!forn) return;
@@ -504,4 +503,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!forn.materiais) forn.materiais = [];
       forn.materiais.push({ id: 'm_' + Date.now(), nome, preco });
     }
-    guardarBD(
+    guardarBD();
+    atualizarSeletorMateriaisBD(forn.materiais);
+    document.getElementById('formNovoMaterial').classList.add('hidden');
+  });
+
+  associarAcaoBotao('btnFecharMatBD', () => {
