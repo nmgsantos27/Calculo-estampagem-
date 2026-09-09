@@ -76,7 +76,7 @@
       flex-direction: column;
       margin-bottom: 8px;
       flex: 1;
-      min-width: 80px;
+      min-width: 70px;
     }
     .campo label {
       font-size: 0.85rem;
@@ -132,6 +132,7 @@
     .btn-secundario { background: #e2e8f0; color: #334155; }
     .btn-sucesso { background: var(--success); color: #fff; width: 100%; }
     .btn-cancelar { background: #64748b; color: #fff; width: 100%; }
+    .btn-pequeno { padding: 6px 10px; font-size: 0.8rem; }
     .painel-form {
       background: #f1f5f9;
       padding: 10px;
@@ -250,6 +251,11 @@
       font-size: 0.7rem;
       font-weight: bold;
     }
+    .info-tecnica-detalhe {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-left: 4px;
+    }
     @media print {
       .header-acoes, .bd-section, .botoes-gestao, .info-material-ativo {
         display: none !important;
@@ -346,7 +352,7 @@
     <section class="card bd-section">
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">🖨️ Técnica</h4>
       <div class="linha-flex">
-        <div class="campo" style="margin-bottom:0">
+        <div class="campo" style="margin-bottom:0;flex:2;">
           <label for="seletorTecnicaBD">Técnica:</label>
           <select id="seletorTecnicaBD"></select>
         </div>
@@ -356,22 +362,35 @@
           <button type="button" id="btnEliminarTec" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
+      
+      <!-- Informação da técnica selecionada -->
+      <div id="infoTecnicaSelecionada" style="margin-top:6px;font-size:0.85rem;color:#475569;background:#f8fafc;padding:8px;border-radius:6px;border:1px solid #e2e8f0;">
+        <span id="infoTecNome">Nenhuma técnica selecionada</span>
+        <span id="infoTecDetalhes" style="margin-left:8px;"></span>
+      </div>
+
       <div id="formNovaTecnica" class="painel-form hidden">
         <h4 id="tituloFormTecnica">Nova técnica</h4>
         <input type="hidden" id="editTecnicaId">
         <input type="text" id="novoNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
-        <div class="grid-3">
+        <div class="grid-2">
           <div class="campo" style="margin-bottom:0">
             <label for="novoCustoMetroTecnica">Custo/Metro (€):</label>
             <input type="number" inputmode="decimal" id="novoCustoMetroTecnica" placeholder="0.00" step="0.01">
           </div>
           <div class="campo" style="margin-bottom:0">
+            <label for="novaLarguraTecnica">Largura (cm):</label>
+            <input type="number" inputmode="decimal" id="novaLarguraTecnica" placeholder="28" step="0.1">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="campo" style="margin-bottom:0">
             <label for="novoAlturaTecnica">Altura (cm):</label>
             <input type="number" inputmode="decimal" id="novoAlturaTecnica" placeholder="10" step="0.1">
           </div>
           <div class="campo" style="margin-bottom:0">
-            <label for="novoLarguraTecnica">Largura (cm):</label>
-            <input type="number" inputmode="decimal" id="novoLarguraTecnica" placeholder="28" step="0.1">
+            <label for="novoNumCoresTecnica">Nº Cores (opcional):</label>
+            <input type="number" inputmode="numeric" id="novoNumCoresTecnica" placeholder="1" min="1" max="10">
           </div>
         </div>
         <div class="linha-botoes" style="margin-top:8px;">
@@ -383,17 +402,43 @@
 
     <!-- SECÇÃO: CÁLCULO -->
     <section class="card">
+      <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">📐 Dimensões da Estampa</h4>
       <div class="grid-2">
-        <div class="campo"><label for="quantidade">Quantidade:</label><input type="number" inputmode="numeric" id="quantidade" value="1" min="1"></div>
-        <div class="campo"><label for="tipoMargem">Tipo de Margem:</label><select id="tipoMargem"><option value="valor">Valor Fixo (€)</option><option value="percentagem">Percentagem (%)</option></select></div>
+        <div class="campo">
+          <label for="alturaEstampa">Altura (cm):</label>
+          <input type="number" inputmode="decimal" id="alturaEstampa" value="10" step="0.1">
+        </div>
+        <div class="campo">
+          <label for="larguraEstampa">Largura (cm):</label>
+          <input type="number" inputmode="decimal" id="larguraEstampa" value="28" step="0.1">
+        </div>
       </div>
       <div class="grid-2">
-        <div class="campo"><label for="valMargem">Margem Lucro:</label><input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50"></div>
-        <div class="campo"><label for="custoPeca">Custo Peça s/ IVA (€):</label><input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01"></div>
+        <div class="campo">
+          <label for="quantidade">Quantidade:</label>
+          <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
+        </div>
+        <div class="campo">
+          <label for="custoPeca">Custo Peça s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
+        </div>
       </div>
-      <div class="campo">
-        <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
-        <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+      <div class="grid-2">
+        <div class="campo">
+          <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+        </div>
+        <div class="campo">
+          <label for="valMargem">Margem Lucro:</label>
+          <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
+        </div>
+      </div>
+      <div class="campo" style="margin-bottom:0;">
+        <label for="tipoMargem">Tipo de Margem:</label>
+        <select id="tipoMargem">
+          <option value="valor">Valor Fixo (€)</option>
+          <option value="percentagem">Percentagem (%)</option>
+        </select>
       </div>
     </section>
 
@@ -415,8 +460,8 @@
       <div class="comparativo-escaloes"><h4>Tabela Comparativa por Quantidade</h4><div id="tabelaComparativa" class="grid-escaloes"></div></div>
     </section>
     <footer class="info-material-ativo">
-      <span id="infoTecnicaAtiva">Técnica: <strong id="nomeTecnicaAtiva">Nenhuma</strong></span> | 
-      <span id="infoMaterialAtivo">Material: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)</span>
+      <span id="infoTecnicaAtivaFooter">Técnica: <strong id="nomeTecnicaAtiva">Nenhuma</strong></span> | 
+      <span id="infoMaterialAtivoFooter">Material: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)</span>
     </footer>
   </div>
 
@@ -429,4 +474,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
