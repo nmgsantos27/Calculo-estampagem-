@@ -159,16 +159,18 @@
         <div class="form-group">
           <label for="tecnica">Técnica de Personalização:</label>
           <select id="tecnica">
-            <option value="dtf">DTF (Direct to Film)</option>
+            <option value="dtf">DTF (Direct to Film - 28cm)</option>
+            <option value="vinil">Vinil Flex (50cm)</option>
+            <option value="sublimacao">Sublimação (58cm)</option>
             <option value="serigrafia">Serigrafia</option>
             <option value="bordado">Bordado</option>
           </select>
         </div>
 
-        <!-- CAMPOS DTF -->
+        <!-- CAMPOS PARA TÉCNICAS ÁREA / METRO (DTF, VINIL, SUBLIMAÇÃO) -->
         <div id="grupoDTF" class="grupo-tecnica">
           <div class="form-group">
-            <label for="custoMetroDTF">Custo Metro DTF s/ IVA:</label>
+            <label for="custoMetroDTF" id="labelCustoMetro">Custo Metro s/ IVA:</label>
             <div class="input-symbol">
               <input type="number" id="custoMetroDTF" value="5.50" step="0.01" min="0">
               <span>€</span>
@@ -259,7 +261,7 @@
             <strong id="resCustoTotalLote">0,00 €</strong>
           </div>
           <div class="d-row info" id="linhaConsumoFilme">
-            <span>Consumo Filme DTF:</span>
+            <span id="labelConsumoFilme">Consumo Material:</span>
             <strong id="resConsumoFilme">0,00 m</strong>
           </div>
         </div>
@@ -279,6 +281,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=5.0"></script>
+  <script src="script.js?v=6.0"></script>
 </body>
 </html>

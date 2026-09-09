@@ -51,15 +51,29 @@ function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
   return margemBase;
 }
 
+// FUNÇÃO AUXILIAR PARA TÉCNICAS BASEADAS EM BOBINA/METRO
+function calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, larguraBobinaCm) {
+  const margemPerda = 1.05;
+  const areaTotal = (alturaCm / 100) * (larguraCm / 100) * qtd * margemPerda;
+  const metrosTotais = areaTotal / (larguraBobinaCm / 100);
+  const custoLoteComIva = metrosTotais * custoMetro * TAXA_IVA;
+  return { custoUnComIva: custoLoteComIva / qtd, metrosTotais: metrosTotais, minEscalao: 1 };
+}
+
 const TECNICAS = {
   dtf: {
     obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
-      const margemPerda = 1.05;
-      const larguraFilmeCm = 28;
-      const areaTotal = (alturaCm / 100) * (larguraCm / 100) * qtd * margemPerda;
-      const metrosTotais = areaTotal / (larguraFilmeCm / 100);
-      const custoLoteComIva = metrosTotais * custoMetro * TAXA_IVA;
-      return { custoUnComIva: custoLoteComIva / qtd, metrosTotais: metrosTotais, minEscalao: 1 };
+      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 28);
+    }
+  },
+  vinil: {
+    obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
+      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 50);
+    }
+  },
+  sublimacao: {
+    obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
+      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 58);
     }
   },
   serigrafia: {
@@ -187,7 +201,6 @@ function selecionarMaterialBD() {
   calcular();
 }
 
-// --- FUNÇÕES DE NAVEGAÇÃO / AÇÕES DE FORNECEDOR E MATERIAL ---
 function prepararFormNovoFornecedor() {
   document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
   document.getElementById('editFornecedorId').value = '';
@@ -376,11 +389,25 @@ function alternarTecnica() {
   const grupoDTF = document.getElementById('grupoDTF');
   const grupoCores = document.getElementById('grupoCores');
   const linhaConsumoFilme = document.getElementById('linhaConsumoFilme');
+  const labelCustoMetro = document.getElementById('labelCustoMetro');
+  const labelConsumoFilme = document.getElementById('labelConsumoFilme');
 
-  if (tecnica === 'dtf') {
+  // Técnicas que usam dimensões e cálculo por metro de bobina
+  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
     grupoDTF.classList.remove('hidden');
     grupoCores.classList.add('hidden');
     linhaConsumoFilme.style.display = 'flex';
+
+    if (tecnica === 'dtf') {
+      labelCustoMetro.innerText = 'Custo Metro DTF (28cm) s/ IVA:';
+      labelConsumoFilme.innerText = 'Consumo Filme DTF:';
+    } else if (tecnica === 'vinil') {
+      labelCustoMetro.innerText = 'Custo Metro Vinil (50cm) s/ IVA:';
+      labelConsumoFilme.innerText = 'Consumo Vinil Flex:';
+    } else if (tecnica === 'sublimacao') {
+      labelCustoMetro.innerText = 'Custo Metro Sublimação (58cm) s/ IVA:';
+      labelConsumoFilme.innerText = 'Consumo Papel Sublimação:';
+    }
   } else {
     grupoDTF.classList.add('hidden');
     grupoCores.classList.remove('hidden');
@@ -403,7 +430,7 @@ function calcular() {
   const config = TECNICAS[tecnica];
   let resImpressao = { custoUnComIva: 0, minEscalao: 1, metrosTotais: 0 };
 
-  if (tecnica === 'dtf') {
+  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
     const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
     const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
     const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
@@ -451,7 +478,7 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
     const config = TECNICAS[tecnica];
     let res = { custoUnComIva: 0 };
 
-    if (tecnica === 'dtf') {
+    if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
       const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
       const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
       const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
@@ -502,7 +529,6 @@ function guardarPDF() {
   html2pdf().set(opt).from(elemento).save();
 }
 
-// --- ASSOCIAR EVENTOS DIRETAMENTE NO JS (MUITO MAIS FIÁVEL EM MOBILE) ---
 document.addEventListener("DOMContentLoaded", () => {
   carregarBD();
 
@@ -528,16 +554,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Selects
   document.getElementById('seletorFornecedorBD').onchange = selecionarFornecedorBD;
   document.getElementById('seletorMaterialBD').onchange = selecionarMaterialBD;
-  document.getElementById('tecnica').onchange = () => { alternarTecnica(); calcular(); };
-  document.getElementById('tipoMargem').onchange = calcular;
-
-  // Inputs para calculo imediato
-  const inputsCalculo = ['quantidade', 'custoPeca', 'portesFornecedor', 'custoMetroDTF', 'alturaEstampaDTF', 'larguraEstampaDTF', 'numCores', 'valMargem'];
-  inputsCalculo.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.oninput = calcular;
-  });
-
-  alternarTecnica();
-  calcular();
-});
+  document.getElementById('tecnica').onchange = () => { alternarTecnica()
