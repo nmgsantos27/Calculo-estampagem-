@@ -1,7 +1,3 @@
-/* GrafiSantos Print - versão corrigida
-   Mantém a lógica da calculadora original e completa a inicialização,
-   gestão de fornecedores/materiais, eventos, PDF, impressão e comparação.
-*/
 "use strict";
 
 const TAXA_IVA = 1.23;
@@ -416,68 +412,4 @@ function guardarMaterial(){
   } else {
     const m={id:id("m"),nome,preco}; f.materiais.push(m); materialSelecionadoId=m.id;
   }
-  guardarBD(); fecharFormMaterial(); atualizarSelectMateriaisDinamicos(f.materiais);
-}
-function eliminarMaterial(){
-  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId); if(!f)return;
-  if(!materialSelecionadoId)return;
-  const m=(f.materiais||[]).find(x=>x.id===materialSelecionadoId);
-  if(!confirm(`Eliminar o material "${m?.nome||""}"?`))return;
-  f.materiais=(f.materiais||[]).filter(x=>x.id!==materialSelecionadoId);
-  materialSelecionadoId=null; guardarBD(); atualizarSelectMateriaisDinamicos(f.materiais);
-}
-
-function resumoTexto(){
-  const q=document.getElementById("quantidade").value;
-  const t=document.getElementById("tecnica").selectedOptions[0].text;
-  const mat=document.getElementById("nomeMaterialAtivo").textContent;
-  return `GrafiSantos Print\nArtigo: ${mat}\nQuantidade: ${q}\nTécnica: ${t}\nPreço/un.: ${document.getElementById("resPrecoUn").textContent}\nTotal: ${document.getElementById("resTotalComercial").textContent}\nLucro total: ${document.getElementById("resLucroTotal").textContent}`;
-}
-async function copiarResumo(){
-  const txt=resumoTexto();
-  try{await navigator.clipboard.writeText(txt);alert("Resumo copiado.");}
-  catch(e){prompt("Copia o resumo:",txt);}
-}
-function guardarPDF(){
-  if(typeof html2pdf==="undefined"){window.print();return;}
-  const el=document.getElementById("areaParaPdf");
-  html2pdf().set({
-    margin:8,filename:"GrafiSantos-Calculadora.pdf",
-    image:{type:"jpeg",quality:.95},
-    html2canvas:{scale:2,useCORS:true},
-    jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}
-  }).from(el).save();
-}
-function imprimir(){window.print();}
-
-function ligarEventos(){
-  const on=(idv,event,fn)=>{const e=document.getElementById(idv);if(e)e.addEventListener(event,fn);};
-  on("seletorFornecedorBD","change",e=>{fornecedorSelecionadoId=e.target.value;materialSelecionadoId=null;atualizarSelectsDinamicos();});
-  on("seletorMaterialBD","change",e=>{materialSelecionadoId=e.target.value;const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);atualizarSelectMateriaisDinamicos(f?.materiais||[]);});
-  on("btnNovoForn","click",()=>abrirFormFornecedor(false));
-  on("btnEditarForn","click",()=>abrirFormFornecedor(true));
-  on("btnEliminarForn","click",eliminarFornecedor);
-  on("btnGuardarFornBD","click",guardarFornecedor);
-  on("btnFecharFornBD","click",fecharFormFornecedor);
-  on("btnNovoMat","click",()=>abrirFormMaterial(false));
-  on("btnEditarMat","click",()=>abrirFormMaterial(true));
-  on("btnEliminarMat","click",eliminarMaterial);
-  on("btnGuardarMatBD","click",guardarMaterial);
-  on("btnFecharMatBD","click",fecharFormMaterial);
-  on("tecnica","change",alternarTecnica);
-  ["quantidade","custoPeca","portesFornecedor","custoMetroDTF","alturaEstampaDTF","larguraEstampaDTF","numCores","tipoMargem","valMargem"]
-    .forEach(x=>on(x,"input",calcular));
-  on("tipoMargem","change",calcular);
-  on("numCores","change",calcular);
-  on("btnCopiarResumo","click",copiarResumo);
-  on("btnGuardarPDF","click",guardarPDF);
-  on("btnImprimir","click",imprimir);
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  carregarBD();
-  renderizarInterfaceCompleta();
-  ligarEventos();
-  alternarTecnica();
-  calcular();
-});
+  guardarBD(); fecharFormMateria
