@@ -98,6 +98,12 @@ function renderFornecedores() {
   renderMateriais();
 }
 
+function onChangeFornecedor(val) {
+  fornecedorId = val;
+  materialId = null;
+  renderMateriais();
+}
+
 function abrirFormFornecedor(editar) {
   var f = obterFornecedor(fornecedorId);
   document.getElementById("formFornecedor").classList.remove("hidden");
@@ -171,6 +177,11 @@ function renderMateriais() {
   calcular();
 }
 
+function onChangeMaterial(val) {
+  materialId = val;
+  renderMateriais();
+}
+
 function abrirFormMaterial(editar) {
   var m = obterMaterial(materialId);
   document.getElementById("formMaterial").classList.remove("hidden");
@@ -231,6 +242,12 @@ function renderTecnicas() {
     tecnicaId = dados.tecnicas[0] ? dados.tecnicas[0].id : null;
   }
   if (tecnicaId) sel.value = tecnicaId;
+  atualizarInfoTecnica();
+  calcular();
+}
+
+function onChangeTecnica(val) {
+  tecnicaId = val;
   atualizarInfoTecnica();
   calcular();
 }
@@ -461,42 +478,20 @@ function gerarPDF() {
   }).from(el).save();
 }
 
-// ==================== EVENTOS ====================
-function ligarEventos() {
-  function addEvent(el, fn) {
-    if (!el) return;
-    el.addEventListener('click', fn);
-    el.addEventListener('touchstart', function(e) {
-      if (!e.target._clicked) {
-        e.target._clicked = true;
-        fn(e);
-        setTimeout(function() { e.target._clicked = false; }, 300);
-      }
-    });
+// ==================== INICIALIZAÇÃO ====================
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    carregarDados();
+    renderFornecedores();
+    renderTecnicas();
+    calcular();
+    atualizarInfoTecnica();
+  } catch (e) {
+    var debug = document.getElementById("debugErro");
+    if (debug) {
+      debug.style.display = "block";
+      debug.textContent = "Erro: " + e.message;
+    }
+    console.log("Erro:", e);
   }
-
-  function addChange(el, fn) {
-    if (!el) return;
-    el.addEventListener('change', fn);
-    el.addEventListener('input', fn);
-  }
-
-  // Fornecedores
-  addChange(document.getElementById("selFornecedor"), function(e) {
-    fornecedorId = e.target.value;
-    materialId = null;
-    renderMateriais();
-  });
-  addEvent(document.getElementById("btnAddFornecedor"), function() { abrirFormFornecedor(false); });
-  addEvent(document.getElementById("btnEditFornecedor"), function() { abrirFormFornecedor(true); });
-  addEvent(document.getElementById("btnDelFornecedor"), eliminarFornecedor);
-  addEvent(document.getElementById("btnSaveFornecedor"), guardarFornecedor);
-  addEvent(document.getElementById("btnCancelFornecedor"), fecharFormFornecedor);
-
-  // Materiais
-  addChange(document.getElementById("selMaterial"), function(e) {
-    materialId = e.target.value;
-    renderMateriais();
-  });
-  addEvent(document.getElementById("btnAddMaterial"), function() { abrirFormMaterial(false); });
-  addEvent(document.getElementById("btnEditMaterial"), function(
+});

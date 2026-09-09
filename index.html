@@ -54,10 +54,6 @@
       background: #16a34a;
       color: #fff;
     }
-    .btn-danger {
-      background: #dc2626;
-      color: #fff;
-    }
     .btn-cancel {
       background: #94a3b8;
       color: #fff;
@@ -246,9 +242,9 @@
   <div class="header no-print">
     <h1>GrafiSantos Print</h1>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-      <button class="btn btn-secondary" id="btnCopiar">Copiar</button>
-      <button class="btn btn-secondary" id="btnPDF">PDF</button>
-      <button class="btn btn-secondary" id="btnImprimir">Imprimir</button>
+      <button class="btn btn-secondary" onclick="copiarResumo()">Copiar</button>
+      <button class="btn btn-secondary" onclick="gerarPDF()">PDF</button>
+      <button class="btn btn-secondary" onclick="window.print()">Imprimir</button>
     </div>
   </div>
 
@@ -258,12 +254,12 @@
     <div class="flex">
       <div class="field flex-grow" style="margin-bottom:0;">
         <label>Fornecedor:</label>
-        <select id="selFornecedor"></select>
+        <select id="selFornecedor" onchange="onChangeFornecedor(this.value)"></select>
       </div>
       <div style="display:flex;gap:4px;margin-bottom:8px;">
-        <button class="btn-icon" id="btnAddFornecedor">+</button>
-        <button class="btn-icon" id="btnEditFornecedor">✎</button>
-        <button class="btn-icon btn-icon-danger" id="btnDelFornecedor">✕</button>
+        <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
+        <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
+        <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
       </div>
     </div>
     <div class="form-panel hidden" id="formFornecedor">
@@ -272,8 +268,8 @@
       <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
       <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
       <div class="btn-row">
-        <button class="btn btn-success" id="btnSaveFornecedor">Guardar</button>
-        <button class="btn btn-cancel" id="btnCancelFornecedor">Cancelar</button>
+        <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
+        <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -284,12 +280,12 @@
     <div class="flex">
       <div class="field flex-grow" style="margin-bottom:0;">
         <label>Material:</label>
-        <select id="selMaterial"></select>
+        <select id="selMaterial" onchange="onChangeMaterial(this.value)"></select>
       </div>
       <div style="display:flex;gap:4px;margin-bottom:8px;">
-        <button class="btn-icon" id="btnAddMaterial">+</button>
-        <button class="btn-icon" id="btnEditMaterial">✎</button>
-        <button class="btn-icon btn-icon-danger" id="btnDelMaterial">✕</button>
+        <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
+        <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
+        <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
       </div>
     </div>
     <div class="form-panel hidden" id="formMaterial">
@@ -298,8 +294,8 @@
       <input type="text" id="inputNomeMaterial" placeholder="Nome do Material">
       <input type="number" id="inputPrecoMaterial" placeholder="Preço Base (€)" step="0.01">
       <div class="btn-row">
-        <button class="btn btn-success" id="btnSaveMaterial">Guardar</button>
-        <button class="btn btn-cancel" id="btnCancelMaterial">Cancelar</button>
+        <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
+        <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -310,12 +306,12 @@
     <div class="flex">
       <div class="field flex-grow" style="margin-bottom:0;">
         <label>Técnica:</label>
-        <select id="selTecnica"></select>
+        <select id="selTecnica" onchange="onChangeTecnica(this.value)"></select>
       </div>
       <div style="display:flex;gap:4px;margin-bottom:8px;">
-        <button class="btn-icon" id="btnAddTecnica">+</button>
-        <button class="btn-icon" id="btnEditTecnica">✎</button>
-        <button class="btn-icon btn-icon-danger" id="btnDelTecnica">✕</button>
+        <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
+        <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
+        <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
       </div>
     </div>
     <div id="infoTecnica" style="margin-top:6px;font-size:0.8rem;color:#475569;background:#f8fafc;padding:6px 10px;border-radius:4px;border:1px solid #e2e8f0;">
@@ -347,8 +343,8 @@
         </div>
       </div>
       <div class="btn-row" style="margin-top:8px;">
-        <button class="btn btn-success" id="btnSaveTecnica">Guardar</button>
-        <button class="btn btn-cancel" id="btnCancelTecnica">Cancelar</button>
+        <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
+        <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -359,36 +355,36 @@
     <div class="grid-2">
       <div class="field">
         <label>Altura (cm):</label>
-        <input type="number" id="alturaEstampa" value="10" step="0.1">
+        <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
       </div>
       <div class="field">
         <label>Largura (cm):</label>
-        <input type="number" id="larguraEstampa" value="28" step="0.1">
+        <input type="number" id="larguraEstampa" value="28" step="0.1" oninput="calcular()" onchange="calcular()">
       </div>
     </div>
     <div class="grid-2">
       <div class="field">
         <label>Quantidade:</label>
-        <input type="number" id="quantidade" value="1" min="1">
+        <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
       </div>
       <div class="field">
         <label>Custo Peça s/IVA (€):</label>
-        <input type="number" id="custoPeca" value="0.00" step="0.01">
+        <input type="number" id="custoPeca" value="0.00" step="0.01" oninput="calcular()" onchange="calcular()">
       </div>
     </div>
     <div class="grid-2">
       <div class="field">
         <label>Portes Lote s/IVA (€):</label>
-        <input type="number" id="portesFornecedor" value="0.00" step="0.01">
+        <input type="number" id="portesFornecedor" value="0.00" step="0.01" oninput="calcular()" onchange="calcular()">
       </div>
       <div class="field">
         <label>Margem Lucro:</label>
-        <input type="number" id="valMargem" value="5.00" step="0.50">
+        <input type="number" id="valMargem" value="5.00" step="0.50" oninput="calcular()" onchange="calcular()">
       </div>
     </div>
     <div class="field" style="margin-bottom:0;">
       <label>Tipo de Margem:</label>
-      <select id="tipoMargem">
+      <select id="tipoMargem" onchange="calcular()">
         <option value="valor">Valor Fixo (€)</option>
         <option value="percentagem">Percentagem (%)</option>
       </select>
