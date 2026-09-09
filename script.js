@@ -19,7 +19,7 @@ window.onerror = function(msg, url, line) {
 };
 
 var TAXA_IVA = 1.23;
-var STORAGE_KEY = "baseDadosGrafiSantos_v2";
+var STORAGE_KEY = "baseDadosGrafiSantos_v3";
 
 function parseNum(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
@@ -52,11 +52,11 @@ var BASE_DADOS_PADRAO = {
     ]}
   ],
   tecnicas: [
-    {id:"t1", nome:"DTF", custoMetro:5.50, altura:10, largura:28},
-    {id:"t2", nome:"Vinil Flex", custoMetro:6.50, altura:10, largura:28},
-    {id:"t3", nome:"Sublimação", custoMetro:4.50, altura:10, largura:28},
-    {id:"t4", nome:"Serigrafia", custoMetro:0, altura:0, largura:0, numCores:1},
-    {id:"t5", nome:"Bordado", custoMetro:0, altura:0, largura:0, numCores:1}
+    {id:"t1", nome:"DTF", custoMetro:5.50, altura:10, largura:28, numCores:1},
+    {id:"t2", nome:"Vinil Flex", custoMetro:6.50, altura:10, largura:28, numCores:1},
+    {id:"t3", nome:"Sublimação", custoMetro:4.50, altura:10, largura:28, numCores:1},
+    {id:"t4", nome:"Serigrafia", custoMetro:0, altura:10, largura:0, numCores:1},
+    {id:"t5", nome:"Bordado", custoMetro:0, altura:10, largura:0, numCores:1}
   ]
 };
 
@@ -79,7 +79,6 @@ function carregarBD() {
   } catch(e) {
     console.log("Erro ao carregar dados:", e);
   }
-  // Usar padrão se não houver dados
   baseDados = JSON.parse(JSON.stringify(BASE_DADOS_PADRAO));
   guardarBD();
 }
@@ -87,7 +86,6 @@ function carregarBD() {
 function guardarBD() {
   try { 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(baseDados)); 
-    console.log("Dados guardados");
   } catch(e) {
     console.log("Erro ao guardar dados:", e);
   }
@@ -284,11 +282,10 @@ function atualizarSelectTecnicas() {
   baseDados.tecnicas.forEach(function(t) {
     var o = document.createElement("option");
     o.value = t.id;
+    // Mostrar nome e largura
     var label = t.nome;
-    if (t.custoMetro > 0) {
-      label += " (" + parseNum(t.custoMetro).toFixed(2) + "€/m)";
-    } else if (t.numCores) {
-      label += " (" + t.numCores + " cores)";
+    if (t.largura > 0) {
+      label += " (" + parseNum(t.largura).toFixed(0) + "cm)";
     }
     o.textContent = label;
     st.appendChild(o);
@@ -299,12 +296,42 @@ function atualizarSelectTecnicas() {
   }
   st.value = tecnicaSelecionadaId;
   
+  atualizarInfoTecnica();
+  calcular();
+}
+
+function atualizarInfoTecnica() {
   var t = baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; });
   var nomeTec = document.getElementById("nomeTecnicaAtiva");
-  if (nomeTec && t) {
-    nomeTec.textContent = t.nome;
+  var infoTecNome = document.getElementById("infoTecNome");
+  var infoTecDetalhes = document.getElementById("infoTecDetalhes");
+  
+  if (t) {
+    if (nomeTec) nomeTec.textContent = t.nome;
+    if (infoTecNome) infoTecNome.textContent = "📌 " + t.nome;
+    
+    var detalhes = [];
+    if (t.custoMetro > 0) {
+      detalhes.push("€" + parseNum(t.custoMetro).toFixed(2) + "/m");
+    }
+    if (t.largura > 0) {
+      detalhes.push("Larg: " + parseNum(t.largura).toFixed(0) + "cm");
+    }
+    if (t.altura > 0) {
+      detalhes.push("Alt: " + parseNum(t.altura).toFixed(0) + "cm");
+    }
+    if (t.numCores > 1) {
+      detalhes.push(t.numCores + " cores");
+    }
+    
+    if (infoTecDetalhes) {
+      infoTecDetalhes.textContent = detalhes.length ? " (" + detalhes.join(" | ") + ")" : "";
+    }
+  } else {
+    if (nomeTec) nomeTec.textContent = "Nenhuma";
+    if (infoTecNome) infoTecNome.textContent = "Nenhuma técnica selecionada";
+    if (infoTecDetalhes) infoTecDetalhes.textContent = "";
   }
-  calcular();
 }
 
 function abrirFormTecnica(edit) {
@@ -315,7 +342,8 @@ function abrirFormTecnica(edit) {
   document.getElementById("novoNomeTecnica").value = edit ? (t ? t.nome : "") : "";
   document.getElementById("novoCustoMetroTecnica").value = edit ? parseNum(t ? t.custoMetro : 0) : "";
   document.getElementById("novoAlturaTecnica").value = edit ? parseNum(t ? t.altura : 0) : "";
-  document.getElementById("novoLarguraTecnica").value = edit ? parseNum(t ? t.largura : 0) : "";
+  document.getElementById("novaLarguraTecnica").value = edit ? parseNum(t ? t.largura : 0) : "";
+  document.getElementById("novoNumCoresTecnica").value = edit ? (t && t.numCores ? t.numCores : 1) : 1;
 }
 
 function fecharFormTecnica() { 
@@ -328,7 +356,8 @@ function guardarTecnica() {
   
   var custoMetro = parseNum(document.getElementById("novoCustoMetroTecnica").value);
   var altura = parseNum(document.getElementById("novoAlturaTecnica").value);
-  var largura = parseNum(document.getElementById("novoLarguraTecnica").value);
+  var largura = parseNum(document.getElementById("novaLarguraTecnica").value);
+  var numCores = Math.max(1, parseInt(document.getElementById("novoNumCoresTecnica").value) || 1);
   var eid = document.getElementById("editTecnicaId").value;
   
   if (eid) {
@@ -338,7 +367,7 @@ function guardarTecnica() {
       t.custoMetro = custoMetro; 
       t.altura = altura; 
       t.largura = largura;
-      if (t.numCores === undefined) t.numCores = 1;
+      t.numCores = numCores;
     }
   } else {
     var novaT = { 
@@ -347,7 +376,7 @@ function guardarTecnica() {
       custoMetro: custoMetro, 
       altura: altura, 
       largura: largura,
-      numCores: 1
+      numCores: numCores
     };
     baseDados.tecnicas.push(novaT);
     tecnicaSelecionadaId = novaT.id;
@@ -376,8 +405,7 @@ function eliminarTecnica() {
 function obterDadosTecnica(idTec) {
   if (!idTec) return null;
   if (!baseDados || !baseDados.tecnicas) return null;
-  var t = baseDados.tecnicas.find(function(x) { return x.id === idTec; });
-  return t || null;
+  return baseDados.tecnicas.find(function(x) { return x.id === idTec; }) || null;
 }
 
 function custoMetroCalculo(qtd, metro, alt, larg, bobina) {
@@ -391,13 +419,17 @@ function obterCustoPara(qtd, tecnicaId) {
   var t = obterDadosTecnica(tecnicaId);
   if (!t) return {custoUnComIva: 0, metrosTotais: 0, minEscalao: 1};
   
-  // Se tem custoMetro > 0, é uma técnica de filme (DTF, Vinil, Sublimação)
-  if (t.custoMetro > 0 && t.altura > 0 && t.largura > 0) {
+  // Usar altura e largura dos campos de cálculo (podem ser diferentes da técnica)
+  var altura = parseNum(document.getElementById("alturaEstampa") ? document.getElementById("alturaEstampa").value : 10);
+  var largura = parseNum(document.getElementById("larguraEstampa") ? document.getElementById("larguraEstampa").value : 28);
+  
+  // Se tem custoMetro > 0, é uma técnica de filme
+  if (t.custoMetro > 0 && altura > 0 && largura > 0) {
     var bobina = 28; // padrão
     var nomeLower = t.nome ? t.nome.toLowerCase() : "";
     if (nomeLower.indexOf("vinil") !== -1) bobina = 50;
     else if (nomeLower.indexOf("sublimação") !== -1 || nomeLower.indexOf("sublimacao") !== -1) bobina = 58;
-    return custoMetroCalculo(qtd, t.custoMetro, t.altura, t.largura, bobina);
+    return custoMetroCalculo(qtd, t.custoMetro, altura, largura, bobina);
   }
   
   // Para serigrafia e bordado - usar escalões
@@ -427,9 +459,9 @@ function obterCustoPara(qtd, tecnicaId) {
     return {custoUnComIva: e2.precos[idx2] * TAXA_IVA, minEscalao: e2.min, metrosTotais: 0};
   }
   
-  // Técnica genérica com custoMetro (sem bobina específica)
+  // Técnica genérica com custoMetro
   if (t.custoMetro > 0) {
-    return custoMetroCalculo(qtd, t.custoMetro, t.altura || 10, t.largura || 28, 28);
+    return custoMetroCalculo(qtd, t.custoMetro, altura || 10, largura || 28, 28);
   }
   
   return {custoUnComIva: 0, metrosTotais: 0, minEscalao: 1};
@@ -459,7 +491,6 @@ function calcular() {
     var tipo = document.getElementById("tipoMargem") ? document.getElementById("tipoMargem").value : "valor";
     var margem = parseNum(document.getElementById("valMargem") ? document.getElementById("valMargem").value : 5);
     
-    // Verificar se temos técnica selecionada
     if (!tecnicaId || !baseDados || !baseDados.tecnicas) {
       var resPreco = document.getElementById("resPrecoUn");
       var resTotal = document.getElementById("resTotalComercial");
@@ -512,7 +543,6 @@ function calcular() {
     gerarComparativoEscaloes(q, pIva, portesIva, tecnicaId, tipo, margem);
   } catch(e) {
     console.log("Erro no cálculo:", e);
-    // Mostrar erro no debug
     var debugDiv = document.getElementById("debugErroMovil");
     if (debugDiv) {
       debugDiv.style.display = "block";
@@ -617,11 +647,7 @@ function ligarEventos() {
   // Técnicas
   acao("seletorTecnicaBD", "change", function(e) {
     tecnicaSelecionadaId = e.target.value;
-    var t = baseDados ? baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; }) : null;
-    var nomeTec = document.getElementById("nomeTecnicaAtiva");
-    if (nomeTec && t) {
-      nomeTec.textContent = t.nome;
-    }
+    atualizarInfoTecnica();
     calcular();
   });
   acao("btnNovaTec", "click", function() { abrirFormTecnica(false); });
@@ -630,8 +656,8 @@ function ligarEventos() {
   acao("btnGuardarTecBD", "click", guardarTecnica);
   acao("btnFecharTecBD", "click", fecharFormTecnica);
 
-  // Cálculos
-  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "tipoMargem", "valMargem"];
+  // Cálculos - incluir altura e largura
+  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "tipoMargem", "valMargem", "alturaEstampa", "larguraEstampa"];
   inputs.forEach(function(x) { 
     acao(x, "input", calcular); 
     acao(x, "change", calcular);
@@ -651,15 +677,7 @@ document.addEventListener("DOMContentLoaded", function() {
     atualizarSelectTecnicas();
     ligarEventos();
     calcular();
-    
-    // Mostrar técnica ativa
-    if (baseDados && baseDados.tecnicas) {
-      var t = baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; });
-      var nomeTec = document.getElementById("nomeTecnicaAtiva");
-      if (nomeTec && t) {
-        nomeTec.textContent = t.nome;
-      }
-    }
+    atualizarInfoTecnica();
   } catch(e) {
     console.log("Erro na inicialização:", e);
     var debugDiv = document.getElementById("debugErroMovil");
