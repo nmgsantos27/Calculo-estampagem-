@@ -8,6 +8,17 @@ function parseNum(valor) {
   return isNaN(num) ? 0 : num;
 }
 
+// MEMÓRIA INDEPENDENTE PARA CADA TÉCNICA
+const memoriaTecnicas = {
+  dtf: { custoMetro: 5.50, altura: 10, largura: 28 },
+  vinil: { custoMetro: 6.50, altura: 10, largura: 28 },
+  sublimacao: { custoMetro: 4.50, altura: 10, largura: 28 },
+  serigrafia: { numCores: 1 },
+  bordado: { numCores: 1 }
+};
+
+let tecnicaAnterior = 'dtf';
+
 const BASE_DADOS_PADRAO = [
   {
     id: 'f1',
@@ -191,26 +202,55 @@ function formatarMoeda(valor) {
   return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
 }
 
+// GUARDAR VALORES DA TÉCNICA ATUAL
+function guardarValoresTecnicaAtual(tecnica) {
+  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
+    memoriaTecnicas[tecnica] = {
+      custoMetro: parseNum(document.getElementById('custoMetroDTF').value),
+      altura: parseNum(document.getElementById('alturaEstampaDTF').value),
+      largura: parseNum(document.getElementById('larguraEstampaDTF').value)
+    };
+  } else if (tecnica === 'serigrafia' || tecnica === 'bordado') {
+    memoriaTecnicas[tecnica] = {
+      numCores: parseInt(document.getElementById('numCores').value) || 1
+    };
+  }
+}
+
+// ALTERNAR TÉCNICA E CARREGAR VALORES GUARDADOS
 function alternarTecnica() {
-  const tecnica = document.getElementById('tecnica').value;
+  const tecnicaNova = document.getElementById('tecnica').value;
+
+  // 1. Guardar o que estava inserido na técnica anterior
+  guardarValoresTecnicaAtual(tecnicaAnterior);
+
+  // 2. Atualizar a variável de controlo
+  tecnicaAnterior = tecnicaNova;
+
   const grupoDTF = document.getElementById('grupoDTF');
   const grupoCores = document.getElementById('grupoCores');
   const linhaConsumoFilme = document.getElementById('linhaConsumoFilme');
   const labelCustoMetro = document.getElementById('labelCustoMetro');
   const labelConsumoFilme = document.getElementById('labelConsumoFilme');
 
-  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
+  // 3. Carregar os últimos valores registados para a nova técnica
+  if (tecnicaNova === 'dtf' || tecnicaNova === 'vinil' || tecnicaNova === 'sublimacao') {
     grupoDTF.classList.remove('hidden');
     grupoCores.classList.add('hidden');
     linhaConsumoFilme.style.display = 'flex';
 
-    if (tecnica === 'dtf') {
+    const dadosGuardados = memoriaTecnicas[tecnicaNova];
+    document.getElementById('custoMetroDTF').value = dadosGuardados.custoMetro.toFixed(2);
+    document.getElementById('alturaEstampaDTF').value = dadosGuardados.altura;
+    document.getElementById('larguraEstampaDTF').value = dadosGuardados.largura;
+
+    if (tecnicaNova === 'dtf') {
       labelCustoMetro.innerText = 'Custo Metro DTF (28cm) s/ IVA:';
       labelConsumoFilme.innerText = 'Consumo Filme DTF:';
-    } else if (tecnica === 'vinil') {
+    } else if (tecnicaNova === 'vinil') {
       labelCustoMetro.innerText = 'Custo Metro Vinil (50cm) s/ IVA:';
       labelConsumoFilme.innerText = 'Consumo Vinil Flex:';
-    } else if (tecnica === 'sublimacao') {
+    } else if (tecnicaNova === 'sublimacao') {
       labelCustoMetro.innerText = 'Custo Metro Sublimação (58cm) s/ IVA:';
       labelConsumoFilme.innerText = 'Consumo Papel Sublimação:';
     }
@@ -218,6 +258,9 @@ function alternarTecnica() {
     grupoDTF.classList.add('hidden');
     grupoCores.classList.remove('hidden');
     linhaConsumoFilme.style.display = 'none';
+
+    const dadosGuardados = memoriaTecnicas[tecnicaNova];
+    document.getElementById('numCores').value = dadosGuardados.numCores;
   }
 }
 
@@ -319,7 +362,6 @@ function copiarResumo() {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(texto).then(() => alert('Resumo copiado!'));
   } else {
-    // Fallback para mobile
     const textarea = document.createElement('textarea');
     textarea.value = texto;
     document.body.appendChild(textarea);
@@ -340,7 +382,7 @@ function guardarPDF() {
     margin:       5,
     filename:     'Orcamento_GrafiSantos.pdf',
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 1.5, useCORS: true }, // Escala reduzida para estabilidade em Android
+    html2canvas:  { scale: 1.5, useCORS: true },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
   html2pdf().set(opt).from(elemento).save();
@@ -462,40 +504,4 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!forn.materiais) forn.materiais = [];
       forn.materiais.push({ id: 'm_' + Date.now(), nome, preco });
     }
-    guardarBD();
-    atualizarSeletorMateriaisBD(forn.materiais);
-    document.getElementById('formNovoMaterial').style.display = 'none';
-  });
-
-  associarEvento('btnFecharMatBD', 'click', () => {
-    document.getElementById('formNovoMaterial').style.display = 'none';
-  });
-
-  // Ações de Header
-  associarEvento('btnCopiarResumo', 'click', copiarResumo);
-  associarEvento('btnGuardarPDF', 'click', guardarPDF);
-  associarEvento('btnImprimir', 'click', () => window.print());
-
-  // Seletores e Inputs com escuta para teclado mobile (input + change)
-  ['seletorFornecedorBD', 'seletorMaterialBD', 'tecnica', 'tipoMargem'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', () => {
-      if (id === 'seletorFornecedorBD') selecionarFornecedorBD();
-      else if (id === 'seletorMaterialBD') selecionarMaterialBD();
-      else if (id === 'tecnica') { alternarTecnica(); calcular(); }
-      else calcular();
-    });
-  });
-
-  const inputsCalculo = ['quantidade', 'custoPeca', 'portesFornecedor', 'custoMetroDTF', 'alturaEstampaDTF', 'larguraEstampaDTF', 'numCores', 'valMargem'];
-  inputsCalculo.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', calcular);
-      el.addEventListener('change', calcular);
-    }
-  });
-
-  alternarTecnica();
-  calcular();
-});
+    guardarBD(
