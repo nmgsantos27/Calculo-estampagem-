@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Calculadora GrafiSantos</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -19,7 +19,6 @@
       </div>
     </header>
 
-    <!-- GESTÃO DE BASE DE DADOS -->
     <section class="card bd-section">
       <div class="linha-flex">
         <div class="campo flex-1">
@@ -33,7 +32,6 @@
         </div>
       </div>
 
-      <!-- Form Fornecedor -->
       <div id="formNovoFornecedor" class="painel-form hidden">
         <h4 id="tituloFormFornecedor">Fornecedor</h4>
         <input type="hidden" id="editFornecedorId">
@@ -57,7 +55,6 @@
         </div>
       </div>
 
-      <!-- Form Material -->
       <div id="formNovoMaterial" class="painel-form hidden">
         <h4 id="tituloFormMaterial">Material</h4>
         <input type="hidden" id="editMaterialId">
@@ -70,7 +67,6 @@
       </div>
     </section>
 
-    <!-- FORMULÁRIO DE CÁLCULO -->
     <section class="card">
       <div class="grid-2">
         <div class="campo">
@@ -100,7 +96,6 @@
         </div>
       </div>
 
-      <!-- Campos DTF / Vinil / Sublimação -->
       <div id="grupoDTF" class="painel-tecnica">
         <div class="campo">
           <label id="labelCustoMetro" for="custoMetroDTF">Custo Metro s/ IVA (€):</label>
@@ -118,7 +113,6 @@
         </div>
       </div>
 
-      <!-- Campos Serigrafia / Bordado -->
       <div id="grupoCores" class="painel-tecnica hidden">
         <div class="campo">
           <label for="numCores">Número de Cores / Posições:</label>
@@ -141,7 +135,6 @@
       </div>
     </section>
 
-    <!-- RESULTADOS -->
     <section class="card resultados">
       <div class="linha-resultado destaque">
         <span>Preço Venda / Unidade (c/ IVA):</span>

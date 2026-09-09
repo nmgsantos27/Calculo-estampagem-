@@ -3,6 +3,7 @@ const TAXA_IVA = 1.23;
 function parseNum(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
+  // Resolve o problema dos teclados Android que inserem vírgulas em vez de pontos
   const limpo = valor.toString().replace(',', '.').trim();
   const num = parseFloat(limpo);
   return isNaN(num) ? 0 : num;
@@ -385,20 +386,17 @@ function guardarPDF() {
   html2pdf().set(opt).from(elemento).save();
 }
 
+// Otimização Android: Remove preventDefault() que bloqueia os toques em alguns navegadores móveis
 function associarAcaoBotao(id, acao) {
   const el = document.getElementById(id);
   if (el) {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      acao();
-    });
+    el.addEventListener('click', acao);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   carregarBD();
 
-  // BOTOES DE FORNECEDOR
   associarAcaoBotao('btnNovoForn', () => {
     document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
     document.getElementById('editFornecedorId').value = '';
@@ -448,7 +446,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('formNovoFornecedor').classList.add('hidden');
   });
 
-  // BOTOES DE MATERIAL
   associarAcaoBotao('btnNovoMat', () => {
     document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
     document.getElementById('editMaterialId').value = '';
@@ -506,9 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('formNovoMaterial').classList.add('hidden');
   });
 
-  // AÇÕES DO TOPO
   associarAcaoBotao('btnCopiarResumo', copiarResumo);
   associarAcaoBotao('btnGuardarPDF', guardarPDF);
-  associarAcaoBotao('btnImprimir', () => window.print());
-
-  // SELEC
+  asso
