@@ -44,6 +44,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .header-acoes h1 {
       font-size: 1.25rem;
@@ -52,6 +54,7 @@
     .grupo-botoes-topo {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
     }
     .card {
       background: var(--card-bg);
@@ -66,12 +69,14 @@
       gap: 8px;
       align-items: flex-end;
       margin-bottom: 8px;
+      flex-wrap: wrap;
     }
     .campo {
       display: flex;
       flex-direction: column;
       margin-bottom: 8px;
       flex: 1;
+      min-width: 80px;
     }
     .campo label {
       font-size: 0.85rem;
@@ -96,6 +101,7 @@
       display: flex;
       gap: 4px;
       margin-bottom: 8px;
+      flex-wrap: wrap;
     }
     .btn-icon {
       background: #e2e8f0;
@@ -109,6 +115,7 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      min-width: 42px;
     }
     .btn-icon.btn-danger {
       background: #fee2e2;
@@ -141,6 +148,11 @@
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
     }
     .hidden { display: none !important; }
@@ -215,6 +227,10 @@
     }
     .painel-tecnica {
       margin-top: 8px;
+      padding: 8px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
     }
     #debugErroMovil {
       background: #fee2e2;
@@ -224,6 +240,15 @@
       border-radius: 6px;
       font-size: 0.85rem;
       display: none;
+    }
+    .badge-info {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
     }
     @media print {
       .header-acoes, .bd-section, .botoes-gestao, .info-material-ativo {
@@ -239,7 +264,7 @@
       }
     }
     @media (max-width: 480px) {
-      .grid-2 {
+      .grid-2, .grid-3 {
         grid-template-columns: 1fr 1fr;
         gap: 6px;
       }
@@ -265,7 +290,9 @@
       </div>
     </header>
 
+    <!-- SECÇÃO: FORNECEDORES -->
     <section class="card bd-section">
+      <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">📦 Fornecedor</h4>
       <div class="linha-flex">
         <div class="campo" style="margin-bottom:0">
           <label for="seletorFornecedorBD">Fornecedor:</label>
@@ -277,7 +304,6 @@
           <button type="button" id="btnEliminarForn" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
-
       <div id="formNovoFornecedor" class="painel-form hidden">
         <h4 id="tituloFormFornecedor">Novo fornecedor</h4>
         <input type="hidden" id="editFornecedorId">
@@ -288,10 +314,14 @@
           <button type="button" id="btnFecharFornBD" class="btn btn-cancelar">Cancelar</button>
         </div>
       </div>
+    </section>
 
-      <div class="linha-flex" style="margin-top:8px">
+    <!-- SECÇÃO: MATERIAIS -->
+    <section class="card bd-section">
+      <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">👕 Material</h4>
+      <div class="linha-flex">
         <div class="campo" style="margin-bottom:0">
-          <label for="seletorMaterialBD">Material / T-Shirt:</label>
+          <label for="seletorMaterialBD">Material:</label>
           <select id="seletorMaterialBD"></select>
         </div>
         <div class="botoes-gestao">
@@ -300,7 +330,6 @@
           <button type="button" id="btnEliminarMat" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
-
       <div id="formNovoMaterial" class="painel-form hidden">
         <h4 id="tituloFormMaterial">Novo material</h4>
         <input type="hidden" id="editMaterialId">
@@ -313,39 +342,62 @@
       </div>
     </section>
 
-    <section class="card">
-      <div class="grid-2">
-        <div class="campo"><label for="quantidade">Quantidade:</label><input type="number" inputmode="numeric" id="quantidade" value="1" min="1"></div>
-        <div class="campo"><label for="tecnica">Técnica:</label>
-          <select id="tecnica">
-            <option value="dtf">DTF</option>
-            <option value="vinil">Vinil Flex</option>
-            <option value="sublimacao">Sublimação</option>
-            <option value="serigrafia">Serigrafia</option>
-            <option value="bordado">Bordado</option>
-          </select>
+    <!-- SECÇÃO: TÉCNICAS -->
+    <section class="card bd-section">
+      <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">🖨️ Técnica</h4>
+      <div class="linha-flex">
+        <div class="campo" style="margin-bottom:0">
+          <label for="seletorTecnicaBD">Técnica:</label>
+          <select id="seletorTecnicaBD"></select>
+        </div>
+        <div class="botoes-gestao">
+          <button type="button" id="btnNovaTec" class="btn-icon">+</button>
+          <button type="button" id="btnEditarTec" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarTec" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
-      <div class="grid-2">
-        <div class="campo"><label for="custoPeca">Custo Peça s/ IVA (€):</label><input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01"></div>
-        <div class="campo"><label for="portesFornecedor">Portes Lote s/ IVA (€):</label><input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01"></div>
-      </div>
-      <div id="grupoDTF" class="painel-tecnica">
-        <div class="campo"><label id="labelCustoMetro" for="custoMetroDTF">Custo Metro DTF (28cm) s/ IVA:</label><input type="number" inputmode="decimal" id="custoMetroDTF" value="5.50" step="0.10"></div>
-        <div class="grid-2">
-          <div class="campo"><label for="alturaEstampaDTF">Altura (cm):</label><input type="number" inputmode="decimal" id="alturaEstampaDTF" value="10" step="0.1"></div>
-          <div class="campo"><label for="larguraEstampaDTF">Largura (cm):</label><input type="number" inputmode="decimal" id="larguraEstampaDTF" value="28" step="0.1"></div>
+      <div id="formNovaTecnica" class="painel-form hidden">
+        <h4 id="tituloFormTecnica">Nova técnica</h4>
+        <input type="hidden" id="editTecnicaId">
+        <input type="text" id="novoNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
+        <div class="grid-3">
+          <div class="campo" style="margin-bottom:0">
+            <label for="novoCustoMetroTecnica">Custo/Metro (€):</label>
+            <input type="number" inputmode="decimal" id="novoCustoMetroTecnica" placeholder="0.00" step="0.01">
+          </div>
+          <div class="campo" style="margin-bottom:0">
+            <label for="novoAlturaTecnica">Altura (cm):</label>
+            <input type="number" inputmode="decimal" id="novoAlturaTecnica" placeholder="10" step="0.1">
+          </div>
+          <div class="campo" style="margin-bottom:0">
+            <label for="novoLarguraTecnica">Largura (cm):</label>
+            <input type="number" inputmode="decimal" id="novoLarguraTecnica" placeholder="28" step="0.1">
+          </div>
         </div>
-      </div>
-      <div id="grupoCores" class="painel-tecnica hidden">
-        <div class="campo"><label for="numCores">Número de Cores / Posições:</label><input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="3"></div>
-      </div>
-      <div class="grid-2">
-        <div class="campo"><label for="tipoMargem">Tipo de Margem:</label><select id="tipoMargem"><option value="valor">Valor Fixo (€)</option><option value="percentagem">Percentagem (%)</option></select></div>
-        <div class="campo"><label for="valMargem">Margem Lucro:</label><input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50"></div>
+        <div class="linha-botoes" style="margin-top:8px;">
+          <button type="button" id="btnGuardarTecBD" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharTecBD" class="btn btn-cancelar">Cancelar</button>
+        </div>
       </div>
     </section>
 
+    <!-- SECÇÃO: CÁLCULO -->
+    <section class="card">
+      <div class="grid-2">
+        <div class="campo"><label for="quantidade">Quantidade:</label><input type="number" inputmode="numeric" id="quantidade" value="1" min="1"></div>
+        <div class="campo"><label for="tipoMargem">Tipo de Margem:</label><select id="tipoMargem"><option value="valor">Valor Fixo (€)</option><option value="percentagem">Percentagem (%)</option></select></div>
+      </div>
+      <div class="grid-2">
+        <div class="campo"><label for="valMargem">Margem Lucro:</label><input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50"></div>
+        <div class="campo"><label for="custoPeca">Custo Peça s/ IVA (€):</label><input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01"></div>
+      </div>
+      <div class="campo">
+        <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
+        <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+      </div>
+    </section>
+
+    <!-- SECÇÃO: RESULTADOS -->
     <section class="card resultados">
       <div class="linha-resultado destaque"><span>Preço Venda / Un (c/ IVA):</span><strong id="resPrecoUn">0,00 €</strong></div>
       <div class="linha-resultado destaque-total"><span>Total Comercial (c/ IVA):</span><strong id="resTotalComercial">0,00 €</strong></div>
@@ -354,7 +406,7 @@
         <div class="linha-resultado"><span>Material (c/ IVA):</span><span id="resCustoMaterialUn">0,00 €</span></div>
         <div class="linha-resultado"><span>Impressão (c/ IVA):</span><span id="resCustoImprUn">0,00 €</span></div>
         <div class="linha-resultado"><span>Portes Lote (c/ IVA):</span><span id="resPortes">0,00 €</span></div>
-        <div class="linha-resultado" id="linhaConsumoFilme"><span id="labelConsumoFilme">Consumo Filme DTF:</span><span id="resConsumoFilme">0,00 m</span></div>
+        <div class="linha-resultado" id="linhaConsumoFilme"><span id="labelConsumoFilme">Consumo:</span><span id="resConsumoFilme">0,00 m</span></div>
         <div class="linha-resultado"><span>Custo Total Lote (c/ IVA):</span><span id="resCustoTotalLote">0,00 €</span></div>
         <div class="linha-resultado"><span>Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
         <div class="linha-resultado"><span>Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
@@ -362,7 +414,10 @@
       <div class="badge-escalao" id="escalaoBadge">Escalão</div>
       <div class="comparativo-escaloes"><h4>Tabela Comparativa por Quantidade</h4><div id="tabelaComparativa" class="grid-escaloes"></div></div>
     </section>
-    <footer class="info-material-ativo">Artigo: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)</footer>
+    <footer class="info-material-ativo">
+      <span id="infoTecnicaAtiva">Técnica: <strong id="nomeTecnicaAtiva">Nenhuma</strong></span> | 
+      <span id="infoMaterialAtivo">Material: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)</span>
+    </footer>
   </div>
 
   <script src="script.js"></script>
