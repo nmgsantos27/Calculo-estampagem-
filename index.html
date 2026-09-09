@@ -44,6 +44,7 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 0.85rem;
+      touch-action: manipulation;
     }
     .btn-secondary {
       background: #e2e8f0;
@@ -62,16 +63,17 @@
       color: #fff;
     }
     .btn-icon {
-      width: 38px;
-      height: 38px;
+      width: 42px;
+      height: 42px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       background: #fff;
-      font-size: 1rem;
+      font-size: 1.2rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      touch-action: manipulation;
     }
     .btn-icon-danger {
       border-color: #fca5a5;
@@ -117,6 +119,7 @@
       font-size: 1rem;
       width: 100%;
       background: #fff;
+      touch-action: manipulation;
     }
     .field input:focus, .field select:focus {
       border-color: #2563eb;
@@ -425,12 +428,5 @@
 </div>
 
 <script src="script.js"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function() {
-      navigator.serviceWorker.register("sw.js").catch(function() {});
-    });
-  }
-</script>
 </body>
 </html>

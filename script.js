@@ -311,7 +311,6 @@ function obterCustoImpressao(qtd, tecId) {
   var cores = t.numCores || 1;
   var nome = (t.nome || "").toLowerCase();
 
-  // Técnicas de filme
   if (t.custoMetro > 0 && alt > 0 && larg > 0) {
     var bobina = 28;
     if (nome.indexOf("vinil") !== -1) bobina = 50;
@@ -320,7 +319,6 @@ function obterCustoImpressao(qtd, tecId) {
     return { custoUn: res.custoUn, metros: res.metrosTotais, escala: res.escala };
   }
 
-  // Serigrafia
   if (nome.indexOf("serigrafia") !== -1) {
     var escSerigrafia = [
       { min: 1, max: 9, precos: [8, 10, 12] },
@@ -334,7 +332,6 @@ function obterCustoImpressao(qtd, tecId) {
     return { custoUn: e.precos[idx] * TAXA_IVA, metros: 0, escala: e.min };
   }
 
-  // Bordado
   if (nome.indexOf("bordado") !== -1) {
     var escBordado = [
       { min: 1, max: 9, precos: [6, 8] },
@@ -347,7 +344,6 @@ function obterCustoImpressao(qtd, tecId) {
     return { custoUn: e2.precos[idx2] * TAXA_IVA, metros: 0, escala: e2.min };
   }
 
-  // Genérico com custoMetro
   if (t.custoMetro > 0) {
     var res2 = calcularConsumo(qtd, t.custoMetro, alt || 10, larg || 28, 28);
     return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
@@ -468,39 +464,40 @@ function gerarPDF() {
 
 // ==================== EVENTOS ====================
 function ligarEventos() {
-  function on(id, tipo, fn) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener(tipo, fn);
+  // Função para adicionar evento em Android (touchstart + click)
+  function addEvent(el, fn) {
+    if (!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchstart', function(e) {
+      // Prevenir duplo clique
+      if (!e.target._clicked) {
+        e.target._clicked = true;
+        fn(e);
+        setTimeout(function() { e.target._clicked = false; }, 300);
+      }
+    });
+  }
+
+  // Função para adicionar evento em selects e inputs
+  function addChange(el, fn) {
+    if (!el) return;
+    el.addEventListener('change', fn);
+    el.addEventListener('input', fn);
   }
 
   // Fornecedores
-  on("selFornecedor", "change", function(e) {
+  addChange(document.getElementById("selFornecedor"), function(e) {
     fornecedorId = e.target.value;
     materialId = null;
     renderMateriais();
   });
-  on("btnAddFornecedor", "click", function() { abrirFormFornecedor(false); });
-  on("btnEditFornecedor", "click", function() { abrirFormFornecedor(true); });
-  on("btnDelFornecedor", "click", eliminarFornecedor);
-  on("btnSaveFornecedor", "click", guardarFornecedor);
-  on("btnCancelFornecedor", "click", fecharFormFornecedor);
+  addEvent(document.getElementById("btnAddFornecedor"), function() { abrirFormFornecedor(false); });
+  addEvent(document.getElementById("btnEditFornecedor"), function() { abrirFormFornecedor(true); });
+  addEvent(document.getElementById("btnDelFornecedor"), eliminarFornecedor);
+  addEvent(document.getElementById("btnSaveFornecedor"), guardarFornecedor);
+  addEvent(document.getElementById("btnCancelFornecedor"), fecharFormFornecedor);
 
   // Materiais
-  on("selMaterial", "change", function(e) {
+  addChange(document.getElementById("selMaterial"), function(e) {
     materialId = e.target.value;
     renderMateriais();
-  });
-  on("btnAddMaterial", "click", function() { abrirFormMaterial(false); });
-  on("btnEditMaterial", "click", function() { abrirFormMaterial(true); });
-  on("btnDelMaterial", "click", eliminarMaterial);
-  on("btnSaveMaterial", "click", guardarMaterial);
-  on("btnCancelMaterial", "click", fecharFormMaterial);
-
-  // Técnicas
-  on("selTecnica", "change", function(e) {
-    tecnicaId = e.target.value;
-    atualizarInfoTecnica();
-    calcular();
-  });
-  on("btnAddTecnica", "click", function() { abrirFormTecnica(false); });
-  on("btnEditTecnica",
