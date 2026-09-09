@@ -485,13 +485,11 @@ function obterCustoPara(qtd, tecnicaId) {
   var t = obterDadosTecnica(tecnicaId);
   if (!t) return {custoUnComIva: 0, metrosTotais: 0, minEscalao: 1};
   
-  // Usar altura e largura dos campos de cálculo
   var elAltura = document.getElementById("alturaEstampaInput");
   var elLargura = document.getElementById("larguraEstampaInput");
   var altura = elAltura ? parseNum(elAltura.value) : 10;
   var largura = elLargura ? parseNum(elLargura.value) : 28;
   
-  // Se tem custoMetro > 0, é uma técnica de filme
   if (t.custoMetro > 0 && altura > 0 && largura > 0) {
     var bobina = 28;
     var nomeLower = t.nome ? t.nome.toLowerCase() : "";
@@ -500,7 +498,6 @@ function obterCustoPara(qtd, tecnicaId) {
     return custoMetroCalculo(qtd, t.custoMetro, altura, largura, bobina);
   }
   
-  // Para serigrafia e bordado - usar escalões
   var cores = t.numCores || 1;
   var nomeLower2 = t.nome ? t.nome.toLowerCase() : "";
   
@@ -527,7 +524,6 @@ function obterCustoPara(qtd, tecnicaId) {
     return {custoUnComIva: e2.precos[idx2] * TAXA_IVA, minEscalao: e2.min, metrosTotais: 0};
   }
   
-  // Técnica genérica com custoMetro
   if (t.custoMetro > 0) {
     return custoMetroCalculo(qtd, t.custoMetro, altura || 10, largura || 28, 28);
   }
@@ -559,4 +555,8 @@ function calcular() {
     var q = Math.max(1, parseInt(elQuantidade ? elQuantidade.value : 1) || 1);
     var p = parseNum(elCustoPeca ? elCustoPeca.value : 0);
     var portes = parseNum(elPortes ? elPortes.value : 0);
-    var tecnicaId = selectTec ? selectTec.value : null
+    var tecnicaId = selectTec ? selectTec.value : null;
+    var tipo = elTipoMargem ? elTipoMargem.value : "valor";
+    var margem = parseNum(elValMargem ? elValMargem.value : 5);
+    
+    if (!tecnicaId || !baseDados || !baseDados.tecnic
