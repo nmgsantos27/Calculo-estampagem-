@@ -405,37 +405,37 @@
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">📐 Dimensões da Estampa</h4>
       <div class="grid-2">
         <div class="campo">
-          <label for="alturaEstampa">Altura (cm):</label>
-          <input type="number" inputmode="decimal" id="alturaEstampa" value="10" step="0.1">
+          <label for="alturaEstampaInput">Altura (cm):</label>
+          <input type="number" inputmode="decimal" id="alturaEstampaInput" value="10" step="0.1">
         </div>
         <div class="campo">
-          <label for="larguraEstampa">Largura (cm):</label>
-          <input type="number" inputmode="decimal" id="larguraEstampa" value="28" step="0.1">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="campo">
-          <label for="quantidade">Quantidade:</label>
-          <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
-        </div>
-        <div class="campo">
-          <label for="custoPeca">Custo Peça s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
+          <label for="larguraEstampaInput">Largura (cm):</label>
+          <input type="number" inputmode="decimal" id="larguraEstampaInput" value="28" step="0.1">
         </div>
       </div>
       <div class="grid-2">
         <div class="campo">
-          <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+          <label for="quantidadeInput">Quantidade:</label>
+          <input type="number" inputmode="numeric" id="quantidadeInput" value="1" min="1">
         </div>
         <div class="campo">
-          <label for="valMargem">Margem Lucro:</label>
-          <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
+          <label for="custoPecaInput">Custo Peça s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="custoPecaInput" value="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="campo">
+          <label for="portesFornecedorInput">Portes Lote s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="portesFornecedorInput" value="0.00" step="0.01">
+        </div>
+        <div class="campo">
+          <label for="valMargemInput">Margem Lucro:</label>
+          <input type="number" inputmode="decimal" id="valMargemInput" value="5.00" step="0.50">
         </div>
       </div>
       <div class="campo" style="margin-bottom:0;">
-        <label for="tipoMargem">Tipo de Margem:</label>
-        <select id="tipoMargem">
+        <label for="tipoMargemInput">Tipo de Margem:</label>
+        <select id="tipoMargemInput">
           <option value="valor">Valor Fixo (€)</option>
           <option value="percentagem">Percentagem (%)</option>
         </select>
@@ -474,4 +474,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
