@@ -545,4 +545,106 @@ function calcular() {
 
 function gerarComparativo(qAtual, pIva, portesIva, tecId, tipoMargem, margem) {
     var el = document.getElementById("tabelaComparativa");
-    
+    if (!el) return;
+    el.innerHTML = "";
+
+    [1, 10, 25, 50, 100].forEach(function(q) {
+        var imp = obterCustoImpressao(q, tecId);
+        var custo = pIva + imp.custoUn + (portesIva / q);
+        var lucro = calcularMargem(q, margem, tipoMargem, custo);
+        var div = document.createElement("div");
+        div.className = "escalao-item" + (q === qAtual ? " active" : "");
+        div.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
+        el.appendChild(div);
+    });
+}
+
+// ============================================================
+//  UTILITÁRIOS
+// ============================================================
+
+function copiarResumo() {
+    var q = document.getElementById("quantidade").value;
+    var sel = document.getElementById("selTecnica");
+    var tec = sel && sel.selectedOptions && sel.selectedOptions[0] ? sel.selectedOptions[0].text : "";
+    var mat = document.getElementById("footerMaterial").textContent;
+
+    var txt = "🖨️ GrafiSantos Print - Orçamento\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+        "📦 Material: " + mat + "\n" +
+        "📐 Quantidade: " + q + "\n" +
+        "🖨️ Técnica: " + tec + "\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+        "💰 Preço/un.: " + document.getElementById("resPrecoUn").textContent + "\n" +
+        "📊 Total: " + document.getElementById("resTotalComercial").textContent + "\n" +
+        "📈 Lucro total: " + document.getElementById("resLucroTotal").textContent + "\n" +
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+        "📅 " + new Date().toLocaleDateString("pt-PT");
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function() { alert("✅ Resumo copiado!"); }).catch(function() { prompt("📋 Copia o resumo:", txt); });
+    } else {
+        prompt("📋 Copia o resumo:", txt);
+    }
+}
+
+function gerarPDF() {
+    if (typeof html2pdf === "undefined") { window.print(); return; }
+    var el = document.getElementById("areaParaPdf");
+    if (!el) return;
+
+    html2pdf().set({
+        margin: 8,
+        filename: "GrafiSantos-Orcamento.pdf",
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    }).from(el).save();
+}
+
+// ============================================================
+//  INICIALIZAÇÃO
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", function() {
+    try {
+        carregarDados();
+        renderFornecedores();
+        renderTecnicas();
+        calcular();
+        atualizarInfoTecnica();
+    } catch (e) {
+        var debug = document.getElementById("debugErro");
+        if (debug) {
+            debug.style.display = "block";
+            debug.textContent = "❌ Erro: " + e.message;
+        }
+        console.log("Erro:", e);
+    }
+});
+
+// ============================================================
+//  SUPORTE PARA CLIQUE EM DISPOSITIVOS MÓVEIS
+// ============================================================
+
+// Adicionar suporte touch para todos os botões com onclick
+document.addEventListener('DOMContentLoaded', function() {
+    var botoes = document.querySelectorAll('[onclick]');
+    botoes.forEach(function(btn) {
+        btn.addEventListener('touchstart', function(e) {
+            // Prevenir duplo clique
+            if (this._clicado) return;
+            this._clicado = true;
+            // Executar o onclick
+            var funcao = this.getAttribute('onclick');
+            if (funcao) {
+                try {
+                    eval(funcao);
+                } catch (er) {}
+            }
+            setTimeout(function() {
+                btn._clicado = false;
+            }, 300);
+        });
+    });
+});
