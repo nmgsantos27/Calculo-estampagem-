@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GrafiSantos Print - Gestor de Orçamentos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,7 +38,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="dashboard-grid">
 
-      <!-- COLUNA 1: BASE DE DADOS (FORNECEDORES E MATERIAIS) -->
+      <!-- COLUNA 1: BASE DE DADOS -->
       <section class="card database-card no-print">
         <div class="card-header">
           <h2>🏬 Gestão de Fornecedores</h2>
@@ -46,18 +46,16 @@
 
         <div class="form-group">
           <label for="seletorFornecedorBD">Selecionar Fornecedor:</label>
-          <select id="seletorFornecedorBD">
-            <!-- Preenchido via JS -->
-          </select>
+          <select id="seletorFornecedorBD"></select>
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" id="btnNovoForn" style="font-size: 0.85rem;">+ Novo</button>
-          <button type="button" class="btn btn-outline" id="btnEditarForn" style="font-size: 0.85rem;">✏️ Editar</button>
-          <button type="button" class="btn btn-danger-outline" id="btnEliminarForn" style="font-size: 0.85rem;">🗑️ Eliminar</button>
+          <button type="button" class="btn btn-outline" id="btnNovoForn">+ Novo</button>
+          <button type="button" class="btn btn-outline" id="btnEditarForn">✏️ Editar</button>
+          <button type="button" class="btn btn-danger-outline" id="btnEliminarForn">🗑️ Eliminar</button>
         </div>
 
-        <!-- FORMULÁRIO FORNECEDOR (NOVO / EDITAR) -->
+        <!-- FORMULÁRIO FORNECEDOR -->
         <div id="formNovoFornecedor" class="novo-artigo-box" style="display: none;">
           <input type="hidden" id="editFornecedorId" value="">
           <h4 id="tituloFormFornecedor">Adicionar Fornecedor</h4>
@@ -68,7 +66,7 @@
           <div class="form-group">
             <label for="novoPortesFornecedor">Portes Padrão s/ IVA:</label>
             <div class="input-symbol">
-              <input type="text" id="novoPortesFornecedor" placeholder="4.50">
+              <input type="inputmode" inputmode="decimal" id="novoPortesFornecedor" placeholder="4.50">
               <span>€</span>
             </div>
           </div>
@@ -80,25 +78,23 @@
 
         <hr class="divider" style="margin: 20px 0;">
 
-        <!-- SECCÃO MATERIAIS DO FORNECEDOR -->
+        <!-- MATERIAIS -->
         <div class="card-header" style="padding: 0 0 10px 0;">
           <h2>📦 Materiais do Fornecedor</h2>
         </div>
 
         <div class="form-group">
           <label for="seletorMaterialBD">Selecionar Material:</label>
-          <select id="seletorMaterialBD">
-            <!-- Preenchido via JS -->
-          </select>
+          <select id="seletorMaterialBD"></select>
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" id="btnNovoMat" style="font-size: 0.85rem;">+ Novo</button>
-          <button type="button" class="btn btn-outline" id="btnEditarMat" style="font-size: 0.85rem;">✏️ Editar</button>
-          <button type="button" class="btn btn-danger-outline" id="btnEliminarMat" style="font-size: 0.85rem;">🗑️ Eliminar</button>
+          <button type="button" class="btn btn-outline" id="btnNovoMat">+ Novo</button>
+          <button type="button" class="btn btn-outline" id="btnEditarMat">✏️ Editar</button>
+          <button type="button" class="btn btn-danger-outline" id="btnEliminarMat">🗑️ Eliminar</button>
         </div>
 
-        <!-- FORMULÁRIO MATERIAL (NOVO / EDITAR) -->
+        <!-- FORMULÁRIO MATERIAL -->
         <div id="formNovoMaterial" class="novo-artigo-box" style="display: none;">
           <input type="hidden" id="editMaterialId" value="">
           <h4 id="tituloFormMaterial">Adicionar Material</h4>
@@ -109,7 +105,7 @@
           <div class="form-group">
             <label for="novoPrecoMaterial">Custo s/ IVA:</label>
             <div class="input-symbol">
-              <input type="text" id="novoPrecoMaterial" placeholder="1.85">
+              <input type="text" inputmode="decimal" id="novoPrecoMaterial" placeholder="1.85">
               <span>€</span>
             </div>
           </div>
@@ -128,7 +124,7 @@
         </div>
       </section>
 
-      <!-- COLUNA 2: PARÂMETROS DO ORÇAMENTO -->
+      <!-- COLUNA 2: PARÂMETROS -->
       <section class="card config-card no-print">
         <div class="card-header">
           <h2>⚙️ Parâmetros do Pedido</h2>
@@ -137,12 +133,12 @@
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
             <label for="quantidade">Quantidade (un):</label>
-            <input type="number" id="quantidade" value="1" min="1">
+            <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
           </div>
           <div class="form-group" style="flex: 1;">
             <label for="custoPeca">Custo Base s/ IVA:</label>
             <div class="input-symbol">
-              <input type="number" id="custoPeca" value="1.85" step="0.01" min="0">
+              <input type="text" inputmode="decimal" id="custoPeca" value="1.85">
               <span>€</span>
             </div>
           </div>
@@ -151,7 +147,7 @@
         <div class="form-group">
           <label for="portesFornecedor">Portes Envio s/ IVA:</label>
           <div class="input-symbol">
-            <input type="number" id="portesFornecedor" value="4.50" step="0.01" min="0">
+            <input type="text" inputmode="decimal" id="portesFornecedor" value="4.50">
             <span>€</span>
           </div>
         </div>
@@ -167,32 +163,32 @@
           </select>
         </div>
 
-        <!-- CAMPOS PARA TÉCNICAS ÁREA / METRO (DTF, VINIL, SUBLIMAÇÃO) -->
+        <!-- TÉCNICAS DTF / VINIL / SUBLIMAÇÃO -->
         <div id="grupoDTF" class="grupo-tecnica">
           <div class="form-group">
             <label for="custoMetroDTF" id="labelCustoMetro">Custo Metro s/ IVA:</label>
             <div class="input-symbol">
-              <input type="number" id="custoMetroDTF" value="5.50" step="0.01" min="0">
+              <input type="text" inputmode="decimal" id="custoMetroDTF" value="5.50">
               <span>€</span>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group" style="flex: 1;">
               <label for="alturaEstampaDTF">Altura (cm):</label>
-              <input type="number" id="alturaEstampaDTF" value="10" min="1">
+              <input type="number" inputmode="numeric" id="alturaEstampaDTF" value="10" min="1">
             </div>
             <div class="form-group" style="flex: 1;">
               <label for="larguraEstampaDTF">Largura (cm):</label>
-              <input type="number" id="larguraEstampaDTF" value="28" min="1">
+              <input type="number" inputmode="numeric" id="larguraEstampaDTF" value="28" min="1">
             </div>
           </div>
         </div>
 
-        <!-- CAMPOS SERIGRAFIA / BORDADO -->
+        <!-- SERIGRAFIA / BORDADO -->
         <div id="grupoCores" class="grupo-tecnica hidden">
           <div class="form-group">
             <label for="numCores">N.º de Cores / Linhas:</label>
-            <input type="number" id="numCores" value="1" min="1" max="6">
+            <input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="6">
           </div>
         </div>
 
@@ -206,12 +202,12 @@
           </div>
           <div class="form-group" style="flex: 1;">
             <label for="valMargem">Valor Margem:</label>
-            <input type="number" id="valMargem" value="7.00" step="0.1" min="0">
+            <input type="text" inputmode="decimal" id="valMargem" value="7.00">
           </div>
         </div>
       </section>
 
-      <!-- COLUNA 3: RESUMO E RESULTADOS -->
+      <!-- COLUNA 3: RESULTADOS -->
       <section class="card results-card printable-area" id="areaParaPdf">
         <div class="card-header">
           <h2>📊 Resumo do Orçamento</h2>
@@ -268,9 +264,7 @@
 
         <div class="escaloes-box no-print" style="margin-top: 16px;">
           <h3>Comparativo por Quantidade</h3>
-          <div id="tabelaComparativa" class="escaloes-list">
-            <!-- Preenchido via JS -->
-          </div>
+          <div id="tabelaComparativa" class="escaloes-list"></div>
         </div>
 
         <div class="print-footer print-only">
@@ -281,6 +275,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=7.0"></script>
+  <script src="script.js?v=8.0"></script>
 </body>
 </html>

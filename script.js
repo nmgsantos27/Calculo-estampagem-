@@ -3,7 +3,7 @@ const TAXA_IVA = 1.23;
 function parseNum(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
-  const limpo = valor.toString().replace(',', '.');
+  const limpo = valor.toString().replace(',', '.').trim();
   const num = parseFloat(limpo);
   return isNaN(num) ? 0 : num;
 }
@@ -61,19 +61,13 @@ function calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, larguraBo
 
 const TECNICAS = {
   dtf: {
-    obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
-      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 28);
-    }
+    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 28)
   },
   vinil: {
-    obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
-      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 50);
-    }
+    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 50)
   },
   sublimacao: {
-    obterCusto: function(qtd, custoMetro, alturaCm, larguraCm) {
-      return calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 58);
-    }
+    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 58)
   },
   serigrafia: {
     escaloes: [
@@ -125,10 +119,7 @@ function atualizarSeletorFornecedoresBD() {
   select.innerHTML = '';
 
   if (baseDados.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = "";
-    opt.textContent = "Nenhum fornecedor registado";
-    select.appendChild(opt);
+    select.innerHTML = '<option value="">Nenhum fornecedor</option>';
     atualizarSeletorMateriaisBD([]);
     return;
   }
@@ -146,8 +137,7 @@ function atualizarSeletorFornecedoresBD() {
 function selecionarFornecedorBD() {
   const select = document.getElementById('seletorFornecedorBD');
   if (!select) return;
-  const fornId = select.value;
-  const forn = baseDados.find(f => f.id === fornId);
+  const forn = baseDados.find(f => f.id === select.value);
 
   if (forn) {
     document.getElementById('portesFornecedor').value = parseNum(forn.portes).toFixed(2);
@@ -164,10 +154,7 @@ function atualizarSeletorMateriaisBD(materiais) {
   select.innerHTML = '';
 
   if (!materiais || materiais.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = "";
-    opt.textContent = "Nenhum material";
-    select.appendChild(opt);
+    select.innerHTML = '<option value="">Nenhum material</option>';
     document.getElementById('nomeMaterialAtivo').innerText = "Manual";
     document.getElementById('detalheMaterialAtivo').innerText = "0,00 € s/ IVA";
     return;
@@ -198,185 +185,6 @@ function selecionarMaterialBD() {
     document.getElementById('detalheMaterialAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
   }
   calcular();
-}
-
-function prepararFormNovoFornecedor() {
-  document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
-  document.getElementById('editFornecedorId').value = '';
-  document.getElementById('novoNomeFornecedor').value = '';
-  document.getElementById('novoPortesFornecedor').value = '';
-  document.getElementById('formNovoFornecedor').style.display = 'block';
-}
-
-function prepararFormEditarFornecedor() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  const forn = baseDados.find(f => f.id === fornId);
-
-  if (!forn) {
-    alert('Selecione um fornecedor para editar.');
-    return;
-  }
-
-  document.getElementById('tituloFormFornecedor').innerText = 'Editar Fornecedor';
-  document.getElementById('editFornecedorId').value = forn.id;
-  document.getElementById('novoNomeFornecedor').value = forn.nome;
-  document.getElementById('novoPortesFornecedor').value = parseNum(forn.portes).toFixed(2);
-  document.getElementById('formNovoFornecedor').style.display = 'block';
-}
-
-function fecharFormFornecedor() {
-  document.getElementById('formNovoFornecedor').style.display = 'none';
-}
-
-function guardarFornecedorBD() {
-  const editId = document.getElementById('editFornecedorId').value;
-  const nome = document.getElementById('novoNomeFornecedor').value.trim();
-  const portes = parseNum(document.getElementById('novoPortesFornecedor').value);
-
-  if (!nome) {
-    alert('Introduza o nome do fornecedor.');
-    return;
-  }
-
-  let targetId = editId;
-
-  if (editId) {
-    const forn = baseDados.find(f => f.id === editId);
-    if (forn) {
-      forn.nome = nome;
-      forn.portes = portes;
-    }
-  } else {
-    const novoForn = {
-      id: 'f_' + Date.now(),
-      nome: nome,
-      portes: portes,
-      materiais: []
-    };
-    baseDados.push(novoForn);
-    targetId = novoForn.id;
-  }
-
-  guardarBD();
-  atualizarSeletorFornecedoresBD();
-
-  if (targetId) {
-    document.getElementById('seletorFornecedorBD').value = targetId;
-    selecionarFornecedorBD();
-  }
-
-  fecharFormFornecedor();
-}
-
-function eliminarFornecedorAtivo() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  if (!fornId) return;
-
-  if (confirm('Tem a certeza que deseja eliminar este fornecedor e todos os seus materiais?')) {
-    baseDados = baseDados.filter(f => f.id !== fornId);
-    guardarBD();
-    atualizarSeletorFornecedoresBD();
-  }
-}
-
-function prepararFormNovoMaterial() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  if (!fornId) {
-    alert('Selecione primeiro um fornecedor.');
-    return;
-  }
-
-  document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
-  document.getElementById('editMaterialId').value = '';
-  document.getElementById('novoNomeMaterial').value = '';
-  document.getElementById('novoPrecoMaterial').value = '';
-  document.getElementById('formNovoMaterial').style.display = 'block';
-}
-
-function prepararFormEditarMaterial() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  const matId = document.getElementById('seletorMaterialBD').value;
-
-  const forn = baseDados.find(f => f.id === fornId);
-  if (!forn) return;
-
-  const mat = (forn.materiais || []).find(m => m.id === matId);
-  if (!mat) {
-    alert('Selecione um material para editar.');
-    return;
-  }
-
-  document.getElementById('tituloFormMaterial').innerText = 'Editar Material';
-  document.getElementById('editMaterialId').value = mat.id;
-  document.getElementById('novoNomeMaterial').value = mat.nome;
-  document.getElementById('novoPrecoMaterial').value = parseNum(mat.preco).toFixed(2);
-  document.getElementById('formNovoMaterial').style.display = 'block';
-}
-
-function fecharFormMaterial() {
-  document.getElementById('formNovoMaterial').style.display = 'none';
-}
-
-function guardarMaterialBD() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  const forn = baseDados.find(f => f.id === fornId);
-
-  if (!forn) {
-    alert('Selecione primeiro um fornecedor.');
-    return;
-  }
-
-  const editId = document.getElementById('editMaterialId').value;
-  const nome = document.getElementById('novoNomeMaterial').value.trim();
-  const preco = parseNum(document.getElementById('novoPrecoMaterial').value);
-
-  if (!nome) {
-    alert('Introduza o nome do material.');
-    return;
-  }
-
-  let matTargetId = editId;
-
-  if (editId) {
-    const mat = (forn.materiais || []).find(m => m.id === editId);
-    if (mat) {
-      mat.nome = nome;
-      mat.preco = preco;
-    }
-  } else {
-    const novoMat = {
-      id: 'm_' + Date.now(),
-      nome: nome,
-      preco: preco
-    };
-    if (!forn.materiais) forn.materiais = [];
-    forn.materiais.push(novoMat);
-    matTargetId = novoMat.id;
-  }
-
-  guardarBD();
-  atualizarSeletorMateriaisBD(forn.materiais);
-
-  if (matTargetId) {
-    document.getElementById('seletorMaterialBD').value = matTargetId;
-    selecionarMaterialBD();
-  }
-
-  fecharFormMaterial();
-}
-
-function eliminarMaterialAtivo() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
-  const matId = document.getElementById('seletorMaterialBD').value;
-
-  const forn = baseDados.find(f => f.id === fornId);
-  if (!forn || !matId) return;
-
-  if (confirm('Tem a certeza que deseja eliminar este material?')) {
-    forn.materiais = forn.materiais.filter(m => m.id !== matId);
-    guardarBD();
-    atualizarSeletorMateriaisBD(forn.materiais);
-  }
 }
 
 function formatarMoeda(valor) {
@@ -508,54 +316,186 @@ function copiarResumo() {
 
   const texto = `ORÇAMENTO GRAFISANTOS PRINT\nArtigo: ${artigo}\nQuantidade: ${qtd} un\nPreço Unitário (c/ IVA): ${precoUn}\nTotal (c/ IVA): ${total}`;
 
-  navigator.clipboard.writeText(texto).then(() => {
-    alert('Resumo copiado para a área de transferência!');
-  }).catch(err => {
-    alert('Erro ao copiar resumo: ' + err);
-  });
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(() => alert('Resumo copiado!'));
+  } else {
+    // Fallback para mobile
+    const textarea = document.createElement('textarea');
+    textarea.value = texto;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Resumo copiado!');
+  }
 }
 
 function guardarPDF() {
+  if (typeof html2pdf === 'undefined') {
+    alert('A biblioteca de PDF ainda está a carregar ou estás sem internet.');
+    return;
+  }
   const elemento = document.getElementById('areaParaPdf');
   const opt = {
-    margin:       10,
+    margin:       5,
     filename:     'Orcamento_GrafiSantos.pdf',
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
+    html2canvas:  { scale: 1.5, useCORS: true }, // Escala reduzida para estabilidade em Android
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
   html2pdf().set(opt).from(elemento).save();
 }
 
-// VINCULAÇÃO DIRETA DE EVENTOS NO JAVASCRIPT
+// VINCULAÇÃO UNIVERSAL PARA ANDROID E DESKTOP
+function associarEvento(id, evento, funcao) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener(evento, funcao);
+    if (evento === 'click') {
+      el.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        funcao(e);
+      }, { passive: false });
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   carregarBD();
 
-  // Botões do Fornecedor
-  const btnNovoForn = document.getElementById('btnNovoForn');
-  if (btnNovoForn) btnNovoForn.addEventListener('click', prepararFormNovoFornecedor);
+  // Botões
+  associarEvento('btnNovoForn', 'click', () => {
+    document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
+    document.getElementById('editFornecedorId').value = '';
+    document.getElementById('novoNomeFornecedor').value = '';
+    document.getElementById('novoPortesFornecedor').value = '';
+    document.getElementById('formNovoFornecedor').style.display = 'block';
+  });
 
-  const btnEditarForn = document.getElementById('btnEditarForn');
-  if (btnEditarForn) btnEditarForn.addEventListener('click', prepararFormEditarFornecedor);
+  associarEvento('btnEditarForn', 'click', () => {
+    const fornId = document.getElementById('seletorFornecedorBD').value;
+    const forn = baseDados.find(f => f.id === fornId);
+    if (!forn) return alert('Selecione um fornecedor.');
+    document.getElementById('tituloFormFornecedor').innerText = 'Editar Fornecedor';
+    document.getElementById('editFornecedorId').value = forn.id;
+    document.getElementById('novoNomeFornecedor').value = forn.nome;
+    document.getElementById('novoPortesFornecedor').value = parseNum(forn.portes).toFixed(2);
+    document.getElementById('formNovoFornecedor').style.display = 'block';
+  });
 
-  const btnEliminarForn = document.getElementById('btnEliminarForn');
-  if (btnEliminarForn) btnEliminarForn.addEventListener('click', eliminarFornecedorAtivo);
+  associarEvento('btnEliminarForn', 'click', () => {
+    const fornId = document.getElementById('seletorFornecedorBD').value;
+    if (fornId && confirm('Eliminar este fornecedor?')) {
+      baseDados = baseDados.filter(f => f.id !== fornId);
+      guardarBD();
+      atualizarSeletorFornecedoresBD();
+    }
+  });
 
-  const btnGuardarFornBD = document.getElementById('btnGuardarFornBD');
-  if (btnGuardarFornBD) btnGuardarFornBD.addEventListener('click', guardarFornecedorBD);
+  associarEvento('btnGuardarFornBD', 'click', () => {
+    const editId = document.getElementById('editFornecedorId').value;
+    const nome = document.getElementById('novoNomeFornecedor').value.trim();
+    const portes = parseNum(document.getElementById('novoPortesFornecedor').value);
+    if (!nome) return alert('Introduza o nome.');
 
-  const btnFecharFornBD = document.getElementById('btnFecharFornBD');
-  if (btnFecharFornBD) btnFecharFornBD.addEventListener('click', fecharFormFornecedor);
+    if (editId) {
+      const forn = baseDados.find(f => f.id === editId);
+      if (forn) { forn.nome = nome; forn.portes = portes; }
+    } else {
+      baseDados.push({ id: 'f_' + Date.now(), nome, portes, materiais: [] });
+    }
+    guardarBD();
+    atualizarSeletorFornecedoresBD();
+    document.getElementById('formNovoFornecedor').style.display = 'none';
+  });
 
-  // Botões do Material
-  const btnNovoMat = document.getElementById('btnNovoMat');
-  if (btnNovoMat) btnNovoMat.addEventListener('click', prepararFormNovoMaterial);
+  associarEvento('btnFecharFornBD', 'click', () => {
+    document.getElementById('formNovoFornecedor').style.display = 'none';
+  });
 
-  const btnEditarMat = document.getElementById('btnEditarMat');
-  if (btnEditarMat) btnEditarMat.addEventListener('click', prepararFormEditarMaterial);
+  // Botões de Material
+  associarEvento('btnNovoMat', 'click', () => {
+    document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
+    document.getElementById('editMaterialId').value = '';
+    document.getElementById('novoNomeMaterial').value = '';
+    document.getElementById('novoPrecoMaterial').value = '';
+    document.getElementById('formNovoMaterial').style.display = 'block';
+  });
 
-  const btnEliminarMat = document.getElementById('btnEliminarMat');
-  if (btnEliminarMat) btnEliminarMat.addEventListener('click', eliminarMaterialAtivo);
+  associarEvento('btnEditarMat', 'click', () => {
+    const fornId = document.getElementById('seletorFornecedorBD').value;
+    const matId = document.getElementById('seletorMaterialBD').value;
+    const forn = baseDados.find(f => f.id === fornId);
+    const mat = forn ? (forn.materiais || []).find(m => m.id === matId) : null;
+    if (!mat) return alert('Selecione um material.');
+    document.getElementById('tituloFormMaterial').innerText = 'Editar Material';
+    document.getElementById('editMaterialId').value = mat.id;
+    document.getElementById('novoNomeMaterial').value = mat.nome;
+    document.getElementById('novoPrecoMaterial').value = parseNum(mat.preco).toFixed(2);
+    document.getElementById('formNovoMaterial').style.display = 'block';
+  });
 
-  const btnGuardarMatBD = document.getElementById('btnGuardarMatBD');
-  if 
+  associarEvento('btnEliminarMat', 'click', () => {
+    const fornId = document.getElementById('seletorFornecedorBD').value;
+    const matId = document.getElementById('seletorMaterialBD').value;
+    const forn = baseDados.find(f => f.id === fornId);
+    if (forn && matId && confirm('Eliminar material?')) {
+      forn.materiais = forn.materiais.filter(m => m.id !== matId);
+      guardarBD();
+      atualizarSeletorMateriaisBD(forn.materiais);
+    }
+  });
+
+  associarEvento('btnGuardarMatBD', 'click', () => {
+    const fornId = document.getElementById('seletorFornecedorBD').value;
+    const forn = baseDados.find(f => f.id === fornId);
+    if (!forn) return;
+    const editId = document.getElementById('editMaterialId').value;
+    const nome = document.getElementById('novoNomeMaterial').value.trim();
+    const preco = parseNum(document.getElementById('novoPrecoMaterial').value);
+    if (!nome) return alert('Introduza o nome.');
+
+    if (editId) {
+      const mat = (forn.materiais || []).find(m => m.id === editId);
+      if (mat) { mat.nome = nome; mat.preco = preco; }
+    } else {
+      if (!forn.materiais) forn.materiais = [];
+      forn.materiais.push({ id: 'm_' + Date.now(), nome, preco });
+    }
+    guardarBD();
+    atualizarSeletorMateriaisBD(forn.materiais);
+    document.getElementById('formNovoMaterial').style.display = 'none';
+  });
+
+  associarEvento('btnFecharMatBD', 'click', () => {
+    document.getElementById('formNovoMaterial').style.display = 'none';
+  });
+
+  // Ações de Header
+  associarEvento('btnCopiarResumo', 'click', copiarResumo);
+  associarEvento('btnGuardarPDF', 'click', guardarPDF);
+  associarEvento('btnImprimir', 'click', () => window.print());
+
+  // Seletores e Inputs com escuta para teclado mobile (input + change)
+  ['seletorFornecedorBD', 'seletorMaterialBD', 'tecnica', 'tipoMargem'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => {
+      if (id === 'seletorFornecedorBD') selecionarFornecedorBD();
+      else if (id === 'seletorMaterialBD') selecionarMaterialBD();
+      else if (id === 'tecnica') { alternarTecnica(); calcular(); }
+      else calcular();
+    });
+  });
+
+  const inputsCalculo = ['quantidade', 'custoPeca', 'portesFornecedor', 'custoMetroDTF', 'alturaEstampaDTF', 'larguraEstampaDTF', 'numCores', 'valMargem'];
+  inputsCalculo.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcular);
+      el.addEventListener('change', calcular);
+    }
+  });
+
+  alternarTecnica();
+  calcular();
+});
