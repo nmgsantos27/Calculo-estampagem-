@@ -367,7 +367,7 @@
             </div>
         </div>
 
-        <!-- TÉCNICAS -->
+        <!-- TÉCNICAS - SIMPLIFICADA -->
         <div class="card no-print">
             <div class="section-title">🖨️ Técnica de Estampagem</div>
             <div class="flex">
@@ -399,16 +399,6 @@
                         <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
                     </div>
                 </div>
-                <div class="grid-2">
-                    <div class="field" style="margin-bottom:0;">
-                        <label>Altura (cm):</label>
-                        <input type="number" id="inputAlturaTecnica" placeholder="10" step="0.1">
-                    </div>
-                    <div class="field" style="margin-bottom:0;">
-                        <label>Nº Cores:</label>
-                        <input type="number" id="inputCoresTecnica" placeholder="1" min="1">
-                    </div>
-                </div>
                 <div class="btn-row" style="margin-top:8px;">
                     <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
                     <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
@@ -416,7 +406,7 @@
             </div>
         </div>
 
-        <!-- CÁLCULO -->
+        <!-- CÁLCULO - APENAS ALTURA -->
         <div class="card">
             <div class="section-title">📐 Dimensões da Estampa</div>
             <div class="grid-2">
@@ -424,9 +414,9 @@
                     <label>Altura (cm):</label>
                     <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
                 </div>
-                <div class="field">
-                    <label>Largura (cm):</label>
-                    <input type="number" id="larguraEstampa" value="28" step="0.1" oninput="calcular()" onchange="calcular()">
+                <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
+                    <label style="color:#64748b;">Largura (da técnica):</label>
+                    <div style="font-size:1.1rem;font-weight:bold;color:#2563eb;padding:6px 0;" id="larguraExibida">28 cm</div>
                 </div>
             </div>
             <div class="grid-2">
@@ -492,7 +482,7 @@
 
     <script>
         // ============================================================
-        //  TODO O JAVASCRIPT AQUI DENTRO (NUM ÚNICO FICHEIRO)
+        //  TODO O JAVASCRIPT AQUI DENTRO
         // ============================================================
 
         "use strict";
@@ -554,11 +544,11 @@
                 ]
             }],
             tecnicas: [
-                { id: "t1", nome: "DTF", custoMetro: 5.50, altura: 10, largura: 28, numCores: 1 },
-                { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, altura: 10, largura: 28, numCores: 1 },
-                { id: "t3", nome: "Sublimação", custoMetro: 4.50, altura: 10, largura: 28, numCores: 1 },
-                { id: "t4", nome: "Serigrafia", custoMetro: 0, altura: 10, largura: 0, numCores: 1 },
-                { id: "t5", nome: "Bordado", custoMetro: 0, altura: 10, largura: 0, numCores: 1 }
+                { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
+                { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 },
+                { id: "t3", nome: "Sublimação", custoMetro: 4.50, largura: 28 },
+                { id: "t4", nome: "Serigrafia", custoMetro: 0, largura: 0 },
+                { id: "t5", nome: "Bordado", custoMetro: 0, largura: 0 }
             ]
         };
 
@@ -804,7 +794,7 @@
         }
 
         // ============================================================
-        //  TÉCNICAS
+        //  TÉCNICAS - SIMPLIFICADA (sem altura)
         // ============================================================
 
         function renderTecnicas() {
@@ -847,9 +837,14 @@
             var detalhes = [];
             if (t) {
                 if (t.custoMetro > 0) detalhes.push("💰 " + parseNum(t.custoMetro).toFixed(2) + "€/m");
-                if (t.largura > 0) detalhes.push("📏 Larg: " + parseNum(t.largura).toFixed(0) + "cm");
-                if (t.altura > 0) detalhes.push("📐 Alt: " + parseNum(t.altura).toFixed(0) + "cm");
-                if (t.numCores > 1) detalhes.push("🎨 " + t.numCores + " cores");
+                if (t.largura > 0) {
+                    detalhes.push("📏 Larg: " + parseNum(t.largura).toFixed(0) + "cm");
+                    document.getElementById("larguraExibida").textContent = parseNum(t.largura).toFixed(0) + " cm";
+                } else {
+                    document.getElementById("larguraExibida").textContent = "—";
+                }
+            } else {
+                document.getElementById("larguraExibida").textContent = "—";
             }
             document.getElementById("infoTecDetalhes").textContent = detalhes.length ? " (" + detalhes.join(" | ") + ")" : "";
         }
@@ -861,9 +856,7 @@
             document.getElementById("editTecnicaId").value = editar && t ? t.id : "";
             document.getElementById("inputNomeTecnica").value = editar && t ? t.nome : "";
             document.getElementById("inputCustoMetro").value = editar && t ? parseNum(t.custoMetro) : "";
-            document.getElementById("inputAlturaTecnica").value = editar && t ? parseNum(t.altura) : "";
             document.getElementById("inputLarguraTecnica").value = editar && t ? parseNum(t.largura) : "";
-            document.getElementById("inputCoresTecnica").value = editar && t ? (t.numCores || 1) : 1;
         }
 
         function fecharFormTecnica() {
@@ -875,20 +868,16 @@
             if (!nome) { alert("⚠️ Indica o nome da técnica."); return; }
 
             var custoMetro = parseNum(document.getElementById("inputCustoMetro").value);
-            var altura = parseNum(document.getElementById("inputAlturaTecnica").value);
             var largura = parseNum(document.getElementById("inputLarguraTecnica").value);
-            var numCores = Math.max(1, parseInt(document.getElementById("inputCoresTecnica").value) || 1);
             var eid = document.getElementById("editTecnicaId").value;
 
             if (eid) {
                 var t = obterTecnica(eid);
                 if (t) { t.nome = nome;
                     t.custoMetro = custoMetro;
-                    t.altura = altura;
-                    t.largura = largura;
-                    t.numCores = numCores; }
+                    t.largura = largura; }
             } else {
-                var novo = { id: gerarId(), nome: nome, custoMetro: custoMetro, altura: altura, largura: largura, numCores: numCores };
+                var novo = { id: gerarId(), nome: nome, custoMetro: custoMetro, largura: largura };
                 dados.tecnicas.push(novo);
                 tecnicaId = novo.id;
             }
@@ -927,8 +916,8 @@
             if (!t) return { custoUn: 0, metros: 0, escala: 1 };
 
             var alt = parseNum(document.getElementById("alturaEstampa").value) || 10;
-            var larg = parseNum(document.getElementById("larguraEstampa").value) || 28;
-            var cores = t.numCores || 1;
+            var larg = t.largura || 0;
+            var cores = 1;
             var nome = (t.nome || "").toLowerCase();
 
             // Técnicas de filme (DTF, Vinil, Sublimação)
@@ -968,8 +957,8 @@
             }
 
             // Genérico com custoMetro
-            if (t.custoMetro > 0) {
-                var res2 = calcularConsumo(qtd, t.custoMetro, alt || 10, larg || 28, 28);
+            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
+                var res2 = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
                 return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
             }
 
@@ -1024,7 +1013,7 @@
                 var t = obterTecnica(tecId);
                 var linha = document.getElementById("linhaConsumo");
                 if (linha) {
-                    if (t && t.custoMetro > 0) {
+                    if (t && t.custoMetro > 0 && t.largura > 0) {
                         linha.style.display = "flex";
                         document.getElementById("labelConsumo").textContent = "📏 Consumo " + t.nome + ":";
                         document.getElementById("resConsumo").textContent = imp.metros.toFixed(2).replace(".", ",") + " m";
