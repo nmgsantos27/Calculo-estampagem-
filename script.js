@@ -125,173 +125,171 @@ const TECNICAS = {
 };
 
 function renderizarInterfaceCompleta() {
-  const app = document.getElementById('areaParaPdf') || document.body;
+  const app = document.getElementById('areaParaPdf');
+  if (!app) return;
   
-  // Garantir que a estrutura base existe dinamicamente via JS se faltar no HTML
-  if (!document.getElementById('seletorFornecedorBD')) {
-    app.innerHTML = `
-      <header class="header-acoes">
-        <h1>Calculadora de Custos</h1>
-        <div class="grupo-botoes-topo">
-          <button type="button" id="btnCopiarResumo" class="btn btn-secundario">Copiar</button>
-          <button type="button" id="btnGuardarPDF" class="btn btn-secundario">PDF</button>
-          <button type="button" id="btnImprimir" class="btn btn-secundario">Imprimir</button>
-        </div>
-      </header>
+  app.innerHTML = `
+    <header class="header-acoes">
+      <h1>GrafiSantos Print</h1>
+      <div class="grupo-botoes-topo">
+        <button type="button" id="btnCopiarResumo" class="btn btn-secundario">Copiar</button>
+        <button type="button" id="btnGuardarPDF" class="btn btn-secundario">PDF</button>
+        <button type="button" id="btnImprimir" class="btn btn-secundario">Imprimir</button>
+      </div>
+    </header>
 
-      <section class="card bd-section">
-        <div class="linha-flex">
-          <div class="campo flex-1">
-            <label for="seletorFornecedorBD">Fornecedor:</label>
-            <select id="seletorFornecedorBD"></select>
-          </div>
-          <div class="botoes-gestao">
-            <button type="button" id="btnNovoForn" class="btn-icon">+</button>
-            <button type="button" id="btnEditarForn" class="btn-icon">✎</button>
-            <button type="button" id="btnEliminarForn" class="btn-icon btn-danger">✕</button>
-          </div>
+    <section class="card bd-section">
+      <div class="linha-flex">
+        <div class="campo" style="margin-bottom:0;">
+          <label for="seletorFornecedorBD">Fornecedor:</label>
+          <select id="seletorFornecedorBD"></select>
         </div>
-
-        <div id="formNovoFornecedor" class="painel-form hidden">
-          <h4 id="tituloFormFornecedor">Fornecedor</h4>
-          <input type="hidden" id="editFornecedorId">
-          <input type="text" id="novoNomeFornecedor" placeholder="Nome do Fornecedor">
-          <input type="number" inputmode="decimal" id="novoPortesFornecedor" placeholder="Portes (€)">
-          <div class="linha-botoes">
-            <button type="button" id="btnGuardarFornBD" class="btn btn-sucesso">Guardar</button>
-            <button type="button" id="btnFecharFornBD" class="btn btn-cancelar">Cancelar</button>
-          </div>
+        <div class="botoes-gestao">
+          <button type="button" id="btnNovoForn" class="btn-icon">+</button>
+          <button type="button" id="btnEditarForn" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarForn" class="btn-icon btn-danger">✕</button>
         </div>
+      </div>
 
-        <div class="linha-flex">
-          <div class="campo flex-1">
-            <label for="seletorMaterialBD">Material / T-Shirt:</label>
-            <select id="seletorMaterialBD"></select>
-          </div>
-          <div class="botoes-gestao">
-            <button type="button" id="btnNovoMat" class="btn-icon">+</button>
-            <button type="button" id="btnEditarMat" class="btn-icon">✎</button>
-            <button type="button" id="btnEliminarMat" class="btn-icon btn-danger">✕</button>
-          </div>
+      <div id="formNovoFornecedor" class="painel-form hidden">
+        <h4 id="tituloFormFornecedor">Fornecedor</h4>
+        <input type="hidden" id="editFornecedorId">
+        <input type="text" id="novoNomeFornecedor" placeholder="Nome do Fornecedor">
+        <input type="number" inputmode="decimal" id="novoPortesFornecedor" placeholder="Portes (€)">
+        <div class="linha-botoes">
+          <button type="button" id="btnGuardarFornBD" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharFornBD" class="btn btn-cancelar">Cancelar</button>
         </div>
+      </div>
 
-        <div id="formNovoMaterial" class="painel-form hidden">
-          <h4 id="tituloFormMaterial">Material</h4>
-          <input type="hidden" id="editMaterialId">
-          <input type="text" id="novoNomeMaterial" placeholder="Nome do Material">
-          <input type="number" inputmode="decimal" id="novoPrecoMaterial" placeholder="Preço Base (€)">
-          <div class="linha-botoes">
-            <button type="button" id="btnGuardarMatBD" class="btn btn-sucesso">Guardar</button>
-            <button type="button" id="btnFecharMatBD" class="btn btn-cancelar">Cancelar</button>
-          </div>
+      <div class="linha-flex" style="margin-top:8px;">
+        <div class="campo" style="margin-bottom:0;">
+          <label for="seletorMaterialBD">Material / T-Shirt:</label>
+          <select id="seletorMaterialBD"></select>
         </div>
-      </section>
+        <div class="botoes-gestao">
+          <button type="button" id="btnNovoMat" class="btn-icon">+</button>
+          <button type="button" id="btnEditarMat" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarMat" class="btn-icon btn-danger">✕</button>
+        </div>
+      </div>
 
-      <section class="card">
+      <div id="formNovoMaterial" class="painel-form hidden">
+        <h4 id="tituloFormMaterial">Material</h4>
+        <input type="hidden" id="editMaterialId">
+        <input type="text" id="novoNomeMaterial" placeholder="Nome do Material">
+        <input type="number" inputmode="decimal" id="novoPrecoMaterial" placeholder="Preço Base (€)">
+        <div class="linha-botoes">
+          <button type="button" id="btnGuardarMatBD" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharMatBD" class="btn btn-cancelar">Cancelar</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="grid-2">
+        <div class="campo">
+          <label for="quantidade">Quantidade:</label>
+          <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
+        </div>
+        <div class="campo">
+          <label for="tecnica">Técnica:</label>
+          <select id="tecnica">
+            <option value="dtf">DTF</option>
+            <option value="vinil">Vinil Flex</option>
+            <option value="sublimacao">Sublimação</option>
+            <option value="serigrafia">Serigrafia</option>
+            <option value="bordado">Bordado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="campo">
+          <label for="custoPeca">Custo Peça s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
+        </div>
+        <div class="campo">
+          <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+        </div>
+      </div>
+
+      <div id="grupoDTF" class="painel-tecnica">
+        <div class="campo">
+          <label id="labelCustoMetro" for="custoMetroDTF">Custo Metro s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="custoMetroDTF" value="5.50" step="0.10">
+        </div>
         <div class="grid-2">
           <div class="campo">
-            <label for="quantidade">Quantidade:</label>
-            <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
+            <label for="alturaEstampaDTF">Altura (cm):</label>
+            <input type="number" inputmode="decimal" id="alturaEstampaDTF" value="10">
           </div>
           <div class="campo">
-            <label for="tecnica">Técnica:</label>
-            <select id="tecnica">
-              <option value="dtf">DTF</option>
-              <option value="vinil">Vinil Flex</option>
-              <option value="sublimacao">Sublimação</option>
-              <option value="serigrafia">Serigrafia</option>
-              <option value="bordado">Bordado</option>
-            </select>
+            <label for="larguraEstampaDTF">Largura (cm):</label>
+            <input type="number" inputmode="decimal" id="larguraEstampaDTF" value="28">
           </div>
         </div>
+      </div>
 
-        <div class="grid-2">
-          <div class="campo">
-            <label for="custoPeca">Custo Peça s/ IVA (€):</label>
-            <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
-          </div>
-          <div class="campo">
-            <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
-            <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
-          </div>
+      <div id="grupoCores" class="painel-tecnica hidden">
+        <div class="campo">
+          <label for="numCores">Número de Cores / Posições:</label>
+          <input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="3">
         </div>
+      </div>
 
-        <div id="grupoDTF" class="painel-tecnica">
-          <div class="campo">
-            <label id="labelCustoMetro" for="custoMetroDTF">Custo Metro s/ IVA (€):</label>
-            <input type="number" inputmode="decimal" id="custoMetroDTF" value="5.50" step="0.10">
-          </div>
-          <div class="grid-2">
-            <div class="campo">
-              <label for="alturaEstampaDTF">Altura (cm):</label>
-              <input type="number" inputmode="decimal" id="alturaEstampaDTF" value="10">
-            </div>
-            <div class="campo">
-              <label for="larguraEstampaDTF">Largura (cm):</label>
-              <input type="number" inputmode="decimal" id="larguraEstampaDTF" value="28">
-            </div>
-          </div>
+      <div class="grid-2">
+        <div class="campo">
+          <label for="tipoMargem">Tipo de Margem:</label>
+          <select id="tipoMargem">
+            <option value="valor">Valor Fixo (€)</option>
+            <option value="percentagem">Percentagem (%)</option>
+          </select>
         </div>
-
-        <div id="grupoCores" class="painel-tecnica hidden">
-          <div class="campo">
-            <label for="numCores">Número de Cores / Posições:</label>
-            <input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="3">
-          </div>
+        <div class="campo">
+          <label for="valMargem">Margem Lucro:</label>
+          <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
         </div>
+      </div>
+    </section>
 
-        <div class="grid-2">
-          <div class="campo">
-            <label for="tipoMargem">Tipo de Margem:</label>
-            <select id="tipoMargem">
-              <option value="valor">Valor Fixo (€)</option>
-              <option value="percentagem">Percentagem (%)</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label for="valMargem">Margem Lucro:</label>
-            <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
-          </div>
+    <section class="card resultados">
+      <div class="linha-resultado destaque">
+        <span>Preço Venda / Un (c/ IVA):</span>
+        <strong id="resPrecoUn">0,00 €</strong>
+      </div>
+      <div class="linha-resultado destaque-total">
+        <span>Total Comercial (c/ IVA):</span>
+        <strong id="resTotalComercial">0,00 €</strong>
+      </div>
+
+      <hr>
+
+      <div class="detalhes-custo">
+        <div class="linha-resultado"><span>Material (c/ IVA):</span> <span id="resCustoMaterialUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Impressão (c/ IVA):</span> <span id="resCustoImprUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Portes Lote (c/ IVA):</span> <span id="resPortes">0,00 €</span></div>
+        <div class="linha-resultado" id="linhaConsumoFilme">
+          <span id="labelConsumoFilme">Consumo Material:</span> <span id="resConsumoFilme">0,00 m</span>
         </div>
-      </section>
+        <div class="linha-resultado"><span>Custo Total Lote (c/ IVA):</span> <span id="resCustoTotalLote">0,00 €</span></div>
+        <div class="linha-resultado"><span>Lucro Unitário:</span> <span id="resLucroUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Lucro Total Estimado:</span> <span id="resLucroTotal">0,00 €</span></div>
+      </div>
 
-      <section class="card resultados">
-        <div class="linha-resultado destaque">
-          <span>Preço Venda / Unidade (c/ IVA):</span>
-          <strong id="resPrecoUn">0,00 €</strong>
-        </div>
-        <div class="linha-resultado destaque-total">
-          <span>Total Comercial (c/ IVA):</span>
-          <strong id="resTotalComercial">0,00 €</strong>
-        </div>
+      <div class="badge-escalao" id="escalaoBadge">Escalão</div>
+      
+      <div class="comparativo-escaloes">
+        <h4>Tabela Comparativa por Quantidade</h4>
+        <div id="tabelaComparativa" class="grid-escaloes"></div>
+      </div>
+    </section>
 
-        <hr>
-
-        <div class="detalhes-custo">
-          <div class="linha-resultado"><span>Material (c/ IVA):</span> <span id="resCustoMaterialUn">0,00 €</span></div>
-          <div class="linha-resultado"><span>Impressão / Técnico (c/ IVA):</span> <span id="resCustoImprUn">0,00 €</span></div>
-          <div class="linha-resultado"><span>Portes Lote (c/ IVA):</span> <span id="resPortes">0,00 €</span></div>
-          <div class="linha-resultado" id="linhaConsumoFilme">
-            <span id="labelConsumoFilme">Consumo Material:</span> <span id="resConsumoFilme">0,00 m</span>
-          </div>
-          <div class="linha-resultado"><span>Custo Total Lote (c/ IVA):</span> <span id="resCustoTotalLote">0,00 €</span></div>
-          <div class="linha-resultado"><span>Lucro Unitário:</span> <span id="resLucroUn">0,00 €</span></div>
-          <div class="linha-resultado"><span>Lucro Total Estimado:</span> <span id="resLucroTotal">0,00 €</span></div>
-        </div>
-
-        <div class="badge-escalao" id="escalaoBadge">Escalão</div>
-        
-        <div class="comparativo-escaloes">
-          <h4>Tabela Comparativa por Quantidade</h4>
-          <div id="tabelaComparativa" class="grid-escaloes"></div>
-        </div>
-      </section>
-
-      <footer class="info-material-ativo">
-        Artigo Selecionado: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)
-      </footer>
-    `;
-  }
+    <footer class="info-material-ativo">
+      Artigo: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)
+    </footer>
+  `;
 
   atualizarSelectsDinamicos();
 }
@@ -300,7 +298,7 @@ function atualizarSelectsDinamicos() {
   const selectForn = document.getElementById('seletorFornecedorBD');
   if (!selectForn) return;
   
-  const valorAnteriorForn = fornecedorSelecionadoId || (selectForn.value);
+  const valorAnteriorForn = fornecedorSelecionadoId || selectForn.value;
   selectForn.innerHTML = '';
 
   if (baseDados.length === 0) {
@@ -337,7 +335,7 @@ function atualizarSelectMateriaisDinamicos(materiais) {
   const selectMat = document.getElementById('seletorMaterialBD');
   if (!selectMat) return;
 
-  const valorAnteriorMat = materialSelecionadoId || (selectMat.value);
+  const valorAnteriorMat = materialSelecionadoId || selectMat.value;
   selectMat.innerHTML = '';
 
   if (!materiais || materiais.length === 0) {
@@ -392,9 +390,7 @@ function guardarValoresTecnicaAtual(tecnica) {
   } else if (tecnica === 'serigrafia' || tecnica === 'bordado') {
     const elCores = document.getElementById('numCores');
     if (elCores) {
-      memoriaTecnicas[tecnica] = {
-        numCores: parseInt(elCores.value) || 1
-      };
+      memoriaTecnicas[tecnica] = { numCores: parseInt(elCores.value) || 1 };
     }
   }
 }
@@ -493,4 +489,14 @@ function calcular() {
   document.getElementById('resPortes').innerText = formatarMoeda(portesFornecedorComIva);
   document.getElementById('resCustoTotalLote').innerText = formatarMoeda(custoTotalLoteComIva);
 
-  gerarComparativoEscaloes(qtd, custoPecaBa
+  gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
+}
+
+function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargemInput) {
+  const listaEscaloes = [1, 10, 25, 50, 100];
+  const container = document.getElementById('tabelaComparativa');
+  if (!container) return;
+  container.innerHTML = '';
+
+  listaEscaloes.forEach(q => {
+    const config = TECNICAS[tecnica];
