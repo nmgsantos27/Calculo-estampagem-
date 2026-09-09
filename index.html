@@ -132,7 +132,6 @@
     .btn-secundario { background: #e2e8f0; color: #334155; }
     .btn-sucesso { background: var(--success); color: #fff; width: 100%; }
     .btn-cancelar { background: #64748b; color: #fff; width: 100%; }
-    .btn-pequeno { padding: 6px 10px; font-size: 0.8rem; }
     .painel-form {
       background: #f1f5f9;
       padding: 10px;
@@ -149,11 +148,6 @@
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
     }
     .hidden { display: none !important; }
@@ -226,13 +220,6 @@
       text-align: center;
       margin-top: 8px;
     }
-    .painel-tecnica {
-      margin-top: 8px;
-      padding: 8px;
-      background: #f8fafc;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-    }
     #debugErroMovil {
       background: #fee2e2;
       color: #dc2626;
@@ -241,20 +228,6 @@
       border-radius: 6px;
       font-size: 0.85rem;
       display: none;
-    }
-    .badge-info {
-      display: inline-block;
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: bold;
-    }
-    .info-tecnica-detalhe {
-      font-size: 0.75rem;
-      color: #64748b;
-      margin-left: 4px;
     }
     @media print {
       .header-acoes, .bd-section, .botoes-gestao, .info-material-ativo {
@@ -270,7 +243,7 @@
       }
     }
     @media (max-width: 480px) {
-      .grid-2, .grid-3 {
+      .grid-2 {
         grid-template-columns: 1fr 1fr;
         gap: 6px;
       }
@@ -296,18 +269,18 @@
       </div>
     </header>
 
-    <!-- SECÇÃO: FORNECEDORES -->
+    <!-- FORNECEDORES -->
     <section class="card bd-section">
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">📦 Fornecedor</h4>
       <div class="linha-flex">
         <div class="campo" style="margin-bottom:0">
-          <label for="seletorFornecedorBD">Fornecedor:</label>
-          <select id="seletorFornecedorBD"></select>
+          <label for="seletorFornecedor">Fornecedor:</label>
+          <select id="seletorFornecedor"></select>
         </div>
         <div class="botoes-gestao">
-          <button type="button" id="btnNovoForn" class="btn-icon">+</button>
-          <button type="button" id="btnEditarForn" class="btn-icon">✎</button>
-          <button type="button" id="btnEliminarForn" class="btn-icon btn-danger">✕</button>
+          <button type="button" id="btnNovoFornecedor" class="btn-icon">+</button>
+          <button type="button" id="btnEditarFornecedor" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarFornecedor" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
       <div id="formNovoFornecedor" class="painel-form hidden">
@@ -316,24 +289,24 @@
         <input type="text" id="novoNomeFornecedor" placeholder="Nome do Fornecedor">
         <input type="number" inputmode="decimal" id="novoPortesFornecedor" placeholder="Portes (€)" step="0.01">
         <div class="linha-botoes">
-          <button type="button" id="btnGuardarForn" class="btn btn-sucesso">Guardar</button>
-          <button type="button" id="btnFecharForn" class="btn btn-cancelar">Cancelar</button>
+          <button type="button" id="btnGuardarFornecedor" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharFornecedor" class="btn btn-cancelar">Cancelar</button>
         </div>
       </div>
     </section>
 
-    <!-- SECÇÃO: MATERIAIS -->
+    <!-- MATERIAIS -->
     <section class="card bd-section">
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">👕 Material</h4>
       <div class="linha-flex">
         <div class="campo" style="margin-bottom:0">
-          <label for="seletorMaterialBD">Material:</label>
-          <select id="seletorMaterialBD"></select>
+          <label for="seletorMaterial">Material:</label>
+          <select id="seletorMaterial"></select>
         </div>
         <div class="botoes-gestao">
-          <button type="button" id="btnNovoMat" class="btn-icon">+</button>
-          <button type="button" id="btnEditarMat" class="btn-icon">✎</button>
-          <button type="button" id="btnEliminarMat" class="btn-icon btn-danger">✕</button>
+          <button type="button" id="btnNovoMaterial" class="btn-icon">+</button>
+          <button type="button" id="btnEditarMaterial" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarMaterial" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
       <div id="formNovoMaterial" class="painel-form hidden">
@@ -342,28 +315,27 @@
         <input type="text" id="novoNomeMaterial" placeholder="Nome do Material">
         <input type="number" inputmode="decimal" id="novoPrecoMaterial" placeholder="Preço Base (€)" step="0.01">
         <div class="linha-botoes">
-          <button type="button" id="btnGuardarMat" class="btn btn-sucesso">Guardar</button>
-          <button type="button" id="btnFecharMat" class="btn btn-cancelar">Cancelar</button>
+          <button type="button" id="btnGuardarMaterial" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharMaterial" class="btn btn-cancelar">Cancelar</button>
         </div>
       </div>
     </section>
 
-    <!-- SECÇÃO: TÉCNICAS -->
+    <!-- TÉCNICAS -->
     <section class="card bd-section">
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">🖨️ Técnica</h4>
       <div class="linha-flex">
         <div class="campo" style="margin-bottom:0;flex:2;">
-          <label for="seletorTecnicaBD">Técnica:</label>
-          <select id="seletorTecnicaBD"></select>
+          <label for="seletorTecnica">Técnica:</label>
+          <select id="seletorTecnica"></select>
         </div>
         <div class="botoes-gestao">
-          <button type="button" id="btnNovaTec" class="btn-icon">+</button>
-          <button type="button" id="btnEditarTec" class="btn-icon">✎</button>
-          <button type="button" id="btnEliminarTec" class="btn-icon btn-danger">✕</button>
+          <button type="button" id="btnNovaTecnica" class="btn-icon">+</button>
+          <button type="button" id="btnEditarTecnica" class="btn-icon">✎</button>
+          <button type="button" id="btnEliminarTecnica" class="btn-icon btn-danger">✕</button>
         </div>
       </div>
       
-      <!-- Informação da técnica selecionada -->
       <div id="infoTecnicaSelecionada" style="margin-top:6px;font-size:0.85rem;color:#475569;background:#f8fafc;padding:8px;border-radius:6px;border:1px solid #e2e8f0;">
         <span id="infoTecNome">Nenhuma técnica selecionada</span>
         <span id="infoTecDetalhes" style="margin-left:8px;"></span>
@@ -389,60 +361,60 @@
             <input type="number" inputmode="decimal" id="novoAlturaTecnica" placeholder="10" step="0.1">
           </div>
           <div class="campo" style="margin-bottom:0">
-            <label for="novoNumCoresTecnica">Nº Cores (opcional):</label>
+            <label for="novoNumCoresTecnica">Nº Cores:</label>
             <input type="number" inputmode="numeric" id="novoNumCoresTecnica" placeholder="1" min="1" max="10">
           </div>
         </div>
         <div class="linha-botoes" style="margin-top:8px;">
-          <button type="button" id="btnGuardarTec" class="btn btn-sucesso">Guardar</button>
-          <button type="button" id="btnFecharTec" class="btn btn-cancelar">Cancelar</button>
+          <button type="button" id="btnGuardarTecnica" class="btn btn-sucesso">Guardar</button>
+          <button type="button" id="btnFecharTecnica" class="btn btn-cancelar">Cancelar</button>
         </div>
       </div>
     </section>
 
-    <!-- SECÇÃO: CÁLCULO -->
+    <!-- CÁLCULO -->
     <section class="card">
       <h4 style="margin-bottom:8px;font-size:0.9rem;color:#64748b;">📐 Dimensões da Estampa</h4>
       <div class="grid-2">
         <div class="campo">
-          <label for="alturaEstampaInput">Altura (cm):</label>
-          <input type="number" inputmode="decimal" id="alturaEstampaInput" value="10" step="0.1">
+          <label for="alturaEstampa">Altura (cm):</label>
+          <input type="number" inputmode="decimal" id="alturaEstampa" value="10" step="0.1">
         </div>
         <div class="campo">
-          <label for="larguraEstampaInput">Largura (cm):</label>
-          <input type="number" inputmode="decimal" id="larguraEstampaInput" value="28" step="0.1">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="campo">
-          <label for="quantidadeInput">Quantidade:</label>
-          <input type="number" inputmode="numeric" id="quantidadeInput" value="1" min="1">
-        </div>
-        <div class="campo">
-          <label for="custoPecaInput">Custo Peça s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="custoPecaInput" value="0.00" step="0.01">
+          <label for="larguraEstampa">Largura (cm):</label>
+          <input type="number" inputmode="decimal" id="larguraEstampa" value="28" step="0.1">
         </div>
       </div>
       <div class="grid-2">
         <div class="campo">
-          <label for="portesFornecedorInput">Portes Lote s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="portesFornecedorInput" value="0.00" step="0.01">
+          <label for="quantidade">Quantidade:</label>
+          <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
         </div>
         <div class="campo">
-          <label for="valMargemInput">Margem Lucro:</label>
-          <input type="number" inputmode="decimal" id="valMargemInput" value="5.00" step="0.50">
+          <label for="custoPeca">Custo Peça s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="campo">
+          <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
+          <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
+        </div>
+        <div class="campo">
+          <label for="valMargem">Margem Lucro:</label>
+          <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
         </div>
       </div>
       <div class="campo" style="margin-bottom:0;">
-        <label for="tipoMargemInput">Tipo de Margem:</label>
-        <select id="tipoMargemInput">
+        <label for="tipoMargem">Tipo de Margem:</label>
+        <select id="tipoMargem">
           <option value="valor">Valor Fixo (€)</option>
           <option value="percentagem">Percentagem (%)</option>
         </select>
       </div>
     </section>
 
-    <!-- SECÇÃO: RESULTADOS -->
+    <!-- RESULTADOS -->
     <section class="card resultados">
       <div class="linha-resultado destaque"><span>Preço Venda / Un (c/ IVA):</span><strong id="resPrecoUn">0,00 €</strong></div>
       <div class="linha-resultado destaque-total"><span>Total Comercial (c/ IVA):</span><strong id="resTotalComercial">0,00 €</strong></div>
@@ -474,4 +446,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
