@@ -515,4 +515,157 @@ function calcular() {
     // Mostrar erro no debug
     var debugDiv = document.getElementById("debugErroMovil");
     if (debugDiv) {
-      debugDiv.sty
+      debugDiv.style.display = "block";
+      debugDiv.innerHTML = "<strong>Erro no cálculo:</strong> " + e.message;
+    }
+  }
+}
+
+function gerarComparativoEscaloes(qAtual, pComIva, portesIva, tecnicaId, tipo, margem) {
+  var c = document.getElementById("tabelaComparativa");
+  if (!c) return;
+  c.innerHTML = "";
+  var escaloes = [1, 10, 25, 50, 100];
+  escaloes.forEach(function(q) {
+    var imp = obterCustoPara(q, tecnicaId);
+    var custo = pComIva + imp.custoUnComIva + portesIva / q;
+    var lucro = margemPorUnidade(q, margem, tipo, custo);
+    var item = document.createElement("div");
+    item.className = "escalao-item" + (q === qAtual ? " active" : "");
+    item.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
+    c.appendChild(item);
+  });
+}
+
+// ==================== UTILITÁRIOS ====================
+function resumoTexto() {
+  var q = document.getElementById("quantidade") ? document.getElementById("quantidade").value : "0";
+  var selTec = document.getElementById("seletorTecnicaBD");
+  var t = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
+  var mat = document.getElementById("nomeMaterialAtivo") ? document.getElementById("nomeMaterialAtivo").textContent : "";
+  var preco = document.getElementById("resPrecoUn") ? document.getElementById("resPrecoUn").textContent : "0,00 €";
+  var total = document.getElementById("resTotalComercial") ? document.getElementById("resTotalComercial").textContent : "0,00 €";
+  var lucro = document.getElementById("resLucroTotal") ? document.getElementById("resLucroTotal").textContent : "0,00 €";
+  
+  return "GrafiSantos Print\nArtigo: " + mat + "\nQuantidade: " + q + "\nTécnica: " + t + 
+    "\nPreço/un.: " + preco + 
+    "\nTotal: " + total + 
+    "\nLucro total: " + lucro;
+}
+
+function copiarResumo() {
+  var txt = resumoTexto();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function() {
+      alert("Resumo copiado.");
+    }).catch(function() {
+      prompt("Copia o resumo:", txt);
+    });
+  } else {
+    prompt("Copia o resumo:", txt);
+  }
+}
+
+function guardarPDF() {
+  if (typeof html2pdf === "undefined" || !html2pdf) { 
+    window.print(); 
+    return; 
+  }
+  var el = document.getElementById("areaParaPdf");
+  if (!el) return;
+  html2pdf().set({
+    margin: 8, 
+    filename: "GrafiSantos-Calculadora.pdf",
+    image: { type: "jpeg", quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+  }).from(el).save();
+}
+
+function imprimir() { window.print(); }
+
+// ==================== EVENTOS ====================
+function ligarEventos() {
+  var acao = function(idv, tipo, fn) {
+    var el = document.getElementById(idv);
+    if (el) el.addEventListener(tipo, fn);
+  };
+
+  // Fornecedores
+  acao("seletorFornecedorBD", "change", function(e) {
+    fornecedorSelecionadoId = e.target.value;
+    materialSelecionadoId = null;
+    atualizarSelectMateriais();
+  });
+  acao("btnNovoForn", "click", function() { abrirFormFornecedor(false); });
+  acao("btnEditarForn", "click", function() { abrirFormFornecedor(true); });
+  acao("btnEliminarForn", "click", eliminarFornecedor);
+  acao("btnGuardarFornBD", "click", guardarFornecedor);
+  acao("btnFecharFornBD", "click", fecharFormFornecedor);
+
+  // Materiais
+  acao("seletorMaterialBD", "change", function(e) {
+    materialSelecionadoId = e.target.value;
+    atualizarSelectMateriais();
+  });
+  acao("btnNovoMat", "click", function() { abrirFormMaterial(false); });
+  acao("btnEditarMat", "click", function() { abrirFormMaterial(true); });
+  acao("btnEliminarMat", "click", eliminarMaterial);
+  acao("btnGuardarMatBD", "click", guardarMaterial);
+  acao("btnFecharMatBD", "click", fecharFormMaterial);
+
+  // Técnicas
+  acao("seletorTecnicaBD", "change", function(e) {
+    tecnicaSelecionadaId = e.target.value;
+    var t = baseDados ? baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; }) : null;
+    var nomeTec = document.getElementById("nomeTecnicaAtiva");
+    if (nomeTec && t) {
+      nomeTec.textContent = t.nome;
+    }
+    calcular();
+  });
+  acao("btnNovaTec", "click", function() { abrirFormTecnica(false); });
+  acao("btnEditarTec", "click", function() { abrirFormTecnica(true); });
+  acao("btnEliminarTec", "click", eliminarTecnica);
+  acao("btnGuardarTecBD", "click", guardarTecnica);
+  acao("btnFecharTecBD", "click", fecharFormTecnica);
+
+  // Cálculos
+  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "tipoMargem", "valMargem"];
+  inputs.forEach(function(x) { 
+    acao(x, "input", calcular); 
+    acao(x, "change", calcular);
+  });
+
+  // Ações
+  acao("btnCopiarResumo", "click", copiarResumo);
+  acao("btnGuardarPDF", "click", guardarPDF);
+  acao("btnImprimir", "click", imprimir);
+}
+
+// ==================== INICIALIZAÇÃO ====================
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    carregarBD();
+    atualizarSelectFornecedores();
+    atualizarSelectTecnicas();
+    ligarEventos();
+    calcular();
+    
+    // Mostrar técnica ativa
+    if (baseDados && baseDados.tecnicas) {
+      var t = baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; });
+      var nomeTec = document.getElementById("nomeTecnicaAtiva");
+      if (nomeTec && t) {
+        nomeTec.textContent = t.nome;
+      }
+    }
+  } catch(e) {
+    console.log("Erro na inicialização:", e);
+    var debugDiv = document.getElementById("debugErroMovil");
+    if (debugDiv) {
+      debugDiv.style.display = "block";
+      debugDiv.innerHTML = "<strong>Erro na inicialização:</strong> " + e.message;
+    }
+  }
+});
