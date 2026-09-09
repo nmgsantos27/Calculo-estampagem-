@@ -140,7 +140,7 @@ function guardarBD() {
   }
 }
 
-// --- INTERFAÇOES DE FORNECEDORES E MATERIAIS ---
+// --- INTERFACES DE FORNECEDORES E MATERIAIS ---
 function atualizarSeletorFornecedoresBD() {
   const select = document.getElementById('seletorFornecedorBD');
   if (!select) return;
@@ -574,6 +574,6 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
   });
 }
 
+// --- ACOES DO HEADER ---
 function copiarResumo() {
-  const artigo = document.getElementById('nomeMaterialAtivo').innerText;
-  co
+  const artigo = document.getElementById('nomeMater
