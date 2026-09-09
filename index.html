@@ -77,6 +77,12 @@
             background: #94a3b8;
             color: #fff;
         }
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
         .btn-icon {
             width: 40px;
             height: 40px;
@@ -103,6 +109,17 @@
         }
         .btn-icon-danger:active {
             background: #fecaca;
+        }
+        .btn-pequeno {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .btn-pequeno:hover {
+            background: #f1f5f9;
         }
         .card {
             background: #fff;
@@ -294,6 +311,84 @@
             font-weight: 600;
             pointer-events: none;
         }
+        .variante-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .variante-item span {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .variante-item .preco {
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .variante-item .cor-bolinha {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #cbd5e1;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .lista-variantes {
+            margin-top: 6px;
+        }
+        .btn-add-variante {
+            margin-top: 6px;
+            padding: 6px 12px;
+            border: 1px dashed #2563eb;
+            border-radius: 6px;
+            background: transparent;
+            color: #2563eb;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-add-variante:active {
+            background: #eff6ff;
+        }
+        .variante-form {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .variante-form input {
+            flex: 1;
+            min-width: 60px;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .variante-form .btn {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+        }
+        .variante-form .input-cor {
+            width: 40px;
+            height: 40px;
+            padding: 2px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            cursor: pointer;
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -365,7 +460,7 @@
                 <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
                 <div class="campo-euro">
                     <span class="simbolo-euro">€</span>
-                    <input type="number" id="inputPortesFornecedor" placeholder="0.00" step="0.01">
+                    <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
                 </div>
                 <div class="btn-row">
                     <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
@@ -374,7 +469,7 @@
             </div>
         </div>
 
-        <!-- MATERIAIS -->
+        <!-- MATERIAIS COM VARIANTES (CORES) -->
         <div class="card no-print">
             <div class="section-title">👕 Material / Peça</div>
             <div class="flex">
@@ -388,15 +483,34 @@
                     <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
                 </div>
             </div>
+
+            <!-- Lista de Variantes (Cores) -->
+            <div id="listaVariantes" class="lista-variantes">
+                <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
+                <div id="variantesContainer"></div>
+            </div>
+
+            <!-- Formulário de Material (com cores) -->
             <div class="form-panel hidden" id="formMaterial">
                 <h4 id="tituloMaterial">Novo material</h4>
                 <input type="hidden" id="editMaterialId">
-                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material">
-                <div class="campo-euro">
-                    <span class="simbolo-euro">€</span>
-                    <input type="number" id="inputPrecoMaterial" placeholder="0.00" step="0.01">
+                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt)">
+
+                <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
+                <div id="variantesFormContainer">
+                    <div class="variante-form" id="varianteFormTemplate">
+                        <input type="color" class="inputCor" value="#ffffff" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">
+                        <input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;">
+                        <div class="campo-euro" style="flex:1;">
+                            <span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>
+                            <input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;">
+                        </div>
+                        <button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>
+                    </div>
                 </div>
-                <div class="btn-row">
+                <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
+
+                <div class="btn-row" style="margin-top:8px;">
                     <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
                     <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
                 </div>
@@ -463,30 +577,38 @@
                     <label>Quantidade:</label>
                     <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
                 </div>
-                <div class="field campo-euro">
-                    <label>Custo Peça (s/IVA) €:</label>
-                    <span class="simbolo-euro-topo">€</span>
-                    <input type="number" id="custoPeca" value="0.00" step="0.01" oninput="calcular()" onchange="calcular()">
+                <div class="field">
+                    <label>Cor / Variante:</label>
+                    <select id="selVariante" onchange="onChangeVariante()">
+                        <option value="">Selecione uma cor</option>
+                    </select>
                 </div>
             </div>
             <div class="grid-2">
+                <div class="field campo-euro">
+                    <label>Custo Peça (s/IVA) €:</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                </div>
                 <div class="field campo-euro">
                     <label>Portes Lote (s/IVA) €:</label>
                     <span class="simbolo-euro-topo">€</span>
                     <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
                 </div>
+            </div>
+            <div class="grid-2">
                 <div class="field campo-euro">
                     <label>Margem Lucro:</label>
                     <span class="simbolo-euro-topo">€</span>
                     <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
                 </div>
-            </div>
-            <div class="field" style="margin-bottom:0;">
-                <label>Tipo de Margem:</label>
-                <select id="tipoMargem" onchange="calcular()">
-                    <option value="valor">Valor Fixo (€)</option>
-                    <option value="percentagem">Percentagem (%)</option>
-                </select>
+                <div class="field" style="margin-bottom:0;">
+                    <label>Tipo de Margem:</label>
+                    <select id="tipoMargem" onchange="calcular()">
+                        <option value="valor">Valor Fixo (€)</option>
+                        <option value="percentagem">Percentagem (%)</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -529,17 +651,9 @@
 
         "use strict";
 
-        // ============================================================
-        //  CONFIGURAÇÕES GERAIS
-        // ============================================================
-
         var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v3";
+        var STORAGE_KEY = "grafisantos_v4";
         var MARGEM_KEY = "grafisantos_margem";
-
-        // ============================================================
-        //  UTILITÁRIOS
-        // ============================================================
 
         function parseNum(v) {
             if (typeof v === "number") return isFinite(v) ? v : 0;
@@ -583,7 +697,7 @@
         }
 
         // ============================================================
-        //  DADOS PADRÃO
+        //  DADOS PADRÃO (com cores)
         // ============================================================
 
         var DADOS_PADRAO = {
@@ -591,26 +705,58 @@
                 id: "f1",
                 nome: "Roly",
                 portes: 4.50,
-                materiais: [
-                    { id: "m1", nome: "T-Shirt Beagle 150g", preco: 1.85 },
-                    { id: "m2", nome: "Polo Star 200g", preco: 5.20 },
-                    { id: "m3", nome: "Hoodie Capuz Capuchana", preco: 9.80 }
-                ]
+                materiais: [{
+                    id: "m1",
+                    nome: "T-Shirt Beagle 150g",
+                    variantes: [
+                        { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
+                        { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 },
+                        { id: "v3", nome: "Azul", cor: "#2563eb", preco: 1.95 }
+                    ]
+                }, {
+                    id: "m2",
+                    nome: "Polo Star 200g",
+                    variantes: [
+                        { id: "v4", nome: "Branco", cor: "#ffffff", preco: 5.20 },
+                        { id: "v5", nome: "Vermelho", cor: "#dc2626", preco: 5.50 }
+                    ]
+                }, {
+                    id: "m3",
+                    nome: "Hoodie Capuz Capuchana",
+                    variantes: [
+                        { id: "v6", nome: "Preto", cor: "#000000", preco: 9.80 },
+                        { id: "v7", nome: "Cinza", cor: "#94a3b8", preco: 9.50 }
+                    ]
+                }]
             }, {
                 id: "f2",
                 nome: "Makito",
                 portes: 6.00,
-                materiais: [
-                    { id: "m4", nome: "T-Shirt Tecnic Sport", preco: 1.45 },
-                    { id: "m5", nome: "Saco Algodão Tabela", preco: 0.95 }
-                ]
+                materiais: [{
+                    id: "m4",
+                    nome: "T-Shirt Tecnic Sport",
+                    variantes: [
+                        { id: "v8", nome: "Branco", cor: "#ffffff", preco: 1.45 },
+                        { id: "v9", nome: "Preto", cor: "#000000", preco: 1.60 }
+                    ]
+                }, {
+                    id: "m5",
+                    nome: "Saco Algodão Tabela",
+                    variantes: [
+                        { id: "v10", nome: "Cru", cor: "#f5deb3", preco: 0.95 }
+                    ]
+                }]
             }, {
                 id: "f3",
                 nome: "Levantar em Loja",
                 portes: 0,
-                materiais: [
-                    { id: "m6", nome: "Material do Cliente", preco: 0 }
-                ]
+                materiais: [{
+                    id: "m6",
+                    nome: "Material do Cliente",
+                    variantes: [
+                        { id: "v11", nome: "Padrão", cor: "#e2e8f0", preco: 0 }
+                    ]
+                }]
             }],
             tecnicas: [
                 { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
@@ -621,13 +767,10 @@
             ]
         };
 
-        // ============================================================
-        //  ESTADO DA APLICAÇÃO
-        // ============================================================
-
         var dados = null;
         var fornecedorId = null;
         var materialId = null;
+        var varianteId = null;
         var tecnicaId = null;
 
         // ============================================================
@@ -669,12 +812,102 @@
             return f.materiais.find(function(m) { return m.id === id; });
         }
 
+        function obterVariante(id) {
+            var m = obterMaterial(materialId);
+            if (!m) return null;
+            return m.variantes.find(function(v) { return v.id === id; });
+        }
+
         function obterTecnica(id) {
             return dados.tecnicas.find(function(t) { return t.id === id; });
         }
 
         // ============================================================
-        //  ATUALIZAR PORTES DO FORNECEDOR
+        //  VARIANTES (CORES) - FORMULÁRIO
+        // ============================================================
+
+        function adicionarVarianteForm() {
+            var container = document.getElementById("variantesFormContainer");
+            var template = document.getElementById("varianteFormTemplate");
+            var clone = template.cloneNode(true);
+            clone.id = "";
+            clone.style.display = "flex";
+            clone.querySelector(".inputCor").value = "#ffffff";
+            clone.querySelector(".inputVarianteNome").value = "";
+            clone.querySelector(".inputVariantePreco").value = "";
+            clone.classList.remove("hidden");
+            container.appendChild(clone);
+        }
+
+        function removerVarianteForm(btn) {
+            var container = document.getElementById("variantesFormContainer");
+            var item = btn.parentNode;
+            if (container.children.length <= 2) {
+                alert("⚠️ É necessário manter pelo menos uma cor.");
+                return;
+            }
+            container.removeChild(item);
+        }
+
+        function carregarVariantesForm(material) {
+            var container = document.getElementById("variantesFormContainer");
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+            var template = container.firstChild;
+            template.style.display = "flex";
+
+            if (material && material.variantes && material.variantes.length) {
+                container.innerHTML = "";
+                material.variantes.forEach(function(v) {
+                    var div = document.createElement("div");
+                    div.className = "variante-form";
+                    div.innerHTML = `
+                        <input type="color" class="inputCor" value="${v.cor || '#ffffff'}" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">
+                        <input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="${v.nome || ''}">
+                        <div class="campo-euro" style="flex:1;">
+                            <span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>
+                            <input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="${formatarNumero(v.preco, 2)}">
+                        </div>
+                        <button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>
+                        <input type="hidden" class="inputVarianteId" value="${v.id || ''}">
+                    `;
+                    container.appendChild(div);
+                });
+            } else {
+                container.innerHTML = "";
+                var template2 = document.getElementById("varianteFormTemplate").cloneNode(true);
+                template2.id = "";
+                template2.style.display = "flex";
+                template2.querySelector(".inputCor").value = "#ffffff";
+                template2.querySelector(".inputVarianteNome").value = "";
+                template2.querySelector(".inputVariantePreco").value = "";
+                container.appendChild(template2);
+            }
+        }
+
+        function obterVariantesDoForm() {
+            var variantes = [];
+            var items = document.querySelectorAll("#variantesFormContainer .variante-form");
+            items.forEach(function(item) {
+                var nome = item.querySelector(".inputVarianteNome").value.trim();
+                var preco = parseNum(item.querySelector(".inputVariantePreco").value);
+                var cor = item.querySelector(".inputCor").value;
+                var id = item.querySelector(".inputVarianteId");
+                if (nome) {
+                    variantes.push({
+                        id: id ? id.value || gerarId() : gerarId(),
+                        nome: nome,
+                        cor: cor || "#ffffff",
+                        preco: preco
+                    });
+                }
+            });
+            return variantes;
+        }
+
+        // ============================================================
+        //  ATUALIZAR PORTES E VARIANTES
         // ============================================================
 
         function atualizarPortesFornecedor() {
@@ -685,6 +918,50 @@
             } else if (el) {
                 el.value = "0.00";
             }
+        }
+
+        function atualizarSelectVariantes() {
+            var sel = document.getElementById("selVariante");
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Selecione uma cor</option>';
+
+            var m = obterMaterial(materialId);
+            if (!m || !m.variantes || !m.variantes.length) {
+                return;
+            }
+
+            m.variantes.forEach(function(v) {
+                var opt = document.createElement("option");
+                opt.value = v.id;
+                var bolinha = v.cor ? '●' : '';
+                opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " €)";
+                if (v.cor) {
+                    opt.style.color = v.cor;
+                }
+                sel.appendChild(opt);
+            });
+
+            if (!varianteId || !obterVariante(varianteId)) {
+                varianteId = m.variantes[0] ? m.variantes[0].id : null;
+            }
+            if (varianteId) sel.value = varianteId;
+
+            onChangeVariante();
+        }
+
+        function onChangeVariante() {
+            var sel = document.getElementById("selVariante");
+            if (!sel) return;
+            varianteId = sel.value;
+            var v = obterVariante(varianteId);
+            var el = document.getElementById("custoPeca");
+            if (el && v) {
+                el.value = formatarNumero(v.preco, 2);
+                document.getElementById("footerPreco").textContent = moeda(v.preco) + " s/IVA";
+            } else if (el) {
+                el.value = "0.00";
+            }
+            calcular();
         }
 
         // ============================================================
@@ -717,6 +994,7 @@
             if (!sel) return;
             fornecedorId = sel.value;
             materialId = null;
+            varianteId = null;
             atualizarPortesFornecedor();
             renderMateriais();
         }
@@ -766,12 +1044,13 @@
             dados.fornecedores = dados.fornecedores.filter(function(x) { return x.id !== fornecedorId; });
             fornecedorId = null;
             materialId = null;
+            varianteId = null;
             guardarDados();
             renderFornecedores();
         }
 
         // ============================================================
-        //  MATERIAIS
+        //  MATERIAIS (com cores)
         // ============================================================
 
         function renderMateriais() {
@@ -783,9 +1062,12 @@
             if (!f || !f.materiais || !f.materiais.length) {
                 sel.innerHTML = '<option value="">⚠️ Nenhum material</option>';
                 materialId = null;
+                varianteId = null;
                 document.getElementById("footerMaterial").textContent = "Nenhum";
                 document.getElementById("footerPreco").textContent = "0,00 €";
                 document.getElementById("custoPeca").value = "0.00";
+                document.getElementById("variantesContainer").innerHTML = "";
+                atualizarSelectVariantes();
                 calcular();
                 return;
             }
@@ -793,7 +1075,8 @@
             f.materiais.forEach(function(m) {
                 var opt = document.createElement("option");
                 opt.value = m.id;
-                opt.textContent = m.nome + " (" + formatarNumero(m.preco, 2) + " €)";
+                var qtdCores = m.variantes ? m.variantes.length : 0;
+                opt.textContent = m.nome + " (" + qtdCores + " cor" + (qtdCores > 1 ? "es" : "") + ")";
                 sel.appendChild(opt);
             });
 
@@ -802,20 +1085,45 @@
             }
             if (materialId) sel.value = materialId;
 
+            atualizarVariantes();
+            atualizarSelectVariantes();
+            calcular();
+        }
+
+        function atualizarVariantes() {
             var m = obterMaterial(materialId);
-            if (m) {
-                document.getElementById("custoPeca").value = formatarNumero(m.preco, 2);
-                document.getElementById("footerMaterial").textContent = m.nome + (f ? " (" + f.nome + ")" : "");
-                document.getElementById("footerPreco").textContent = moeda(m.preco) + " s/IVA";
+            var container = document.getElementById("variantesContainer");
+
+            if (!m || !m.variantes || !m.variantes.length) {
+                container.innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
+                document.getElementById("footerMaterial").textContent = m ? m.nome : "Nenhum";
+                return;
             }
 
-            calcular();
+            var html = "";
+            m.variantes.forEach(function(v) {
+                var corStyle = v.cor ? 'background-color:' + v.cor + ';' : '';
+                html += `
+                    <div class="variante-item">
+                        <span>
+                            <span class="cor-bolinha" style="${corStyle}"></span>
+                            ${v.nome}
+                        </span>
+                        <span class="preco">${moeda(v.preco)}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.getElementById("footerMaterial").textContent = m.nome + (m.variantes.length > 1 ? " (" + m.variantes.length + " cores)" : "");
         }
 
         function onChangeMaterial() {
             var sel = document.getElementById("selMaterial");
             if (!sel) return;
             materialId = sel.value;
+            varianteId = null;
+            atualizarVariantes();
+            atualizarSelectVariantes();
             renderMateriais();
         }
 
@@ -825,7 +1133,8 @@
             document.getElementById("tituloMaterial").textContent = editar ? "✏️ Editar material" : "➕ Novo material";
             document.getElementById("editMaterialId").value = editar && m ? m.id : "";
             document.getElementById("inputNomeMaterial").value = editar && m ? m.nome : "";
-            document.getElementById("inputPrecoMaterial").value = editar && m ? formatarNumero(m.preco, 2) : "";
+
+            carregarVariantesForm(m);
         }
 
         function fecharFormMaterial() {
@@ -839,18 +1148,21 @@
             var nome = document.getElementById("inputNomeMaterial").value.trim();
             if (!nome) { alert("⚠️ Indica o nome do material."); return; }
 
-            var preco = Math.max(0, parseNum(document.getElementById("inputPrecoMaterial").value));
-            var eid = document.getElementById("editMaterialId").value;
+            var variantes = obterVariantesDoForm();
+            if (!variantes.length) {
+                alert("⚠️ Adicione pelo menos uma cor.");
+                return;
+            }
 
-            f.materiais = f.materiais || [];
+            var eid = document.getElementById("editMaterialId").value;
 
             if (eid) {
                 var m = f.materiais.find(function(x) { return x.id === eid; });
                 if (m) { m.nome = nome;
-                    m.preco = preco; }
+                    m.variantes = variantes; }
                 materialId = eid;
             } else {
-                var novo = { id: gerarId(), nome: nome, preco: preco };
+                var novo = { id: gerarId(), nome: nome, variantes: variantes };
                 f.materiais.push(novo);
                 materialId = novo.id;
             }
@@ -870,6 +1182,7 @@
 
             f.materiais = f.materiais.filter(function(x) { return x.id !== materialId; });
             materialId = null;
+            varianteId = null;
             guardarDados();
             renderMateriais();
         }
@@ -1128,13 +1441,16 @@
 
         function copiarResumo() {
             var q = document.getElementById("quantidade").value;
-            var sel = document.getElementById("selTecnica");
-            var tec = sel && sel.selectedOptions && sel.selectedOptions[0] ? sel.selectedOptions[0].text : "";
+            var selTec = document.getElementById("selTecnica");
+            var tec = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
             var mat = document.getElementById("footerMaterial").textContent;
+            var selVar = document.getElementById("selVariante");
+            var varNome = selVar && selVar.selectedOptions && selVar.selectedOptions[0] ? selVar.selectedOptions[0].text : "";
 
             var txt = "🖨️ GrafiSantos Print - Orçamento\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                 "📦 Material: " + mat + "\n" +
+                "🎨 Cor: " + varNome + "\n" +
                 "📐 Quantidade: " + q + "\n" +
                 "🖨️ Técnica: " + tec + "\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
@@ -1194,10 +1510,6 @@
     </script>
 
     <script>
-        // ============================================================
-        //  REGISTAR SERVICE WORKER
-        // ============================================================
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('sw.js')
