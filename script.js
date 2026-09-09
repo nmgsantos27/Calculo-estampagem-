@@ -8,27 +8,38 @@ function parseNum(valor) {
   return isNaN(num) ? 0 : num;
 }
 
-// BD PADRÃO DE ARTIGOS
-const ARTIGOS_PADRAO = [
-  { id: '1', nome: 'T-Shirt Algodão 150g', preco: 1.85 },
-  { id: '2', nome: 'T-Shirt Premium 180g', preco: 2.90 },
-  { id: '3', nome: 'Polo Piqué Clássico', preco: 5.20 },
-  { id: '4', nome: 'Sweatshirt Gola Redonda', preco: 7.50 },
-  { id: '5', nome: 'Hoodie c/ Capuz e Bolso', preco: 9.80 },
-  { id: '6', nome: 'Saco Tote Bag Algodão', preco: 0.95 }
+// ESTRUTURA INICIAL DE FORNECEDORES E MATERIAIS
+const BASE_DADOS_PADRAO = [
+  {
+    id: 'f1',
+    nome: 'Roly',
+    portes: 4.50,
+    materiais: [
+      { id: 'm1_1', nome: 'T-Shirt Beagle 150g', preco: 1.85 },
+      { id: 'm1_2', nome: 'Polo Star 200g', preco: 5.20 },
+      { id: 'm1_3', nome: 'Hoodie Capuz Capuchana', preco: 9.80 }
+    ]
+  },
+  {
+    id: 'f2',
+    nome: 'Makito',
+    portes: 6.00,
+    materiais: [
+      { id: 'm2_1', nome: 'T-Shirt Tecnic Sport', preco: 1.45 },
+      { id: 'm2_2', nome: 'Saco Algodão Tabela', preco: 0.95 }
+    ]
+  },
+  {
+    id: 'f3',
+    nome: 'Levantar em Loja / Sem Portes',
+    portes: 0.00,
+    materiais: [
+      { id: 'm3_1', nome: 'Material do Cliente', preco: 0.00 }
+    ]
+  }
 ];
 
-// BD PADRÃO DE FORNECEDORES DE PORTES
-const FORNECEDORES_PADRAO = [
-  { id: 'p1', nome: 'Portes Padrão', preco: 3.00 },
-  { id: 'p2', nome: 'Roly (Envio Normal)', preco: 4.50 },
-  { id: 'p3', nome: 'Makito (Volume Médio)', preco: 6.00 },
-  { id: 'p4', nome: 'Envio Expresso / CTT', preco: 8.50 },
-  { id: 'p5', nome: 'Isento / Levantar em Loja', preco: 0.00 }
-];
-
-let artigosBD = [];
-let fornecedoresBD = [];
+let baseDados = [];
 
 // CÁLCULO DA MARGEM DINÂMICA
 function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
@@ -105,6 +116,215 @@ const TECNICAS = {
   }
 };
 
+// --- GESTÃO DA BASE DE DADOS (LOCALSTORAGE) ---
+function carregarBD() {
+  try {
+    const guardado = localStorage.getItem('baseDadosGrafiSantos');
+    if (guardado) {
+      baseDados = JSON.parse(guardado);
+    } else {
+      baseDados = [...BASE_DADOS_PADRAO];
+    }
+  } catch (e) {
+    baseDados = [...BASE_DADOS_PADRAO];
+  }
+  guardarBD();
+  atualizarSeletorFornecedoresBD();
+}
+
+function guardarBD() {
+  try {
+    localStorage.setItem('baseDadosGrafiSantos', JSON.stringify(baseDados));
+  } catch(e) {
+    console.warn("Erro ao guardar na cache.");
+  }
+}
+
+// --- INTERFAÇOES DE FORNECEDORES E MATERIAIS ---
+function atualizarSeletorFornecedoresBD() {
+  const select = document.getElementById('seletorFornecedorBD');
+  if (!select) return;
+  select.innerHTML = '';
+
+  if (baseDados.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = "";
+    opt.textContent = "Nenhum fornecedor registado";
+    select.appendChild(opt);
+    atualizarSeletorMateriaisBD([]);
+    return;
+  }
+
+  baseDados.forEach(forn => {
+    const opt = document.createElement('option');
+    opt.value = forn.id;
+    opt.textContent = `${forn.nome} (Portes: ${parseNum(forn.portes).toFixed(2)} €)`;
+    select.appendChild(opt);
+  });
+
+  selecionarFornecedorBD();
+}
+
+function selecionarFornecedorBD() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const forn = baseDados.find(f => f.id === fornId);
+
+  if (forn) {
+    document.getElementById('portesFornecedor').value = parseNum(forn.portes).toFixed(2);
+    atualizarSeletorMateriaisBD(forn.materiais || []);
+  } else {
+    atualizarSeletorMateriaisBD([]);
+  }
+  calcular();
+}
+
+function atualizarSeletorMateriaisBD(materiais) {
+  const select = document.getElementById('seletorMaterialBD');
+  if (!select) return;
+  select.innerHTML = '';
+
+  if (!materiais || materiais.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = "";
+    opt.textContent = "Nenhum material neste fornecedor";
+    select.appendChild(opt);
+    document.getElementById('nomeMaterialAtivo').innerText = "Manual";
+    document.getElementById('detalheMaterialAtivo').innerText = "0,00 € s/ IVA";
+    return;
+  }
+
+  materiais.forEach(mat => {
+    const opt = document.createElement('option');
+    opt.value = mat.id;
+    opt.textContent = `${mat.nome} (${parseNum(mat.preco).toFixed(2)} €)`;
+    select.appendChild(opt);
+  });
+
+  selecionarMaterialBD();
+}
+
+function selecionarMaterialBD() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const matId = document.getElementById('seletorMaterialBD').value;
+
+  const forn = baseDados.find(f => f.id === fornId);
+  if (!forn) return;
+
+  const mat = (forn.materiais || []).find(m => m.id === matId);
+  if (mat) {
+    const precoNum = parseNum(mat.preco);
+    document.getElementById('custoPeca').value = precoNum.toFixed(2);
+    document.getElementById('nomeMaterialAtivo').innerText = `${mat.nome} (${forn.nome})`;
+    document.getElementById('detalheMaterialAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
+  }
+  calcular();
+}
+
+// --- FORNECEDORES: ADICIONAR / ELIMINAR ---
+function alternarFormNovoFornecedor() {
+  const box = document.getElementById('formNovoFornecedor');
+  if (!box) return;
+  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+}
+
+function guardarNovoFornecedorBD() {
+  const nome = document.getElementById('novoNomeFornecedor').value.trim();
+  const portes = parseNum(document.getElementById('novoPortesFornecedor').value);
+
+  if (!nome) {
+    alert('Introduza o nome do fornecedor.');
+    return;
+  }
+
+  const novoForn = {
+    id: 'f_' + Date.now(),
+    nome: nome,
+    portes: portes,
+    materiais: []
+  };
+
+  baseDados.push(novoForn);
+  guardarBD();
+  atualizarSeletorFornecedoresBD();
+
+  document.getElementById('seletorFornecedorBD').value = novoForn.id;
+  selecionarFornecedorBD();
+
+  document.getElementById('novoNomeFornecedor').value = '';
+  document.getElementById('novoPortesFornecedor').value = '';
+  alternarFormNovoFornecedor();
+}
+
+function eliminarFornecedorAtivo() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  if (!fornId) return;
+
+  if (confirm('Tem a certeza que deseja eliminar este fornecedor e todos os seus materiais?')) {
+    baseDados = baseDados.filter(f => f.id !== fornId);
+    guardarBD();
+    atualizarSeletorFornecedoresBD();
+  }
+}
+
+// --- MATERIAIS: ADICIONAR / ELIMINAR ---
+function alternarFormNovoMaterial() {
+  const box = document.getElementById('formNovoMaterial');
+  if (!box) return;
+  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+}
+
+function guardarNovoMaterialBD() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const forn = baseDados.find(f => f.id === fornId);
+
+  if (!forn) {
+    alert('Selecione primeiro um fornecedor.');
+    return;
+  }
+
+  const nome = document.getElementById('novoNomeMaterial').value.trim();
+  const preco = parseNum(document.getElementById('novoPrecoMaterial').value);
+
+  if (!nome) {
+    alert('Introduza o nome do material.');
+    return;
+  }
+
+  const novoMat = {
+    id: 'm_' + Date.now(),
+    nome: nome,
+    preco: preco
+  };
+
+  if (!forn.materiais) forn.materiais = [];
+  forn.materiais.push(novoMat);
+
+  guardarBD();
+  atualizarSeletorMateriaisBD(forn.materiais);
+
+  document.getElementById('seletorMaterialBD').value = novoMat.id;
+  selecionarMaterialBD();
+
+  document.getElementById('novoNomeMaterial').value = '';
+  document.getElementById('novoPrecoMaterial').value = '';
+  alternarFormNovoMaterial();
+}
+
+function eliminarMaterialAtivo() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const matId = document.getElementById('seletorMaterialBD').value;
+
+  const forn = baseDados.find(f => f.id === fornId);
+  if (!forn || !matId) return;
+
+  if (confirm('Tem a certeza que deseja eliminar este material?')) {
+    forn.materiais = forn.materiais.filter(m => m.id !== matId);
+    guardarBD();
+    atualizarSeletorMateriaisBD(forn.materiais);
+  }
+}
+
+// --- ESTADO LOCAL DO FORMULÁRIO ---
 function guardarEstadoCampos() {
   const estado = {
     quantidade: document.getElementById('quantidade').value,
@@ -117,8 +337,8 @@ function guardarEstadoCampos() {
     numCores: document.getElementById('numCores').value,
     tipoMargem: document.getElementById('tipoMargem').value,
     valMargem: document.getElementById('valMargem').value,
-    artigoId: document.getElementById('seletorArtigo') ? document.getElementById('seletorArtigo').value : '',
-    fornecedorId: document.getElementById('seletorFornecedor') ? document.getElementById('seletorFornecedor').value : ''
+    fornId: document.getElementById('seletorFornecedorBD') ? document.getElementById('seletorFornecedorBD').value : '',
+    matId: document.getElementById('seletorMaterialBD') ? document.getElementById('seletorMaterialBD').value : ''
   };
   localStorage.setItem('ultimoEstadoOrcamento', JSON.stringify(estado));
 }
@@ -140,222 +360,20 @@ function carregarEstadoCampos() {
     if (estado.tipoMargem !== undefined) document.getElementById('tipoMargem').value = estado.tipoMargem;
     if (estado.valMargem !== undefined) document.getElementById('valMargem').value = estado.valMargem;
 
-    if (estado.artigoId && document.getElementById('seletorArtigo')) {
-      document.getElementById('seletorArtigo').value = estado.artigoId;
-      const artigo = artigosBD.find(a => a.id === estado.artigoId);
-      if (artigo) {
-        document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
-        document.getElementById('custoArtigoAtivo').innerText = `${parseNum(artigo.preco).toFixed(2).replace('.', ',')} € s/ IVA`;
+    if (estado.fornId && document.getElementById('seletorFornecedorBD')) {
+      document.getElementById('seletorFornecedorBD').value = estado.fornId;
+      selecionarFornecedorBD();
+      if (estado.matId && document.getElementById('seletorMaterialBD')) {
+        document.getElementById('seletorMaterialBD').value = estado.matId;
+        selecionarMaterialBD();
       }
     }
-
-    if (estado.fornecedorId && document.getElementById('seletorFornecedor')) {
-      document.getElementById('seletorFornecedor').value = estado.fornecedorId;
-    }
   } catch (e) {
-    console.warn("Erro ao carregar último estado:", e);
+    console.warn("Erro ao carregar estado guardado:", e);
   }
 }
 
-// --- LOGICA BASE DE DADOS DE ARTIGOS ---
-function carregarBD() {
-  try {
-    const guardadosArtigos = localStorage.getItem('artigosBD');
-    if (guardadosArtigos) {
-      let lidos = JSON.parse(guardadosArtigos);
-      artigosBD = lidos.filter(a => a && a.id && a.nome && a.nome !== 'undefined');
-    } else {
-      artigosBD = [...ARTIGOS_PADRAO];
-    }
-
-    const guardadosForn = localStorage.getItem('fornecedoresBD');
-    if (guardadosForn) {
-      let lidosForn = JSON.parse(guardadosForn);
-      fornecedoresBD = lidosForn.filter(f => f && f.id && f.nome && f.nome !== 'undefined');
-    } else {
-      fornecedoresBD = [...FORNECEDORES_PADRAO];
-    }
-  } catch (e) {
-    artigosBD = [...ARTIGOS_PADRAO];
-    fornecedoresBD = [...FORNECEDORES_PADRAO];
-  }
-  guardarBD();
-  atualizarSeletorArtigos();
-  atualizarSeletorFornecedores();
-}
-
-function guardarBD() {
-  try {
-    localStorage.setItem('artigosBD', JSON.stringify(artigosBD));
-    localStorage.setItem('fornecedoresBD', JSON.stringify(fornecedoresBD));
-  } catch(e) {
-    console.warn("Não foi possível guardar na cache.");
-  }
-}
-
-function atualizarSeletorArtigos() {
-  const select = document.getElementById('seletorArtigo');
-  if (!select) return;
-  select.innerHTML = '';
-
-  if (artigosBD.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = "";
-    opt.textContent = "Nenhum artigo registado";
-    select.appendChild(opt);
-    document.getElementById('nomeArtigoAtivo').innerText = "Manual";
-    document.getElementById('custoArtigoAtivo').innerText = "0,00 € s/ IVA";
-    return;
-  }
-  
-  artigosBD.forEach(artigo => {
-    const opt = document.createElement('option');
-    opt.value = artigo.id;
-    opt.textContent = `${artigo.nome} (${parseNum(artigo.preco).toFixed(2)} €)`;
-    select.appendChild(opt);
-  });
-}
-
-function selecionarArtigoBD() {
-  const idSel = document.getElementById('seletorArtigo').value;
-  const artigo = artigosBD.find(a => a.id === idSel);
-
-  if (artigo) {
-    const precoNum = parseNum(artigo.preco);
-    document.getElementById('nomeArtigoAtivo').innerText = artigo.nome;
-    document.getElementById('custoArtigoAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
-    document.getElementById('custoPeca').value = precoNum.toFixed(2);
-  }
-  calcular();
-}
-
-function alternarFormNovoArtigo() {
-  const box = document.getElementById('formNovoArtigo');
-  if (!box) return;
-  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
-}
-
-function guardarNovoArtigoBD() {
-  const inputNome = document.getElementById('novoNomeArtigo');
-  const inputPreco = document.getElementById('novoPrecoArtigo');
-
-  if (!inputNome || !inputPreco) return;
-
-  const nome = inputNome.value.trim();
-  const preco = parseNum(inputPreco.value);
-
-  if (!nome || nome.toLowerCase() === 'undefined') {
-    alert('Por favor introduza um nome de artigo válido.');
-    return;
-  }
-
-  if (preco <= 0) {
-    alert('Por favor introduza um preço válido maior que 0.');
-    return;
-  }
-
-  const novoArtigo = { id: Date.now().toString(), nome: nome, preco: preco };
-  artigosBD.push(novoArtigo);
-  guardarBD();
-  atualizarSeletorArtigos();
-
-  document.getElementById('seletorArtigo').value = novoArtigo.id;
-  selecionarArtigoBD();
-
-  inputNome.value = '';
-  inputPreco.value = '';
-  alternarFormNovoArtigo();
-}
-
-function eliminarArtigoAtivo() {
-  const idSel = document.getElementById('seletorArtigo').value;
-  if (!idSel) return;
-
-  if (confirm('Tem a certeza que deseja eliminar este artigo da Base de Dados?')) {
-    artigosBD = artigosBD.filter(a => a.id !== idSel && a.nome !== 'undefined');
-    guardarBD();
-    atualizarSeletorArtigos();
-  }
-}
-
-// --- LOGICA BASE DE DADOS DE FORNECEDORES DE PORTES ---
-function atualizarSeletorFornecedores() {
-  const select = document.getElementById('seletorFornecedor');
-  if (!select) return;
-  select.innerHTML = '';
-
-  if (fornecedoresBD.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = "";
-    opt.textContent = "Nenhum fornecedor registado";
-    select.appendChild(opt);
-    return;
-  }
-
-  fornecedoresBD.forEach(forn => {
-    const opt = document.createElement('option');
-    opt.value = forn.id;
-    opt.textContent = `${forn.nome} (${parseNum(forn.preco).toFixed(2)} €)`;
-    select.appendChild(opt);
-  });
-}
-
-function selecionarFornecedorBD() {
-  const idSel = document.getElementById('seletorFornecedor').value;
-  const forn = fornecedoresBD.find(f => f.id === idSel);
-
-  if (forn) {
-    const precoNum = parseNum(forn.preco);
-    document.getElementById('portesFornecedor').value = precoNum.toFixed(2);
-  }
-  calcular();
-}
-
-function alternarFormNovoFornecedor() {
-  const box = document.getElementById('formNovoFornecedor');
-  if (!box) return;
-  box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
-}
-
-function guardarNovoFornecedorBD() {
-  const inputNome = document.getElementById('novoNomeFornecedor');
-  const inputPreco = document.getElementById('novoPrecoPorte');
-
-  if (!inputNome || !inputPreco) return;
-
-  const nome = inputNome.value.trim();
-  const preco = parseNum(inputPreco.value);
-
-  if (!nome) {
-    alert('Por favor introduza o nome do fornecedor.');
-    return;
-  }
-
-  const novoForn = { id: 'p_' + Date.now().toString(), nome: nome, preco: preco };
-  fornecedoresBD.push(novoForn);
-  guardarBD();
-  atualizarSeletorFornecedores();
-
-  document.getElementById('seletorFornecedor').value = novoForn.id;
-  selecionarFornecedorBD();
-
-  inputNome.value = '';
-  inputPreco.value = '';
-  alternarFormNovoFornecedor();
-}
-
-function eliminarFornecedorAtivo() {
-  const idSel = document.getElementById('seletorFornecedor').value;
-  if (!idSel) return;
-
-  if (confirm('Tem a certeza que deseja eliminar este fornecedor?')) {
-    fornecedoresBD = fornecedoresBD.filter(f => f.id !== idSel);
-    guardarBD();
-    atualizarSeletorFornecedores();
-  }
-}
-
-// --- FUNÇÕES UTILITÁRIAS E CÁLCULO ---
+// --- CÁLCULO GERAL ---
 function formatarMoeda(valor) {
   return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
 }
@@ -436,7 +454,6 @@ function calcular() {
   }
 
   gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
-
   guardarEstadoCampos();
 }
 
@@ -475,13 +492,13 @@ function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecni
 }
 
 function copiarResumo() {
-  const artigo = document.getElementById('nomeArtigoAtivo').innerText;
+  const artigo = document.getElementById('nomeMaterialAtivo').innerText;
   const qtd = document.getElementById('quantidade').value;
   const precoUn = document.getElementById('resPrecoUn').innerText;
   const total = document.getElementById('resTotalComercial').innerText;
 
   const texto = `Orçamento GrafiSantos Print:\n` +
-                `- Artigo: ${artigo}\n` +
+                `- Material: ${artigo}\n` +
                 `- Quantidade: ${qtd} un\n` +
                 `- Preço Unitário: ${precoUn} (c/ IVA)\n` +
                 `- Total do Lote: ${total} (c/ IVA)\n` +
@@ -492,10 +509,9 @@ function copiarResumo() {
   });
 }
 
-// FUNÇÃO PARA GERAR E DESCARREGAR PDF
 function guardarPDF() {
   const elemento = document.getElementById('areaParaPdf');
-  const nomeArtigo = document.getElementById('nomeArtigoAtivo').innerText.replace(/[^a-zA-Z0-9]/g, '_');
+  const nomeArtigo = document.getElementById('nomeMaterialAtivo').innerText.replace(/[^a-zA-Z0-9]/g, '_');
   
   const opcoes = {
     margin:       10,

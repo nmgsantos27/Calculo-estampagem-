@@ -38,62 +38,15 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="dashboard-grid">
 
-      <!-- COLUNA 1: BASE DE DADOS DE ARTIGOS & PORTES -->
+      <!-- COLUNA 1: BASE DE DADOS (FORNECEDORES E MATERIAIS) -->
       <section class="card database-card no-print">
         <div class="card-header">
-          <h2>📦 Base de Dados de Artigos</h2>
+          <h2>🏬 Gestão de Fornecedores</h2>
         </div>
 
         <div class="form-group">
-          <label for="seletorArtigo">Selecionar Artigo do Catálogo:</label>
-          <select id="seletorArtigo" onchange="selecionarArtigoBD()">
-            <!-- Preenchido via JS -->
-          </select>
-        </div>
-
-        <div class="db-actions">
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoArtigo()">+ Novo Artigo</button>
-          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarArtigoAtivo()">🗑️ Eliminar</button>
-        </div>
-
-        <!-- FORMULÁRIO NOVO ARTIGO -->
-        <div id="formNovoArtigo" class="novo-artigo-box" style="display: none;">
-          <h4>Adicionar à Base de Dados</h4>
-          <div class="form-group">
-            <label for="novoNomeArtigo">Nome do Artigo:</label>
-            <input type="text" id="novoNomeArtigo" placeholder="Ex: Hoody Unisexo">
-          </div>
-          <div class="form-group">
-            <label for="novoPrecoArtigo">Custo s/ IVA:</label>
-            <div class="input-symbol">
-              <input type="text" id="novoPrecoArtigo" placeholder="0.00">
-              <span>€</span>
-            </div>
-          </div>
-          <div class="form-row">
-            <button type="button" class="btn btn-primary" onclick="guardarNovoArtigoBD()">Guardar</button>
-            <button type="button" class="btn btn-outline" onclick="alternarFormNovoArtigo()">Cancelar</button>
-          </div>
-        </div>
-
-        <hr class="divider">
-
-        <div class="db-info-box">
-          <span class="db-info-label">Artigo Selecionado:</span>
-          <strong id="nomeArtigoAtivo" class="db-info-title">-</strong>
-          <span id="custoArtigoAtivo" class="db-info-price">0,00 € s/ IVA</span>
-        </div>
-
-        <hr class="divider" style="margin: 20px 0;">
-
-        <!-- BASE DE DADOS DE PORTES / FORNECEDORES -->
-        <div class="card-header" style="padding: 0 0 10px 0;">
-          <h2>🚚 Base de Dados de Portes</h2>
-        </div>
-
-        <div class="form-group">
-          <label for="seletorFornecedor">Selecionar Fornecedor:</label>
-          <select id="seletorFornecedor" onchange="selecionarFornecedorBD()">
+          <label for="seletorFornecedorBD">Selecionar Fornecedor:</label>
+          <select id="seletorFornecedorBD" onchange="selecionarFornecedorBD()">
             <!-- Preenchido via JS -->
           </select>
         </div>
@@ -108,12 +61,12 @@
           <h4>Adicionar Fornecedor</h4>
           <div class="form-group">
             <label for="novoNomeFornecedor">Nome do Fornecedor:</label>
-            <input type="text" id="novoNomeFornecedor" placeholder="Ex: Roly / Makito / CTT">
+            <input type="text" id="novoNomeFornecedor" placeholder="Ex: Roly">
           </div>
           <div class="form-group">
-            <label for="novoPrecoPorte">Valor Portes s/ IVA:</label>
+            <label for="novoPortesFornecedor">Portes Padrão s/ IVA:</label>
             <div class="input-symbol">
-              <input type="text" id="novoPrecoPorte" placeholder="0.00">
+              <input type="text" id="novoPortesFornecedor" placeholder="4.50">
               <span>€</span>
             </div>
           </div>
@@ -121,6 +74,53 @@
             <button type="button" class="btn btn-primary" onclick="guardarNovoFornecedorBD()">Guardar</button>
             <button type="button" class="btn btn-outline" onclick="alternarFormNovoFornecedor()">Cancelar</button>
           </div>
+        </div>
+
+        <hr class="divider" style="margin: 20px 0;">
+
+        <!-- SECCÃO MATERIAIS DO FORNECEDOR -->
+        <div class="card-header" style="padding: 0 0 10px 0;">
+          <h2>📦 Materiais do Fornecedor</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="seletorMaterialBD">Selecionar Material:</label>
+          <select id="seletorMaterialBD" onchange="selecionarMaterialBD()">
+            <!-- Preenchido via JS -->
+          </select>
+        </div>
+
+        <div class="db-actions">
+          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="alternarFormNovoMaterial()">+ Novo Material</button>
+          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarMaterialAtivo()">🗑️ Eliminar</button>
+        </div>
+
+        <!-- FORMULÁRIO NOVO MATERIAL -->
+        <div id="formNovoMaterial" class="novo-artigo-box" style="display: none;">
+          <h4>Adicionar Material ao Fornecedor</h4>
+          <div class="form-group">
+            <label for="novoNomeMaterial">Nome do Material:</label>
+            <input type="text" id="novoNomeMaterial" placeholder="Ex: T-Shirt Beagle 150g">
+          </div>
+          <div class="form-group">
+            <label for="novoPrecoMaterial">Custo s/ IVA:</label>
+            <div class="input-symbol">
+              <input type="text" id="novoPrecoMaterial" placeholder="1.85">
+              <span>€</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="button" class="btn btn-primary" onclick="guardarNovoMaterialBD()">Guardar</button>
+            <button type="button" class="btn btn-outline" onclick="alternarFormNovoMaterial()">Cancelar</button>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="db-info-box">
+          <span class="db-info-label">Material Ativo no Orçamento:</span>
+          <strong id="nomeMaterialAtivo" class="db-info-title">-</strong>
+          <span id="detalheMaterialAtivo" class="db-info-price">0,00 € s/ IVA</span>
         </div>
       </section>
 
@@ -147,7 +147,7 @@
         <div class="form-group">
           <label for="portesFornecedor">Portes Envio s/ IVA:</label>
           <div class="input-symbol">
-            <input type="number" id="portesFornecedor" value="3.00" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
+            <input type="number" id="portesFornecedor" value="4.50" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
             <span>€</span>
           </div>
         </div>
@@ -275,6 +275,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=2.2"></script>
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>
