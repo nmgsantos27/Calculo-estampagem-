@@ -2,7 +2,7 @@
 
 // Função de segurança para mostrar erros visíveis no telemóvel
 window.onerror = function(msg, url, line) {
-  let debugDiv = document.getElementById("debugErroMovil");
+  var debugDiv = document.getElementById("debugErroMovil");
   if (!debugDiv) {
     debugDiv = document.createElement("div");
     debugDiv.id = "debugErroMovil";
@@ -20,6 +20,7 @@ window.onerror = function(msg, url, line) {
 
 var TAXA_IVA = 1.23;
 var STORAGE_KEY = "baseDadosGrafiSantos";
+var TECNICAS_STORAGE_KEY = "tecnicasGrafiSantos";
 
 function parseNum(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
@@ -35,13 +36,50 @@ function id(prefix) {
   return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2,7); 
 }
 
-var memoriaTecnicas = {
+// Valores padrão para cada técnica
+var VALORES_PADRAO_TECNICAS = {
   dtf: { custoMetro: 5.50, altura: 10, largura: 28 },
   vinil: { custoMetro: 6.50, altura: 10, largura: 28 },
   sublimacao: { custoMetro: 4.50, altura: 10, largura: 28 },
   serigrafia: { numCores: 1 },
   bordado: { numCores: 1 }
 };
+
+// Carregar técnicas guardadas ou usar padrão
+function carregarTecnicas() {
+  try {
+    var raw = localStorage.getItem(TECNICAS_STORAGE_KEY);
+    var data = raw ? JSON.parse(raw) : null;
+    if (data && typeof data === 'object') {
+      // Mesclar com os padrões para garantir que todas as técnicas existem
+      var tecnicas = JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS));
+      for (var chave in data) {
+        if (data.hasOwnProperty(chave) && tecnicas.hasOwnProperty(chave)) {
+          for (var prop in data[chave]) {
+            if (data[chave].hasOwnProperty(prop)) {
+              tecnicas[chave][prop] = data[chave][prop];
+            }
+          }
+        }
+      }
+      return tecnicas;
+    }
+  } catch(e) {
+    console.log("Erro ao carregar técnicas:", e);
+  }
+  return JSON.parse(JSON.stringify(VALORES_PADRAO_TECNICAS));
+}
+
+// Guardar técnicas no localStorage
+function guardarTecnicas(tecnicas) {
+  try {
+    localStorage.setItem(TECNICAS_STORAGE_KEY, JSON.stringify(tecnicas));
+  } catch(e) {
+    console.log("Erro ao guardar técnicas:", e);
+  }
+}
+
+var memoriaTecnicas = carregarTecnicas();
 
 var BASE_DADOS_PADRAO = [
   {id:"f1", nome:"Roly", portes:4.50, materiais:[
@@ -199,17 +237,23 @@ function guardarValoresTecnicaAtual(t) {
   } else {
     memoriaTecnicas[t] = { numCores: Math.max(1, parseInt(document.getElementById("numCores").value) || 1) };
   }
+  // Guardar no localStorage após cada alteração
+  guardarTecnicas(memoriaTecnicas);
 }
 
 function alternarTecnica() {
   var t = document.getElementById("tecnica") ? document.getElementById("tecnica").value : "dtf";
   if (!t) return;
+  
+  // Guardar valores da técnica anterior antes de mudar
   guardarValoresTecnicaAtual(tecnicaAnterior);
   tecnicaAnterior = t;
+  
   var film = ["dtf", "vinil", "sublimacao"].indexOf(t) !== -1;
   document.getElementById("grupoDTF").classList.toggle("hidden", !film);
   document.getElementById("grupoCores").classList.toggle("hidden", film);
   document.getElementById("linhaConsumoFilme").style.display = film ? "flex" : "none";
+  
   if (film) {
     var d = memoriaTecnicas[t];
     document.getElementById("custoMetroDTF").value = d.custoMetro;
@@ -442,23 +486,4 @@ function ligarEventos() {
   acao("btnGuardarMatBD", "click", guardarMaterial);
   acao("btnFecharMatBD", "click", fecharFormMaterial);
 
-  acao("tecnica", "change", alternarTecnica);
-
-  var inputs = ["quantidade", "custoPeca", "portesFornecedor", "custoMetroDTF", "alturaEstampaDTF", "larguraEstampaDTF", "numCores", "tipoMargem", "valMargem"];
-  inputs.forEach(function(x) { 
-    acao(x, "input", calcular); 
-    acao(x, "change", calcular);
-  });
-
-  acao("btnCopiarResumo", "click", copiarResumo);
-  acao("btnGuardarPDF", "click", guardarPDF);
-  acao("btnImprimir", "click", imprimir);
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-  carregarBD();
-  atualizarSelectsDinamicos();
-  ligarEventos();
-  alternarTecnica();
-  calcular();
-});
+  acao("tecnic
