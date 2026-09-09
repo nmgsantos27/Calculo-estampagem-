@@ -388,7 +388,6 @@ function guardarPDF() {
 function associarAcaoBotao(id, acao) {
   const el = document.getElementById(id);
   if (el) {
-    // Utilização de touchstart em simultâneo com click para resposta instantânea no Android
     el.addEventListener('click', (e) => {
       e.preventDefault();
       acao();
@@ -507,4 +506,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   associarAcaoBotao('btnCopiarResumo', copiarResumo);
   associarAcaoBotao('btnGuardarPDF', guardarPDF);
-  associarAcaoBotao('btnImprimir', () => wind
+  associarAcaoBotao('btnImprimir', () => window.print());
+
+  ['seletorFornecedorBD', 'seletorMaterialBD', 'tecnica', 'tipoMargem'].forEach

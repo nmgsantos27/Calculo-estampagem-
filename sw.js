@@ -1,18 +1,12 @@
-const CACHE_NAME = 'grafisantos-pro-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
-
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+    caches.open('grafisantos-v1').then((cache) => {
+      return cache.addAll([
+        'index.html',
+        'style.css',
+        'script.js',
+        'manifest.json'
+      ]);
     })
   );
 });
