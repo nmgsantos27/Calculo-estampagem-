@@ -1,18 +1,26 @@
 {
-  "name": "Calculadora GrafiSantos",
-  "short_name": "GrafiSantos",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f4f6f9",
-  "theme_color": "#2563eb",
-  "description": "Calculadora de custos e preços da GrafiSantos Print",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2921/2921222.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+    "name": "GrafiSantos Print",
+    "short_name": "GrafiSantos",
+    "description": "Calculadora de orçamentos para estampagem",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f1f5f9",
+    "theme_color": "#2563eb",
+    "categories": ["business", "productivity"],
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
 }
