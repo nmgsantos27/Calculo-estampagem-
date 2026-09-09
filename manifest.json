@@ -1,15 +1,18 @@
 {
   "name": "Calculadora GrafiSantos",
   "short_name": "GrafiSantos",
-  "start_url": "index.html",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4f6f9",
   "theme_color": "#2563eb",
+  "description": "Calculadora de custos e preços da GrafiSantos Print",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2921/2921222.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

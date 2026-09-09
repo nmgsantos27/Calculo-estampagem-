@@ -1,12 +1,20 @@
-const TAXA_IVA = 1.23;
+/* GrafiSantos Print - versão corrigida
+   Mantém a lógica da calculadora original e completa a inicialização,
+   gestão de fornecedores/materiais, eventos, PDF, impressão e comparação.
+*/
+"use strict";
 
-function parseNum(valor) {
-  if (typeof valor === 'number') return valor;
-  if (!valor) return 0;
-  const limpo = valor.toString().replace(',', '.').trim();
-  const num = parseFloat(limpo);
-  return isNaN(num) ? 0 : num;
+const TAXA_IVA = 1.23;
+const STORAGE_KEY = "baseDadosGrafiSantos";
+
+function parseNum(v) {
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  if (v === null || v === undefined || v === "") return 0;
+  const n = parseFloat(String(v).replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : 0;
 }
+function moeda(v) { return parseNum(v).toFixed(2).replace(".", ",") + " €"; }
+function id(prefix) { return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2,7); }
 
 const memoriaTecnicas = {
   dtf: { custoMetro: 5.50, altura: 10, largura: 28 },
@@ -16,119 +24,97 @@ const memoriaTecnicas = {
   bordado: { numCores: 1 }
 };
 
-let tecnicaAnterior = 'dtf';
-let fornecedorSelecionadoId = null;
-let materialSelecionadoId = null;
-
 const BASE_DADOS_PADRAO = [
-  {
-    id: 'f1',
-    nome: 'Roly',
-    portes: 4.50,
-    materiais: [
-      { id: 'm1_1', nome: 'T-Shirt Beagle 150g', preco: 1.85 },
-      { id: 'm1_2', nome: 'Polo Star 200g', preco: 5.20 },
-      { id: 'm1_3', nome: 'Hoodie Capuz Capuchana', preco: 9.80 }
-    ]
-  },
-  {
-    id: 'f2',
-    nome: 'Makito',
-    portes: 6.00,
-    materiais: [
-      { id: 'm2_1', nome: 'T-Shirt Tecnic Sport', preco: 1.45 },
-      { id: 'm2_2', nome: 'Saco Algodão Tabela', preco: 0.95 }
-    ]
-  },
-  {
-    id: 'f3',
-    nome: 'Levantar em Loja / Sem Portes',
-    portes: 0.00,
-    materiais: [
-      { id: 'm3_1', nome: 'Material do Cliente', preco: 0.00 }
-    ]
-  }
+  {id:"f1", nome:"Roly", portes:4.50, materiais:[
+    {id:"m1_1",nome:"T-Shirt Beagle 150g",preco:1.85},
+    {id:"m1_2",nome:"Polo Star 200g",preco:5.20},
+    {id:"m1_3",nome:"Hoodie Capuz Capuchana",preco:9.80}
+  ]},
+  {id:"f2", nome:"Makito", portes:6.00, materiais:[
+    {id:"m2_1",nome:"T-Shirt Tecnic Sport",preco:1.45},
+    {id:"m2_2",nome:"Saco Algodão Tabela",preco:0.95}
+  ]},
+  {id:"f3", nome:"Levantar em Loja / Sem Portes", portes:0, materiais:[
+    {id:"m3_1",nome:"Material do Cliente",preco:0}
+  ]}
 ];
-
-let baseDados = [];
-
-function carregarBD() {
-  try {
-    const guardado = localStorage.getItem('baseDadosGrafiSantos');
-    baseDados = guardado ? JSON.parse(guardado) : [...BASE_DADOS_PADRAO];
-  } catch (e) {
-    baseDados = [...BASE_DADOS_PADRAO];
-  }
-  guardarBD();
-}
-
-function guardarBD() {
-  try { localStorage.setItem('baseDadosGrafiSantos', JSON.stringify(baseDados)); } catch(e) {}
-}
-
-function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
-  if (tipoMargem === 'percentagem') return custoUnComIva * (valMargemInput / 100);
-  const margemBase = valMargemInput;
-  if (qtd >= 100) return Math.max(0, margemBase - 3.50);
-  if (qtd >= 50) return Math.max(0, margemBase - 2.50);
-  if (qtd >= 25) return Math.max(0, margemBase - 1.50);
-  if (qtd >= 10) return Math.max(0, margemBase - 0.50);
-  if (qtd >= 5) return Math.max(0, margemBase - 0.20);
-  return margemBase;
-}
-
-function calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, larguraBobinaCm) {
-  const margemPerda = 1.05;
-  const areaTotal = (alturaCm / 100) * (larguraCm / 100) * qtd * margemPerda;
-  const metrosTotais = areaTotal / (larguraBobinaCm / 100);
-  const custoLoteComIva = metrosTotais * custoMetro * TAXA_IVA;
-  return { custoUnComIva: custoLoteComIva / qtd, metrosTotais: metrosTotais, minEscalao: 1 };
-}
 
 const TECNICAS = {
   dtf: {
-    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 28)
+    bobina:28,
+    obterCusto(qtd, metro, alt, larg) {
+      return custoMetro(qtd, metro, alt, larg, 28);
+    }
   },
   vinil: {
-    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 50)
+    bobina:50,
+    obterCusto(qtd, metro, alt, larg) {
+      return custoMetro(qtd, metro, alt, larg, 50);
+    }
   },
   sublimacao: {
-    obterCusto: (qtd, custoMetro, alturaCm, larguraCm) => calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, 58)
+    bobina:58,
+    obterCusto(qtd, metro, alt, larg) {
+      return custoMetro(qtd, metro, alt, larg, 58);
+    }
   },
   serigrafia: {
-    escaloes: [
-      { min: 1, max: 9, precos: [8.00, 10.00, 12.00] },
-      { min: 10, max: 24, precos: [3.50, 4.50, 5.50] },
-      { min: 25, max: 49, precos: [2.20, 2.80, 3.40] },
-      { min: 50, max: 99, precos: [1.50, 1.90, 2.30] },
-      { min: 100, max: Infinity, precos: [1.00, 1.30, 1.60] }
+    escaloes:[
+      {min:1,max:9,precos:[8,10,12]},
+      {min:10,max:24,precos:[3.5,4.5,5.5]},
+      {min:25,max:49,precos:[2.2,2.8,3.4]},
+      {min:50,max:99,precos:[1.5,1.9,2.3]},
+      {min:100,max:Infinity,precos:[1,1.3,1.6]}
     ],
-    obterCusto: function(qtd, cores) {
-      const escalao = this.escaloes.find(e => qtd >= e.min && qtd <= e.max) || this.escaloes[0];
-      const idxCor = Math.min(cores, 3) - 1;
-      return { custoUnComIva: escalao.precos[idxCor] * TAXA_IVA, minEscalao: escalao.min };
+    obterCusto(qtd, cores) {
+      const e=this.escaloes.find(x=>qtd>=x.min && qtd<=x.max)||this.escaloes[0];
+      const idx=Math.max(0,Math.min(2,(parseInt(cores)||1)-1));
+      return {custoUnComIva:e.precos[idx]*TAXA_IVA,minEscalao:e.min,metrosTotais:0};
     }
   },
   bordado: {
-    escaloes: [
-      { min: 1, max: 9, precos: [6.00, 8.00] },
-      { min: 10, max: 24, precos: [3.80, 5.00] },
-      { min: 25, max: 49, precos: [2.50, 3.50] },
-      { min: 50, max: Infinity, precos: [1.80, 2.50] }
+    escaloes:[
+      {min:1,max:9,precos:[6,8]},
+      {min:10,max:24,precos:[3.8,5]},
+      {min:25,max:49,precos:[2.5,3.5]},
+      {min:50,max:Infinity,precos:[1.8,2.5]}
     ],
-    obterCusto: function(qtd, cores) {
-      const escalao = this.escaloes.find(e => qtd >= e.min && qtd <= e.max) || this.escaloes[0];
-      const idxCor = cores > 1 ? 1 : 0;
-      return { custoUnComIva: escalao.precos[idxCor] * TAXA_IVA, minEscalao: escalao.min };
+    obterCusto(qtd, cores) {
+      const e=this.escaloes.find(x=>qtd>=x.min && qtd<=x.max)||this.escaloes[0];
+      const idx=(parseInt(cores)||1)>1?1:0;
+      return {custoUnComIva:e.precos[idx]*TAXA_IVA,minEscalao:e.min,metrosTotais:0};
     }
   }
 };
 
-function renderizarInterfaceCompleta() {
-  const app = document.getElementById('areaParaPdf');
-  if (!app) return;
-  
-  app.innerHTML = `
+function custoMetro(qtd, metro, alt, larg, bobina) {
+  qtd=Math.max(1,parseInt(qtd)||1);
+  const area=(Math.max(0,parseNum(alt))/100)*(Math.max(0,parseNum(larg))/100)*qtd*1.05;
+  const metros=area/(bobina/100);
+  return {custoUnComIva:(metros*Math.max(0,parseNum(metro))*TAXA_IVA)/qtd, metrosTotais:metros, minEscalao:1};
+}
+
+let baseDados=[];
+let fornecedorSelecionadoId=null;
+let materialSelecionadoId=null;
+let tecnicaAnterior="dtf";
+
+function carregarBD(){
+  try {
+    const raw=localStorage.getItem(STORAGE_KEY);
+    const data=raw?JSON.parse(raw):null;
+    baseDados=Array.isArray(data)?data:structuredClone(BASE_DADOS_PADRAO);
+  } catch(e) { baseDados=structuredClone(BASE_DADOS_PADRAO); }
+  guardarBD();
+}
+function guardarBD(){
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(baseDados)); } catch(e) {}
+}
+
+function renderizarInterfaceCompleta(){
+  const app=document.getElementById("areaParaPdf");
+  if(!app) return;
+  app.innerHTML=`
     <header class="header-acoes">
       <h1>GrafiSantos Print</h1>
       <div class="grupo-botoes-topo">
@@ -140,7 +126,7 @@ function renderizarInterfaceCompleta() {
 
     <section class="card bd-section">
       <div class="linha-flex">
-        <div class="campo" style="margin-bottom:0;">
+        <div class="campo" style="margin-bottom:0">
           <label for="seletorFornecedorBD">Fornecedor:</label>
           <select id="seletorFornecedorBD"></select>
         </div>
@@ -152,18 +138,18 @@ function renderizarInterfaceCompleta() {
       </div>
 
       <div id="formNovoFornecedor" class="painel-form hidden">
-        <h4 id="tituloFormFornecedor">Fornecedor</h4>
+        <h4 id="tituloFormFornecedor">Novo fornecedor</h4>
         <input type="hidden" id="editFornecedorId">
         <input type="text" id="novoNomeFornecedor" placeholder="Nome do Fornecedor">
-        <input type="number" inputmode="decimal" id="novoPortesFornecedor" placeholder="Portes (€)">
+        <input type="number" inputmode="decimal" id="novoPortesFornecedor" placeholder="Portes (€)" step="0.01">
         <div class="linha-botoes">
           <button type="button" id="btnGuardarFornBD" class="btn btn-sucesso">Guardar</button>
           <button type="button" id="btnFecharFornBD" class="btn btn-cancelar">Cancelar</button>
         </div>
       </div>
 
-      <div class="linha-flex" style="margin-top:8px;">
-        <div class="campo" style="margin-bottom:0;">
+      <div class="linha-flex" style="margin-top:8px">
+        <div class="campo" style="margin-bottom:0">
           <label for="seletorMaterialBD">Material / T-Shirt:</label>
           <select id="seletorMaterialBD"></select>
         </div>
@@ -175,10 +161,10 @@ function renderizarInterfaceCompleta() {
       </div>
 
       <div id="formNovoMaterial" class="painel-form hidden">
-        <h4 id="tituloFormMaterial">Material</h4>
+        <h4 id="tituloFormMaterial">Novo material</h4>
         <input type="hidden" id="editMaterialId">
         <input type="text" id="novoNomeMaterial" placeholder="Nome do Material">
-        <input type="number" inputmode="decimal" id="novoPrecoMaterial" placeholder="Preço Base (€)">
+        <input type="number" inputmode="decimal" id="novoPrecoMaterial" placeholder="Preço Base (€)" step="0.01">
         <div class="linha-botoes">
           <button type="button" id="btnGuardarMatBD" class="btn btn-sucesso">Guardar</button>
           <button type="button" id="btnFecharMatBD" class="btn btn-cancelar">Cancelar</button>
@@ -188,315 +174,310 @@ function renderizarInterfaceCompleta() {
 
     <section class="card">
       <div class="grid-2">
-        <div class="campo">
-          <label for="quantidade">Quantidade:</label>
-          <input type="number" inputmode="numeric" id="quantidade" value="1" min="1">
-        </div>
-        <div class="campo">
-          <label for="tecnica">Técnica:</label>
+        <div class="campo"><label for="quantidade">Quantidade:</label><input type="number" inputmode="numeric" id="quantidade" value="1" min="1"></div>
+        <div class="campo"><label for="tecnica">Técnica:</label>
           <select id="tecnica">
-            <option value="dtf">DTF</option>
-            <option value="vinil">Vinil Flex</option>
-            <option value="sublimacao">Sublimação</option>
-            <option value="serigrafia">Serigrafia</option>
+            <option value="dtf">DTF</option><option value="vinil">Vinil Flex</option>
+            <option value="sublimacao">Sublimação</option><option value="serigrafia">Serigrafia</option>
             <option value="bordado">Bordado</option>
           </select>
         </div>
       </div>
-
       <div class="grid-2">
-        <div class="campo">
-          <label for="custoPeca">Custo Peça s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01">
-        </div>
-        <div class="campo">
-          <label for="portesFornecedor">Portes Lote s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01">
-        </div>
+        <div class="campo"><label for="custoPeca">Custo Peça s/ IVA (€):</label><input type="number" inputmode="decimal" id="custoPeca" value="0.00" step="0.01"></div>
+        <div class="campo"><label for="portesFornecedor">Portes Lote s/ IVA (€):</label><input type="number" inputmode="decimal" id="portesFornecedor" value="0.00" step="0.01"></div>
       </div>
-
       <div id="grupoDTF" class="painel-tecnica">
-        <div class="campo">
-          <label id="labelCustoMetro" for="custoMetroDTF">Custo Metro s/ IVA (€):</label>
-          <input type="number" inputmode="decimal" id="custoMetroDTF" value="5.50" step="0.10">
-        </div>
+        <div class="campo"><label id="labelCustoMetro" for="custoMetroDTF">Custo Metro DTF (28cm) s/ IVA:</label><input type="number" inputmode="decimal" id="custoMetroDTF" value="5.50" step="0.10"></div>
         <div class="grid-2">
-          <div class="campo">
-            <label for="alturaEstampaDTF">Altura (cm):</label>
-            <input type="number" inputmode="decimal" id="alturaEstampaDTF" value="10">
-          </div>
-          <div class="campo">
-            <label for="larguraEstampaDTF">Largura (cm):</label>
-            <input type="number" inputmode="decimal" id="larguraEstampaDTF" value="28">
-          </div>
+          <div class="campo"><label for="alturaEstampaDTF">Altura (cm):</label><input type="number" inputmode="decimal" id="alturaEstampaDTF" value="10" step="0.1"></div>
+          <div class="campo"><label for="larguraEstampaDTF">Largura (cm):</label><input type="number" inputmode="decimal" id="larguraEstampaDTF" value="28" step="0.1"></div>
         </div>
       </div>
-
       <div id="grupoCores" class="painel-tecnica hidden">
-        <div class="campo">
-          <label for="numCores">Número de Cores / Posições:</label>
-          <input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="3">
-        </div>
+        <div class="campo"><label for="numCores">Número de Cores / Posições:</label><input type="number" inputmode="numeric" id="numCores" value="1" min="1" max="3"></div>
       </div>
-
       <div class="grid-2">
-        <div class="campo">
-          <label for="tipoMargem">Tipo de Margem:</label>
-          <select id="tipoMargem">
-            <option value="valor">Valor Fixo (€)</option>
-            <option value="percentagem">Percentagem (%)</option>
-          </select>
-        </div>
-        <div class="campo">
-          <label for="valMargem">Margem Lucro:</label>
-          <input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50">
-        </div>
+        <div class="campo"><label for="tipoMargem">Tipo de Margem:</label><select id="tipoMargem"><option value="valor">Valor Fixo (€)</option><option value="percentagem">Percentagem (%)</option></select></div>
+        <div class="campo"><label for="valMargem">Margem Lucro:</label><input type="number" inputmode="decimal" id="valMargem" value="5.00" step="0.50"></div>
       </div>
     </section>
 
     <section class="card resultados">
-      <div class="linha-resultado destaque">
-        <span>Preço Venda / Un (c/ IVA):</span>
-        <strong id="resPrecoUn">0,00 €</strong>
-      </div>
-      <div class="linha-resultado destaque-total">
-        <span>Total Comercial (c/ IVA):</span>
-        <strong id="resTotalComercial">0,00 €</strong>
-      </div>
-
+      <div class="linha-resultado destaque"><span>Preço Venda / Un (c/ IVA):</span><strong id="resPrecoUn">0,00 €</strong></div>
+      <div class="linha-resultado destaque-total"><span>Total Comercial (c/ IVA):</span><strong id="resTotalComercial">0,00 €</strong></div>
       <hr>
-
       <div class="detalhes-custo">
-        <div class="linha-resultado"><span>Material (c/ IVA):</span> <span id="resCustoMaterialUn">0,00 €</span></div>
-        <div class="linha-resultado"><span>Impressão (c/ IVA):</span> <span id="resCustoImprUn">0,00 €</span></div>
-        <div class="linha-resultado"><span>Portes Lote (c/ IVA):</span> <span id="resPortes">0,00 €</span></div>
-        <div class="linha-resultado" id="linhaConsumoFilme">
-          <span id="labelConsumoFilme">Consumo Material:</span> <span id="resConsumoFilme">0,00 m</span>
-        </div>
-        <div class="linha-resultado"><span>Custo Total Lote (c/ IVA):</span> <span id="resCustoTotalLote">0,00 €</span></div>
-        <div class="linha-resultado"><span>Lucro Unitário:</span> <span id="resLucroUn">0,00 €</span></div>
-        <div class="linha-resultado"><span>Lucro Total Estimado:</span> <span id="resLucroTotal">0,00 €</span></div>
+        <div class="linha-resultado"><span>Material (c/ IVA):</span><span id="resCustoMaterialUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Impressão (c/ IVA):</span><span id="resCustoImprUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Portes Lote (c/ IVA):</span><span id="resPortes">0,00 €</span></div>
+        <div class="linha-resultado" id="linhaConsumoFilme"><span id="labelConsumoFilme">Consumo Filme DTF:</span><span id="resConsumoFilme">0,00 m</span></div>
+        <div class="linha-resultado"><span>Custo Total Lote (c/ IVA):</span><span id="resCustoTotalLote">0,00 €</span></div>
+        <div class="linha-resultado"><span>Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
+        <div class="linha-resultado"><span>Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
       </div>
-
       <div class="badge-escalao" id="escalaoBadge">Escalão</div>
-      
-      <div class="comparativo-escaloes">
-        <h4>Tabela Comparativa por Quantidade</h4>
-        <div id="tabelaComparativa" class="grid-escaloes"></div>
-      </div>
+      <div class="comparativo-escaloes"><h4>Tabela Comparativa por Quantidade</h4><div id="tabelaComparativa" class="grid-escaloes"></div></div>
     </section>
-
-    <footer class="info-material-ativo">
-      Artigo: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)
-    </footer>
+    <footer class="info-material-ativo">Artigo: <strong id="nomeMaterialAtivo">Nenhum</strong> (<span id="detalheMaterialAtivo">0,00 €</span>)</footer>
   `;
-
   atualizarSelectsDinamicos();
 }
 
-function atualizarSelectsDinamicos() {
-  const selectForn = document.getElementById('seletorFornecedorBD');
-  if (!selectForn) return;
-  
-  const valorAnteriorForn = fornecedorSelecionadoId || selectForn.value;
-  selectForn.innerHTML = '';
-
-  if (baseDados.length === 0) {
-    selectForn.innerHTML = '<option value="">Nenhum fornecedor</option>';
+function atualizarSelectsDinamicos(){
+  const sf=document.getElementById("seletorFornecedorBD");
+  if(!sf) return;
+  sf.innerHTML="";
+  if(!baseDados.length){
+    sf.innerHTML='<option value="">Nenhum fornecedor</option>';
     atualizarSelectMateriaisDinamicos([]);
     return;
   }
-
-  baseDados.forEach(forn => {
-    const opt = document.createElement('option');
-    opt.value = forn.id;
-    opt.textContent = `${forn.nome} (Portes: ${parseNum(forn.portes).toFixed(2)} €)`;
-    selectForn.appendChild(opt);
+  baseDados.forEach(f=>{
+    const o=document.createElement("option");
+    o.value=f.id; o.textContent=`${f.nome} (Portes: ${parseNum(f.portes).toFixed(2)} €)`;
+    sf.appendChild(o);
   });
-
-  if (baseDados.some(f => f.id === valorAnteriorForn)) {
-    selectForn.value = valorAnteriorForn;
-  } else {
-    selectForn.value = baseDados[0].id;
-  }
-
-  fornecedorSelecionadoId = selectForn.value;
-  const fornAtual = baseDados.find(f => f.id === fornecedorSelecionadoId);
-  
-  if (fornAtual) {
-    document.getElementById('portesFornecedor').value = parseNum(fornAtual.portes).toFixed(2);
-    atualizarSelectMateriaisDinamicos(fornAtual.materiais || []);
-  } else {
-    atualizarSelectMateriaisDinamicos([]);
-  }
+  if(!fornecedorSelecionadoId || !baseDados.some(f=>f.id===fornecedorSelecionadoId)) fornecedorSelecionadoId=baseDados[0].id;
+  sf.value=fornecedorSelecionadoId;
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);
+  document.getElementById("portesFornecedor").value=parseNum(f?.portes).toFixed(2);
+  atualizarSelectMateriaisDinamicos(f?.materiais||[]);
 }
 
-function atualizarSelectMateriaisDinamicos(materiais) {
-  const selectMat = document.getElementById('seletorMaterialBD');
-  if (!selectMat) return;
-
-  const valorAnteriorMat = materialSelecionadoId || selectMat.value;
-  selectMat.innerHTML = '';
-
-  if (!materiais || materiais.length === 0) {
-    selectMat.innerHTML = '<option value="">Nenhum material</option>';
-    document.getElementById('nomeMaterialAtivo').innerText = "Manual";
-    document.getElementById('detalheMaterialAtivo').innerText = "0,00 € s/ IVA";
-    return;
+function atualizarSelectMateriaisDinamicos(materiais){
+  const sm=document.getElementById("seletorMaterialBD");
+  if(!sm) return;
+  sm.innerHTML="";
+  if(!materiais.length){
+    sm.innerHTML='<option value="">Nenhum material</option>';
+    materialSelecionadoId=null;
+    document.getElementById("nomeMaterialAtivo").textContent="Manual";
+    document.getElementById("detalheMaterialAtivo").textContent="0,00 € s/ IVA";
+    calcular(); return;
   }
-
-  materiais.forEach(mat => {
-    const opt = document.createElement('option');
-    opt.value = mat.id;
-    opt.textContent = `${mat.nome} (${parseNum(mat.preco).toFixed(2)} €)`;
-    selectMat.appendChild(opt);
+  materiais.forEach(m=>{
+    const o=document.createElement("option");
+    o.value=m.id; o.textContent=`${m.nome} (${parseNum(m.preco).toFixed(2)} €)`;
+    sm.appendChild(o);
   });
-
-  if (materiais.some(m => m.id === valorAnteriorMat)) {
-    selectMat.value = valorAnteriorMat;
-  } else {
-    selectMat.value = materiais[0].id;
-  }
-
-  materialSelecionadoId = selectMat.value;
-  const forn = baseDados.find(f => f.id === fornecedorSelecionadoId);
-  const mat = materiais.find(m => m.id === materialSelecionadoId);
-
-  if (forn && mat) {
-    const precoNum = parseNum(mat.preco);
-    document.getElementById('custoPeca').value = precoNum.toFixed(2);
-    document.getElementById('nomeMaterialAtivo').innerText = `${mat.nome} (${forn.nome})`;
-    document.getElementById('detalheMaterialAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
+  if(!materialSelecionadoId || !materiais.some(m=>m.id===materialSelecionadoId)) materialSelecionadoId=materiais[0].id;
+  sm.value=materialSelecionadoId;
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);
+  const m=materiais.find(x=>x.id===materialSelecionadoId);
+  if(m){
+    document.getElementById("custoPeca").value=parseNum(m.preco).toFixed(2);
+    document.getElementById("nomeMaterialAtivo").textContent=`${m.nome}${f?" ("+f.nome+")":""}`;
+    document.getElementById("detalheMaterialAtivo").textContent=`${moeda(m.preco)} s/ IVA`;
   }
   calcular();
 }
 
-function formatarMoeda(valor) {
-  return parseNum(valor).toFixed(2).replace('.', ',') + ' €';
+function margemPorUnidade(qtd, valor, tipo, custo){
+  if(tipo==="percentagem") return Math.max(0,custo*(valor/100));
+  let m=valor;
+  if(qtd>=100)m-=3.50; else if(qtd>=50)m-=2.50; else if(qtd>=25)m-=1.50; else if(qtd>=10)m-=0.50; else if(qtd>=5)m-=0.20;
+  return Math.max(0,m);
 }
 
-function guardarValoresTecnicaAtual(tecnica) {
-  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
-    const elMetro = document.getElementById('custoMetroDTF');
-    const elAlt = document.getElementById('alturaEstampaDTF');
-    const elLarg = document.getElementById('larguraEstampaDTF');
-    if (elMetro && elAlt && elLarg) {
-      memoriaTecnicas[tecnica] = {
-        custoMetro: parseNum(elMetro.value),
-        altura: parseNum(elAlt.value),
-        largura: parseNum(elLarg.value)
-      };
-    }
-  } else if (tecnica === 'serigrafia' || tecnica === 'bordado') {
-    const elCores = document.getElementById('numCores');
-    if (elCores) {
-      memoriaTecnicas[tecnica] = { numCores: parseInt(elCores.value) || 1 };
-    }
+function guardarValoresTecnicaAtual(t){
+  if(!document.getElementById("tecnica")) return;
+  if(["dtf","vinil","sublimacao"].includes(t)){
+    memoriaTecnicas[t]={
+      custoMetro:parseNum(document.getElementById("custoMetroDTF").value),
+      altura:parseNum(document.getElementById("alturaEstampaDTF").value),
+      largura:parseNum(document.getElementById("larguraEstampaDTF").value)
+    };
+  } else {
+    memoriaTecnicas[t]={numCores:Math.max(1,parseInt(document.getElementById("numCores").value)||1)};
   }
 }
 
-function alternarTecnica() {
-  const selectTecnica = document.getElementById('tecnica');
-  if (!selectTecnica) return;
-  
-  const tecnicaNova = selectTecnica.value;
+function alternarTecnica(){
+  const t=document.getElementById("tecnica")?.value;
+  if(!t)return;
   guardarValoresTecnicaAtual(tecnicaAnterior);
-  tecnicaAnterior = tecnicaNova;
-
-  const grupoDTF = document.getElementById('grupoDTF');
-  const grupoCores = document.getElementById('grupoCores');
-  const linhaConsumoFilme = document.getElementById('linhaConsumoFilme');
-  const labelCustoMetro = document.getElementById('labelCustoMetro');
-  const labelConsumoFilme = document.getElementById('labelConsumoFilme');
-
-  if (tecnicaNova === 'dtf' || tecnicaNova === 'vinil' || tecnicaNova === 'sublimacao') {
-    grupoDTF.classList.remove('hidden');
-    grupoCores.classList.add('hidden');
-    linhaConsumoFilme.style.display = 'flex';
-
-    const dadosGuardados = memoriaTecnicas[tecnicaNova];
-    document.getElementById('custoMetroDTF').value = dadosGuardados.custoMetro.toFixed(2);
-    document.getElementById('alturaEstampaDTF').value = dadosGuardados.altura;
-    document.getElementById('larguraEstampaDTF').value = dadosGuardados.largura;
-
-    if (tecnicaNova === 'dtf') {
-      labelCustoMetro.innerText = 'Custo Metro DTF (28cm) s/ IVA:';
-      labelConsumoFilme.innerText = 'Consumo Filme DTF:';
-    } else if (tecnicaNova === 'vinil') {
-      labelCustoMetro.innerText = 'Custo Metro Vinil (50cm) s/ IVA:';
-      labelConsumoFilme.innerText = 'Consumo Vinil Flex:';
-    } else if (tecnicaNova === 'sublimacao') {
-      labelCustoMetro.innerText = 'Custo Metro Sublimação (58cm) s/ IVA:';
-      labelConsumoFilme.innerText = 'Consumo Papel Sublimação:';
-    }
+  tecnicaAnterior=t;
+  const film=["dtf","vinil","sublimacao"].includes(t);
+  document.getElementById("grupoDTF").classList.toggle("hidden",!film);
+  document.getElementById("grupoCores").classList.toggle("hidden",film);
+  document.getElementById("linhaConsumoFilme").style.display=film?"flex":"none";
+  if(film){
+    const d=memoriaTecnicas[t];
+    document.getElementById("custoMetroDTF").value=d.custoMetro;
+    document.getElementById("alturaEstampaDTF").value=d.altura;
+    document.getElementById("larguraEstampaDTF").value=d.largura;
+    const nomes={dtf:["Custo Metro DTF (28cm) s/ IVA:","Consumo Filme DTF:"],vinil:["Custo Metro Vinil (50cm) s/ IVA:","Consumo Vinil Flex:"],sublimacao:["Custo Metro Sublimação (58cm) s/ IVA:","Consumo Papel Sublimação:"]};
+    document.getElementById("labelCustoMetro").textContent=nomes[t][0];
+    document.getElementById("labelConsumoFilme").textContent=nomes[t][1];
   } else {
-    grupoDTF.classList.add('hidden');
-    grupoCores.classList.remove('hidden');
-    linhaConsumoFilme.style.display = 'none';
-
-    const dadosGuardados = memoriaTecnicas[tecnicaNova];
-    document.getElementById('numCores').value = dadosGuardados.numCores;
+    document.getElementById("numCores").value=memoriaTecnicas[t].numCores||1;
   }
+  calcular();
 }
 
-function calcular() {
-  const qtdEl = document.getElementById('quantidade');
-  if (!qtdEl) return;
-
-  const qtd = Math.max(1, parseInt(qtdEl.value) || 1);
-  const custoPecaBase = parseNum(document.getElementById('custoPeca').value);
-  const portesFornecedorBase = parseNum(document.getElementById('portesFornecedor').value);
-  
-  const custoPecaBaseComIva = custoPecaBase * TAXA_IVA;
-  const portesFornecedorComIva = portesFornecedorBase * TAXA_IVA;
-  
-  const tecnica = document.getElementById('tecnica').value;
-  const tipoMargem = document.getElementById('tipoMargem').value;
-  const valMargemInput = parseNum(document.getElementById('valMargem').value);
-
-  const config = TECNICAS[tecnica];
-  let resImpressao = { custoUnComIva: 0, minEscalao: 1, metrosTotais: 0 };
-
-  if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
-    const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
-    const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
-    const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
-    resImpressao = config.obterCusto(qtd, custoMetro, alt, larg);
-    document.getElementById('resConsumoFilme').innerText = `${resImpressao.metrosTotais.toFixed(2).replace('.', ',')} m`;
-  } else {
-    const numCores = parseInt(document.getElementById('numCores').value) || 1;
-    resImpressao = config.obterCusto(qtd, numCores);
-  }
-
-  const portesPorPecaComIva = portesFornecedorComIva / qtd;
-  const custoTotalUnComIva = custoPecaBaseComIva + resImpressao.custoUnComIva + portesPorPecaComIva;
-
-  const lucroUn = parseNum(obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoTotalUnComIva));
-  const lucroTotal = lucroUn * qtd;
-
-  const precoVendaUn = custoTotalUnComIva + lucroUn;
-  const totalComercial = precoVendaUn * qtd;
-  const custoTotalLoteComIva = custoTotalUnComIva * qtd;
-
-  document.getElementById('escalaoBadge').innerText = `Escalão ≥ ${resImpressao.minEscalao} un`;
-  document.getElementById('resPrecoUn').innerText = formatarMoeda(precoVendaUn);
-  document.getElementById('resTotalComercial').innerText = formatarMoeda(totalComercial);
-  document.getElementById('resLucroUn').innerText = formatarMoeda(lucroUn);
-  document.getElementById('resLucroTotal').innerText = formatarMoeda(lucroTotal);
-
-  document.getElementById('resCustoMaterialUn').innerText = formatarMoeda(custoPecaBaseComIva);
-  document.getElementById('resCustoImprUn').innerText = formatarMoeda(resImpressao.custoUnComIva);
-  document.getElementById('resPortes').innerText = formatarMoeda(portesFornecedorComIva);
-  document.getElementById('resCustoTotalLote').innerText = formatarMoeda(custoTotalLoteComIva);
-
-  gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
+function obterCustoPara(qtd, tecnica){
+  const c=TECNICAS[tecnica];
+  if(["dtf","vinil","sublimacao"].includes(tecnica))
+    return c.obterCusto(qtd,parseNum(document.getElementById("custoMetroDTF").value),parseNum(document.getElementById("alturaEstampaDTF").value),parseNum(document.getElementById("larguraEstampaDTF").value));
+  return c.obterCusto(qtd,parseInt(document.getElementById("numCores").value)||1);
 }
 
-function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargemInput) {
-  const listaEscaloes = [1, 10, 25, 50, 100];
-  const container = document.getElementById('tabelaComparativa');
-  if (!container) return;
-  container.innerHTML = '';
+function calcular(){
+  const q=Math.max(1,parseInt(document.getElementById("quantidade")?.value)||1);
+  const p= parseNum(document.getElementById("custoPeca")?.value);
+  const portes=parseNum(document.getElementById("portesFornecedor")?.value);
+  const tecnica=document.getElementById("tecnica")?.value||"dtf";
+  const tipo=document.getElementById("tipoMargem")?.value||"valor";
+  const margem=parseNum(document.getElementById("valMargem")?.value);
+  const imp=obterCustoPara(q,tecnica);
+  const pIva=p*TAXA_IVA, portesIva=portes*TAXA_IVA;
+  const custoUn=pIva+imp.custoUnComIva+(portesIva/q);
+  const lucro=margemPorUnidade(q,margem,tipo,custoUn);
+  const venda=custoUn+lucro;
+  document.getElementById("resPrecoUn").textContent=moeda(venda);
+  document.getElementById("resTotalComercial").textContent=moeda(venda*q);
+  document.getElementById("resCustoMaterialUn").textContent=moeda(pIva);
+  document.getElementById("resCustoImprUn").textContent=moeda(imp.custoUnComIva);
+  document.getElementById("resPortes").textContent=moeda(portesIva);
+  document.getElementById("resCustoTotalLote").textContent=moeda(custoUn*q);
+  document.getElementById("resLucroUn").textContent=moeda(lucro);
+  document.getElementById("resLucroTotal").textContent=moeda(lucro*q);
+  document.getElementById("escalaoBadge").textContent=`Escalão ≥ ${imp.minEscalao} un`;
+  if(["dtf","vinil","sublimacao"].includes(tecnica))
+    document.getElementById("resConsumoFilme").textContent=`${imp.metrosTotais.toFixed(2).replace(".",",")} m`;
+  gerarComparativoEscaloes(q,pIva,portesIva,tecnica,tipo,margem);
+}
 
-  listaEscaloes.forEach(q => {
-    const config = TECNICAS[tecnica];
+function gerarComparativoEscaloes(qAtual,pComIva,portesIva,tecnica,tipo,margem){
+  const c=document.getElementById("tabelaComparativa"); if(!c)return;
+  c.innerHTML="";
+  [1,10,25,50,100].forEach(q=>{
+    const imp=obterCustoPara(q,tecnica);
+    const custo=pComIva+imp.custoUnComIva+portesIva/q;
+    const lucro=margemPorUnidade(q,margem,tipo,custo);
+    const item=document.createElement("div");
+    item.className="escalao-item"+(q===qAtual?" active":"");
+    item.innerHTML=`<strong>${q}+</strong><br>${moeda(custo+lucro)}`;
+    c.appendChild(item);
+  });
+}
+
+function abrirFormFornecedor(edit=false){
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);
+  document.getElementById("formNovoFornecedor").classList.remove("hidden");
+  document.getElementById("tituloFormFornecedor").textContent=edit?"Editar fornecedor":"Novo fornecedor";
+  document.getElementById("editFornecedorId").value=edit?(f?.id||""):"";
+  document.getElementById("novoNomeFornecedor").value=edit?(f?.nome||""):"";
+  document.getElementById("novoPortesFornecedor").value=edit?parseNum(f?.portes):"";
+}
+function fecharFormFornecedor(){document.getElementById("formNovoFornecedor").classList.add("hidden");}
+function guardarFornecedor(){
+  const nome=document.getElementById("novoNomeFornecedor").value.trim();
+  if(!nome){alert("Indica o nome do fornecedor.");return;}
+  const portes=Math.max(0,parseNum(document.getElementById("novoPortesFornecedor").value));
+  const eid=document.getElementById("editFornecedorId").value;
+  if(eid){
+    const f=baseDados.find(x=>x.id===eid); if(f){f.nome=nome;f.portes=portes;}
+  } else {
+    const novo={id:id("f"),nome,portes,materiais:[]}; baseDados.push(novo); fornecedorSelecionadoId=novo.id;
+  }
+  guardarBD(); fecharFormFornecedor(); materialSelecionadoId=null; atualizarSelectsDinamicos();
+}
+function eliminarFornecedor(){
+  if(!fornecedorSelecionadoId)return;
+  if(baseDados.length<=1){alert("É necessário manter pelo menos um fornecedor.");return;}
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);
+  if(!confirm(`Eliminar o fornecedor "${f?.nome||""}"?`))return;
+  baseDados=baseDados.filter(x=>x.id!==fornecedorSelecionadoId);
+  fornecedorSelecionadoId=null; materialSelecionadoId=null; guardarBD(); atualizarSelectsDinamicos();
+}
+
+function abrirFormMaterial(edit=false){
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId); if(!f)return;
+  const m=(f.materiais||[]).find(x=>x.id===materialSelecionadoId);
+  document.getElementById("formNovoMaterial").classList.remove("hidden");
+  document.getElementById("tituloFormMaterial").textContent=edit?"Editar material":"Novo material";
+  document.getElementById("editMaterialId").value=edit?(m?.id||""):"";
+  document.getElementById("novoNomeMaterial").value=edit?(m?.nome||""):"";
+  document.getElementById("novoPrecoMaterial").value=edit?parseNum(m?.preco):"";
+}
+function fecharFormMaterial(){document.getElementById("formNovoMaterial").classList.add("hidden");}
+function guardarMaterial(){
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId); if(!f)return;
+  const nome=document.getElementById("novoNomeMaterial").value.trim();
+  if(!nome){alert("Indica o nome do material.");return;}
+  const preco=Math.max(0,parseNum(document.getElementById("novoPrecoMaterial").value));
+  const eid=document.getElementById("editMaterialId").value;
+  f.materiais=f.materiais||[];
+  if(eid){
+    const m=f.materiais.find(x=>x.id===eid); if(m){m.nome=nome;m.preco=preco;}
+    materialSelecionadoId=eid;
+  } else {
+    const m={id:id("m"),nome,preco}; f.materiais.push(m); materialSelecionadoId=m.id;
+  }
+  guardarBD(); fecharFormMaterial(); atualizarSelectMateriaisDinamicos(f.materiais);
+}
+function eliminarMaterial(){
+  const f=baseDados.find(x=>x.id===fornecedorSelecionadoId); if(!f)return;
+  if(!materialSelecionadoId)return;
+  const m=(f.materiais||[]).find(x=>x.id===materialSelecionadoId);
+  if(!confirm(`Eliminar o material "${m?.nome||""}"?`))return;
+  f.materiais=(f.materiais||[]).filter(x=>x.id!==materialSelecionadoId);
+  materialSelecionadoId=null; guardarBD(); atualizarSelectMateriaisDinamicos(f.materiais);
+}
+
+function resumoTexto(){
+  const q=document.getElementById("quantidade").value;
+  const t=document.getElementById("tecnica").selectedOptions[0].text;
+  const mat=document.getElementById("nomeMaterialAtivo").textContent;
+  return `GrafiSantos Print\nArtigo: ${mat}\nQuantidade: ${q}\nTécnica: ${t}\nPreço/un.: ${document.getElementById("resPrecoUn").textContent}\nTotal: ${document.getElementById("resTotalComercial").textContent}\nLucro total: ${document.getElementById("resLucroTotal").textContent}`;
+}
+async function copiarResumo(){
+  const txt=resumoTexto();
+  try{await navigator.clipboard.writeText(txt);alert("Resumo copiado.");}
+  catch(e){prompt("Copia o resumo:",txt);}
+}
+function guardarPDF(){
+  if(typeof html2pdf==="undefined"){window.print();return;}
+  const el=document.getElementById("areaParaPdf");
+  html2pdf().set({
+    margin:8,filename:"GrafiSantos-Calculadora.pdf",
+    image:{type:"jpeg",quality:.95},
+    html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}
+  }).from(el).save();
+}
+function imprimir(){window.print();}
+
+function ligarEventos(){
+  const on=(idv,event,fn)=>{const e=document.getElementById(idv);if(e)e.addEventListener(event,fn);};
+  on("seletorFornecedorBD","change",e=>{fornecedorSelecionadoId=e.target.value;materialSelecionadoId=null;atualizarSelectsDinamicos();});
+  on("seletorMaterialBD","change",e=>{materialSelecionadoId=e.target.value;const f=baseDados.find(x=>x.id===fornecedorSelecionadoId);atualizarSelectMateriaisDinamicos(f?.materiais||[]);});
+  on("btnNovoForn","click",()=>abrirFormFornecedor(false));
+  on("btnEditarForn","click",()=>abrirFormFornecedor(true));
+  on("btnEliminarForn","click",eliminarFornecedor);
+  on("btnGuardarFornBD","click",guardarFornecedor);
+  on("btnFecharFornBD","click",fecharFormFornecedor);
+  on("btnNovoMat","click",()=>abrirFormMaterial(false));
+  on("btnEditarMat","click",()=>abrirFormMaterial(true));
+  on("btnEliminarMat","click",eliminarMaterial);
+  on("btnGuardarMatBD","click",guardarMaterial);
+  on("btnFecharMatBD","click",fecharFormMaterial);
+  on("tecnica","change",alternarTecnica);
+  ["quantidade","custoPeca","portesFornecedor","custoMetroDTF","alturaEstampaDTF","larguraEstampaDTF","numCores","tipoMargem","valMargem"]
+    .forEach(x=>on(x,"input",calcular));
+  on("tipoMargem","change",calcular);
+  on("numCores","change",calcular);
+  on("btnCopiarResumo","click",copiarResumo);
+  on("btnGuardarPDF","click",guardarPDF);
+  on("btnImprimir","click",imprimir);
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  carregarBD();
+  renderizarInterfaceCompleta();
+  ligarEventos();
+  alternarTecnica();
+  calcular();
+});
