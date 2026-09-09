@@ -123,22 +123,39 @@ function atualizarSelectFornecedores() {
 
 function abrirFormFornecedor(edit) {
   var f = baseDados.fornecedores.find(function(x) { return x.id === fornecedorSelecionadoId; });
-  document.getElementById("formNovoFornecedor").classList.remove("hidden");
-  document.getElementById("tituloFormFornecedor").textContent = edit ? "Editar fornecedor" : "Novo fornecedor";
-  document.getElementById("editFornecedorId").value = edit ? (f ? f.id : "") : "";
-  document.getElementById("novoNomeFornecedor").value = edit ? (f ? f.nome : "") : "";
-  document.getElementById("novoPortesFornecedor").value = edit ? parseNum(f ? f.portes : 0) : "";
+  var form = document.getElementById("formNovoFornecedor");
+  if (!form) return;
+  form.classList.remove("hidden");
+  
+  var titulo = document.getElementById("tituloFormFornecedor");
+  if (titulo) titulo.textContent = edit ? "Editar fornecedor" : "Novo fornecedor";
+  
+  var editId = document.getElementById("editFornecedorId");
+  if (editId) editId.value = edit ? (f ? f.id : "") : "";
+  
+  var nome = document.getElementById("novoNomeFornecedor");
+  if (nome) nome.value = edit ? (f ? f.nome : "") : "";
+  
+  var portes = document.getElementById("novoPortesFornecedor");
+  if (portes) portes.value = edit ? parseNum(f ? f.portes : 0) : "";
 }
 
 function fecharFormFornecedor() { 
-  document.getElementById("formNovoFornecedor").classList.add("hidden"); 
+  var form = document.getElementById("formNovoFornecedor");
+  if (form) form.classList.add("hidden"); 
 }
 
 function guardarFornecedor() {
-  var nome = document.getElementById("novoNomeFornecedor").value.trim();
+  var nomeEl = document.getElementById("novoNomeFornecedor");
+  var portesEl = document.getElementById("novoPortesFornecedor");
+  var editIdEl = document.getElementById("editFornecedorId");
+  
+  if (!nomeEl || !portesEl || !editIdEl) return;
+  
+  var nome = nomeEl.value.trim();
   if (!nome) { alert("Indica o nome do fornecedor."); return; }
-  var portes = Math.max(0, parseNum(document.getElementById("novoPortesFornecedor").value));
-  var eid = document.getElementById("editFornecedorId").value;
+  var portes = Math.max(0, parseNum(portesEl.value));
+  var eid = editIdEl.value;
   
   if (eid) {
     var f = baseDados.fornecedores.find(function(x) { return x.id === eid; });
@@ -219,25 +236,42 @@ function abrirFormMaterial(edit) {
   if (!f) return;
   var m = (f.materiais || []).find(function(x) { return x.id === materialSelecionadoId; });
   
-  document.getElementById("formNovoMaterial").classList.remove("hidden");
-  document.getElementById("tituloFormMaterial").textContent = edit ? "Editar material" : "Novo material";
-  document.getElementById("editMaterialId").value = edit ? (m ? m.id : "") : "";
-  document.getElementById("novoNomeMaterial").value = edit ? (m ? m.nome : "") : "";
-  document.getElementById("novoPrecoMaterial").value = edit ? parseNum(m ? m.preco : 0) : "";
+  var form = document.getElementById("formNovoMaterial");
+  if (!form) return;
+  form.classList.remove("hidden");
+  
+  var titulo = document.getElementById("tituloFormMaterial");
+  if (titulo) titulo.textContent = edit ? "Editar material" : "Novo material";
+  
+  var editId = document.getElementById("editMaterialId");
+  if (editId) editId.value = edit ? (m ? m.id : "") : "";
+  
+  var nome = document.getElementById("novoNomeMaterial");
+  if (nome) nome.value = edit ? (m ? m.nome : "") : "";
+  
+  var preco = document.getElementById("novoPrecoMaterial");
+  if (preco) preco.value = edit ? parseNum(m ? m.preco : 0) : "";
 }
 
 function fecharFormMaterial() { 
-  document.getElementById("formNovoMaterial").classList.add("hidden"); 
+  var form = document.getElementById("formNovoMaterial");
+  if (form) form.classList.add("hidden"); 
 }
 
 function guardarMaterial() {
   var f = baseDados.fornecedores.find(function(x) { return x.id === fornecedorSelecionadoId; });
   if (!f) return;
   
-  var nome = document.getElementById("novoNomeMaterial").value.trim();
+  var nomeEl = document.getElementById("novoNomeMaterial");
+  var precoEl = document.getElementById("novoPrecoMaterial");
+  var editIdEl = document.getElementById("editMaterialId");
+  
+  if (!nomeEl || !precoEl || !editIdEl) return;
+  
+  var nome = nomeEl.value.trim();
   if (!nome) { alert("Indica o nome do material."); return; }
-  var preco = Math.max(0, parseNum(document.getElementById("novoPrecoMaterial").value));
-  var eid = document.getElementById("editMaterialId").value;
+  var preco = Math.max(0, parseNum(precoEl.value));
+  var eid = editIdEl.value;
   
   f.materiais = f.materiais || [];
   if (eid) {
@@ -335,29 +369,62 @@ function atualizarInfoTecnica() {
 
 function abrirFormTecnica(edit) {
   var t = baseDados.tecnicas.find(function(x) { return x.id === tecnicaSelecionadaId; });
-  document.getElementById("formNovaTecnica").classList.remove("hidden");
-  document.getElementById("tituloFormTecnica").textContent = edit ? "Editar técnica" : "Nova técnica";
-  document.getElementById("editTecnicaId").value = edit ? (t ? t.id : "") : "";
-  document.getElementById("novoNomeTecnica").value = edit ? (t ? t.nome : "") : "";
-  document.getElementById("novoCustoMetroTecnica").value = edit ? parseNum(t ? t.custoMetro : 0) : "";
-  document.getElementById("novoAlturaTecnica").value = edit ? parseNum(t ? t.altura : 0) : "";
-  document.getElementById("novaLarguraTecnica").value = edit ? parseNum(t ? t.largura : 0) : "";
-  document.getElementById("novoNumCoresTecnica").value = edit ? (t && t.numCores ? t.numCores : 1) : 1;
+  
+  var form = document.getElementById("formNovaTecnica");
+  if (!form) {
+    console.log("Erro: formNovaTecnica não encontrado");
+    return;
+  }
+  form.classList.remove("hidden");
+  
+  var titulo = document.getElementById("tituloFormTecnica");
+  if (titulo) titulo.textContent = edit ? "Editar técnica" : "Nova técnica";
+  
+  var editId = document.getElementById("editTecnicaId");
+  if (editId) editId.value = edit ? (t ? t.id : "") : "";
+  
+  var nome = document.getElementById("novoNomeTecnica");
+  if (nome) nome.value = edit ? (t ? t.nome : "") : "";
+  
+  var custoMetro = document.getElementById("novoCustoMetroTecnica");
+  if (custoMetro) custoMetro.value = edit ? parseNum(t ? t.custoMetro : 0) : "";
+  
+  var altura = document.getElementById("novoAlturaTecnica");
+  if (altura) altura.value = edit ? parseNum(t ? t.altura : 0) : "";
+  
+  var largura = document.getElementById("novaLarguraTecnica");
+  if (largura) largura.value = edit ? parseNum(t ? t.largura : 0) : "";
+  
+  var numCores = document.getElementById("novoNumCoresTecnica");
+  if (numCores) numCores.value = edit ? (t && t.numCores ? t.numCores : 1) : 1;
 }
 
 function fecharFormTecnica() { 
-  document.getElementById("formNovaTecnica").classList.add("hidden"); 
+  var form = document.getElementById("formNovaTecnica");
+  if (form) form.classList.add("hidden"); 
 }
 
 function guardarTecnica() {
-  var nome = document.getElementById("novoNomeTecnica").value.trim();
+  var nomeEl = document.getElementById("novoNomeTecnica");
+  var custoEl = document.getElementById("novoCustoMetroTecnica");
+  var alturaEl = document.getElementById("novoAlturaTecnica");
+  var larguraEl = document.getElementById("novaLarguraTecnica");
+  var coresEl = document.getElementById("novoNumCoresTecnica");
+  var editIdEl = document.getElementById("editTecnicaId");
+  
+  if (!nomeEl || !custoEl || !alturaEl || !larguraEl || !coresEl || !editIdEl) {
+    alert("Erro: Campos do formulário não encontrados.");
+    return;
+  }
+  
+  var nome = nomeEl.value.trim();
   if (!nome) { alert("Indica o nome da técnica."); return; }
   
-  var custoMetro = parseNum(document.getElementById("novoCustoMetroTecnica").value);
-  var altura = parseNum(document.getElementById("novoAlturaTecnica").value);
-  var largura = parseNum(document.getElementById("novaLarguraTecnica").value);
-  var numCores = Math.max(1, parseInt(document.getElementById("novoNumCoresTecnica").value) || 1);
-  var eid = document.getElementById("editTecnicaId").value;
+  var custoMetro = parseNum(custoEl.value);
+  var altura = parseNum(alturaEl.value);
+  var largura = parseNum(larguraEl.value);
+  var numCores = Math.max(1, parseInt(coresEl.value) || 1);
+  var eid = editIdEl.value;
   
   if (eid) {
     var t = baseDados.tecnicas.find(function(x) { return x.id === eid; });
@@ -492,204 +559,4 @@ function calcular() {
     var q = Math.max(1, parseInt(elQuantidade ? elQuantidade.value : 1) || 1);
     var p = parseNum(elCustoPeca ? elCustoPeca.value : 0);
     var portes = parseNum(elPortes ? elPortes.value : 0);
-    var tecnicaId = selectTec ? selectTec.value : null;
-    var tipo = elTipoMargem ? elTipoMargem.value : "valor";
-    var margem = parseNum(elValMargem ? elValMargem.value : 5);
-    
-    if (!tecnicaId || !baseDados || !baseDados.tecnicas) {
-      var resPreco = document.getElementById("resPrecoUn");
-      var resTotal = document.getElementById("resTotalComercial");
-      if (resPreco) resPreco.textContent = "0,00 €";
-      if (resTotal) resTotal.textContent = "0,00 €";
-      return;
-    }
-    
-    var imp = obterCustoPara(q, tecnicaId);
-    var pIva = p * TAXA_IVA, portesIva = portes * TAXA_IVA;
-    var custoUn = pIva + imp.custoUnComIva + (portesIva / q);
-    var lucro = margemPorUnidade(q, margem, tipo, custoUn);
-    var venda = custoUn + lucro;
-
-    var elPreco = document.getElementById("resPrecoUn");
-    var elTotal = document.getElementById("resTotalComercial");
-    var elCustoMat = document.getElementById("resCustoMaterialUn");
-    var elCustoImpr = document.getElementById("resCustoImprUn");
-    var elPortesRes = document.getElementById("resPortes");
-    var elCustoTotal = document.getElementById("resCustoTotalLote");
-    var elLucroUn = document.getElementById("resLucroUn");
-    var elLucroTotal = document.getElementById("resLucroTotal");
-    var elEscalao = document.getElementById("escalaoBadge");
-    
-    if (elPreco) elPreco.textContent = moeda(venda);
-    if (elTotal) elTotal.textContent = moeda(venda * q);
-    if (elCustoMat) elCustoMat.textContent = moeda(pIva);
-    if (elCustoImpr) elCustoImpr.textContent = moeda(imp.custoUnComIva);
-    if (elPortesRes) elPortesRes.textContent = moeda(portesIva);
-    if (elCustoTotal) elCustoTotal.textContent = moeda(custoUn * q);
-    if (elLucroUn) elLucroUn.textContent = moeda(lucro);
-    if (elLucroTotal) elLucroTotal.textContent = moeda(lucro * q);
-    if (elEscalao) elEscalao.textContent = "Escalão ≥ " + imp.minEscalao + " un";
-
-    var t = obterDadosTecnica(tecnicaId);
-    var linhaConsumo = document.getElementById("linhaConsumoFilme");
-    var labelConsumo = document.getElementById("labelConsumoFilme");
-    var resConsumo = document.getElementById("resConsumoFilme");
-    
-    if (linhaConsumo) {
-      if (t && t.custoMetro > 0) {
-        linhaConsumo.style.display = "flex";
-        if (labelConsumo) labelConsumo.textContent = "Consumo " + t.nome + ":";
-        if (resConsumo) resConsumo.textContent = imp.metrosTotais.toFixed(2).replace(".", ",") + " m";
-      } else {
-        linhaConsumo.style.display = "none";
-      }
-    }
-    
-    gerarComparativoEscaloes(q, pIva, portesIva, tecnicaId, tipo, margem);
-  } catch(e) {
-    console.log("Erro no cálculo:", e);
-    var debugDiv = document.getElementById("debugErroMovil");
-    if (debugDiv) {
-      debugDiv.style.display = "block";
-      debugDiv.innerHTML = "<strong>Erro no cálculo:</strong> " + e.message;
-    }
-  }
-}
-
-function gerarComparativoEscaloes(qAtual, pComIva, portesIva, tecnicaId, tipo, margem) {
-  var c = document.getElementById("tabelaComparativa");
-  if (!c) return;
-  c.innerHTML = "";
-  var escaloes = [1, 10, 25, 50, 100];
-  escaloes.forEach(function(q) {
-    var imp = obterCustoPara(q, tecnicaId);
-    var custo = pComIva + imp.custoUnComIva + portesIva / q;
-    var lucro = margemPorUnidade(q, margem, tipo, custo);
-    var item = document.createElement("div");
-    item.className = "escalao-item" + (q === qAtual ? " active" : "");
-    item.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
-    c.appendChild(item);
-  });
-}
-
-// ==================== UTILITÁRIOS ====================
-function resumoTexto() {
-  var elQtd = document.getElementById("quantidadeInput");
-  var q = elQtd ? elQtd.value : "0";
-  var selTec = document.getElementById("seletorTecnicaBD");
-  var t = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
-  var mat = document.getElementById("nomeMaterialAtivo") ? document.getElementById("nomeMaterialAtivo").textContent : "";
-  var preco = document.getElementById("resPrecoUn") ? document.getElementById("resPrecoUn").textContent : "0,00 €";
-  var total = document.getElementById("resTotalComercial") ? document.getElementById("resTotalComercial").textContent : "0,00 €";
-  var lucro = document.getElementById("resLucroTotal") ? document.getElementById("resLucroTotal").textContent : "0,00 €";
-  
-  return "GrafiSantos Print\nArtigo: " + mat + "\nQuantidade: " + q + "\nTécnica: " + t + 
-    "\nPreço/un.: " + preco + 
-    "\nTotal: " + total + 
-    "\nLucro total: " + lucro;
-}
-
-function copiarResumo() {
-  var txt = resumoTexto();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(txt).then(function() {
-      alert("Resumo copiado.");
-    }).catch(function() {
-      prompt("Copia o resumo:", txt);
-    });
-  } else {
-    prompt("Copia o resumo:", txt);
-  }
-}
-
-function guardarPDF() {
-  if (typeof html2pdf === "undefined" || !html2pdf) { 
-    window.print(); 
-    return; 
-  }
-  var el = document.getElementById("areaParaPdf");
-  if (!el) return;
-  html2pdf().set({
-    margin: 8, 
-    filename: "GrafiSantos-Calculadora.pdf",
-    image: { type: "jpeg", quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-  }).from(el).save();
-}
-
-function imprimir() { window.print(); }
-
-// ==================== EVENTOS ====================
-function ligarEventos() {
-  var acao = function(idv, tipo, fn) {
-    var el = document.getElementById(idv);
-    if (el) el.addEventListener(tipo, fn);
-  };
-
-  // Fornecedores
-  acao("seletorFornecedorBD", "change", function(e) {
-    fornecedorSelecionadoId = e.target.value;
-    materialSelecionadoId = null;
-    atualizarSelectMateriais();
-  });
-  acao("btnNovoForn", "click", function() { abrirFormFornecedor(false); });
-  acao("btnEditarForn", "click", function() { abrirFormFornecedor(true); });
-  acao("btnEliminarForn", "click", eliminarFornecedor);
-  acao("btnGuardarFornBD", "click", guardarFornecedor);
-  acao("btnFecharFornBD", "click", fecharFormFornecedor);
-
-  // Materiais
-  acao("seletorMaterialBD", "change", function(e) {
-    materialSelecionadoId = e.target.value;
-    atualizarSelectMateriais();
-  });
-  acao("btnNovoMat", "click", function() { abrirFormMaterial(false); });
-  acao("btnEditarMat", "click", function() { abrirFormMaterial(true); });
-  acao("btnEliminarMat", "click", eliminarMaterial);
-  acao("btnGuardarMatBD", "click", guardarMaterial);
-  acao("btnFecharMatBD", "click", fecharFormMaterial);
-
-  // Técnicas
-  acao("seletorTecnicaBD", "change", function(e) {
-    tecnicaSelecionadaId = e.target.value;
-    atualizarInfoTecnica();
-    calcular();
-  });
-  acao("btnNovaTec", "click", function() { abrirFormTecnica(false); });
-  acao("btnEditarTec", "click", function() { abrirFormTecnica(true); });
-  acao("btnEliminarTec", "click", eliminarTecnica);
-  acao("btnGuardarTecBD", "click", guardarTecnica);
-  acao("btnFecharTecBD", "click", fecharFormTecnica);
-
-  // Cálculos
-  var inputs = ["quantidadeInput", "custoPecaInput", "portesFornecedorInput", "tipoMargemInput", "valMargemInput", "alturaEstampaInput", "larguraEstampaInput"];
-  inputs.forEach(function(x) { 
-    acao(x, "input", calcular); 
-    acao(x, "change", calcular);
-  });
-
-  // Ações
-  acao("btnCopiarResumo", "click", copiarResumo);
-  acao("btnGuardarPDF", "click", guardarPDF);
-  acao("btnImprimir", "click", imprimir);
-}
-
-// ==================== INICIALIZAÇÃO ====================
-document.addEventListener("DOMContentLoaded", function() {
-  try {
-    carregarBD();
-    atualizarSelectFornecedores();
-    atualizarSelectTecnicas();
-    ligarEventos();
-    calcular();
-    atualizarInfoTecnica();
-  } catch(e) {
-    console.log("Erro na inicialização:", e);
-    var debugDiv = document.getElementById("debugErroMovil");
-    if (debugDiv) {
-      debugDiv.style.display = "block";
-      debugDiv.innerHTML = "<strong>Erro na inicialização:</strong> " + e.message;
-    }
-  }
-});
+    var tecnicaId = selectTec ? selectTec.value : null
