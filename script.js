@@ -3,7 +3,6 @@ const TAXA_IVA = 1.23;
 function parseNum(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
-  // Resolve o problema dos teclados Android que inserem vírgulas em vez de pontos
   const limpo = valor.toString().replace(',', '.').trim();
   const num = parseFloat(limpo);
   return isNaN(num) ? 0 : num;
@@ -386,11 +385,14 @@ function guardarPDF() {
   html2pdf().set(opt).from(elemento).save();
 }
 
-// Otimização Android: Remove preventDefault() que bloqueia os toques em alguns navegadores móveis
 function associarAcaoBotao(id, acao) {
   const el = document.getElementById(id);
   if (el) {
-    el.addEventListener('click', acao);
+    // Utilização de touchstart em simultâneo com click para resposta instantânea no Android
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      acao();
+    });
   }
 }
 
@@ -505,4 +507,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   associarAcaoBotao('btnCopiarResumo', copiarResumo);
   associarAcaoBotao('btnGuardarPDF', guardarPDF);
-  asso
+  associarAcaoBotao('btnImprimir', () => wind
