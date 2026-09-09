@@ -15,7 +15,6 @@
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
     <title>GrafiSantos Pro</title>
     <style>
-        /* ===== VARIÁVEIS ===== */
         :root {
             --primary: #1e293b;
             --primary-light: #334155;
@@ -35,14 +34,12 @@
             --tab-active: #2563eb;
             --tab-inactive: #94a3b8;
         }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         }
-
         body {
             background: var(--bg);
             padding: 16px;
@@ -50,13 +47,10 @@
             justify-content: center;
             min-height: 100vh;
         }
-
         .container {
             max-width: 520px;
             width: 100%;
         }
-
-        /* ===== HEADER ===== */
         .header {
             background: var(--primary);
             border-radius: var(--radius);
@@ -136,8 +130,6 @@
         .header-actions .btn:active {
             background: rgba(255, 255, 255, 0.2);
         }
-
-        /* ===== BOTÕES ===== */
         .btn {
             padding: 8px 14px;
             border: none;
@@ -183,20 +175,10 @@
             background: var(--secondary);
             color: #fff;
         }
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--secondary);
-            color: var(--secondary);
-        }
-        .btn-outline:active {
-            background: var(--secondary);
-            color: #fff;
-        }
         .btn-sm {
             padding: 4px 10px;
             font-size: 0.65rem;
         }
-
         .btn-icon {
             width: 40px;
             height: 40px;
@@ -233,8 +215,6 @@
             background: #fff;
             cursor: pointer;
         }
-
-        /* ===== TABS ===== */
         .tabs {
             display: flex;
             gap: 4px;
@@ -279,8 +259,6 @@
             display: block;
             font-size: 0.6rem;
         }
-
-        /* ===== CARDS ===== */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -302,8 +280,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        /* ===== DASHBOARD ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -332,7 +308,6 @@
             font-size: 1.2rem;
             margin-bottom: 4px;
         }
-
         .orcamento-item {
             background: #f8fafc;
             border-radius: 8px;
@@ -362,15 +337,6 @@
             color: var(--secondary);
             font-size: 0.9rem;
         }
-        .orcamento-item .actions {
-            display: flex;
-            gap: 4px;
-        }
-        .orcamento-item .actions .btn {
-            padding: 4px 8px;
-            font-size: 0.65rem;
-        }
-
         .status-badge {
             font-size: 0.6rem;
             padding: 2px 8px;
@@ -390,8 +356,6 @@
             background: #fee2e2;
             color: #991b1b;
         }
-
-        /* ===== FLEX E CAMPOS ===== */
         .flex {
             display: flex;
             gap: 8px;
@@ -451,8 +415,6 @@
         .hidden {
             display: none !important;
         }
-
-        /* ===== FORMULÁRIOS ===== */
         .form-panel {
             background: #f8fafc;
             padding: 12px 14px;
@@ -476,8 +438,6 @@
         .btn-row .btn {
             flex: 1;
         }
-
-        /* ===== VARIANTES ===== */
         .variante-item {
             background: #f8fafc;
             border: 1px solid var(--border);
@@ -558,8 +518,6 @@
             border-radius: 6px;
             cursor: pointer;
         }
-
-        /* ===== RESULTADOS ===== */
         .result-row {
             display: flex;
             justify-content: space-between;
@@ -617,8 +575,6 @@
             display: block;
             font-size: 0.8rem;
         }
-
-        /* ===== FOOTER ===== */
         .footer-info {
             text-align: center;
             font-size: 0.7rem;
@@ -631,8 +587,6 @@
         .footer-info strong {
             color: var(--text);
         }
-
-        /* ===== EURO ===== */
         .campo-euro {
             position: relative;
         }
@@ -657,8 +611,6 @@
             font-weight: 600;
             pointer-events: none;
         }
-
-        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -692,8 +644,6 @@
             background: var(--warning);
             color: #1e293b;
         }
-
-        /* ===== DEBUG ===== */
         #debugErro {
             background: #fee2e2;
             color: var(--danger);
@@ -703,8 +653,6 @@
             display: none;
             font-size: 0.8rem;
         }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -744,7 +692,6 @@
                 font-size: 0.5rem;
             }
         }
-
         @media print {
             .no-print {
                 display: none !important;
@@ -774,13 +721,10 @@
 <body>
 
     <div class="container" id="areaParaPdf">
-
         <div id="debugErro"></div>
-
-        <!-- ===== TOAST ===== -->
         <div class="toast" id="toast"></div>
 
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER -->
         <div class="header no-print">
             <div class="header-left">
                 <div class="header-logo">
@@ -797,7 +741,7 @@
             </div>
         </div>
 
-        <!-- ===== TABS ===== -->
+        <!-- TABS -->
         <div class="tabs no-print">
             <button class="tab-btn active" data-tab="tab-dashboard" onclick="mudarTab('tab-dashboard')">
                 <span class="tab-icon">📊</span>
@@ -817,82 +761,43 @@
             </button>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- ===== TAB 1: DASHBOARD ===== -->
-        <!-- ============================================================ -->
+        <!-- TAB 1: DASHBOARD -->
         <div id="tab-dashboard" class="tab-content">
             <div class="card no-print">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="icon">📋</div>
-                        <div class="number" id="statOrcamentos">0</div>
-                        <div class="label">Orçamentos</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">💰</div>
-                        <div class="number" id="statTotal">0,00 €</div>
-                        <div class="label">Faturação Total</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">📈</div>
-                        <div class="number" id="statLucro">0,00 €</div>
-                        <div class="label">Lucro Total</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">📊</div>
-                        <div class="number" id="statMedia">0,00 €</div>
-                        <div class="label">Média/Orçamento</div>
-                    </div>
+                    <div class="stat-card"><div class="icon">📋</div><div class="number" id="statOrcamentos">0</div><div class="label">Orçamentos</div></div>
+                    <div class="stat-card"><div class="icon">💰</div><div class="number" id="statTotal">0,00 €</div><div class="label">Faturação Total</div></div>
+                    <div class="stat-card"><div class="icon">📈</div><div class="number" id="statLucro">0,00 €</div><div class="label">Lucro Total</div></div>
+                    <div class="stat-card"><div class="icon">📊</div><div class="number" id="statMedia">0,00 €</div><div class="label">Média/Orçamento</div></div>
                 </div>
             </div>
-
             <div class="card no-print">
                 <div class="section-title">📋 Últimos Orçamentos</div>
-                <div id="listaUltimosOrcamentos">
-                    <div style="text-align:center;padding:20px;color:var(--text-light);font-size:0.85rem;">
-                        Nenhum orçamento guardado
-                    </div>
-                </div>
+                <div id="listaUltimosOrcamentos"><div style="text-align:center;padding:20px;color:var(--text-light);font-size:0.85rem;">Nenhum orçamento guardado</div></div>
             </div>
-
             <div class="card no-print">
                 <div class="section-title">🏷️ Top Técnicas</div>
-                <div id="topTecnicas" style="font-size:0.85rem;color:var(--text-light);">
-                    Sem dados
-                </div>
+                <div id="topTecnicas" style="font-size:0.85rem;color:var(--text-light);">Sem dados</div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- ===== TAB 2: NOVO ORÇAMENTO ===== -->
-        <!-- ============================================================ -->
+        <!-- TAB 2: NOVO ORÇAMENTO -->
         <div id="tab-novo" class="tab-content hidden">
+            <!-- Cliente -->
             <div class="card no-print">
                 <div class="section-title">👤 Cliente</div>
                 <div class="grid-2">
-                    <div class="field">
-                        <label>Nome</label>
-                        <input type="text" id="inputClienteNome" placeholder="Nome do Cliente" oninput="atualizarResumoOrcamento()">
-                    </div>
-                    <div class="field">
-                        <label>Telefone</label>
-                        <input type="text" id="inputClienteTelefone" placeholder="Telefone" oninput="atualizarResumoOrcamento()">
-                    </div>
+                    <div class="field"><label>Nome</label><input type="text" id="inputClienteNome" placeholder="Nome do Cliente" oninput="atualizarResumoOrcamento()"></div>
+                    <div class="field"><label>Telefone</label><input type="text" id="inputClienteTelefone" placeholder="Telefone" oninput="atualizarResumoOrcamento()"></div>
                 </div>
-                <div class="field">
-                    <label>Email</label>
-                    <input type="email" id="inputClienteEmail" placeholder="Email" oninput="atualizarResumoOrcamento()">
-                </div>
+                <div class="field"><label>Email</label><input type="email" id="inputClienteEmail" placeholder="Email" oninput="atualizarResumoOrcamento()"></div>
             </div>
 
-            <!-- FORNECEDOR -->
+            <!-- Fornecedor -->
             <div class="card no-print">
                 <div class="section-title">📦 Fornecedor</div>
                 <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar</label>
-                        <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
-                    </div>
+                    <div class="field flex-grow" style="margin-bottom:0;"><label>Selecionar</label><select id="selFornecedor" onchange="onChangeFornecedor()"></select></div>
                     <div style="display:flex;gap:4px;margin-bottom:8px;">
                         <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
                         <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
@@ -903,25 +808,16 @@
                     <h4 id="tituloFornecedor">Novo fornecedor</h4>
                     <input type="hidden" id="editFornecedorId">
                     <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
-                    <div class="campo-euro">
-                        <span class="simbolo-euro">€</span>
-                        <input type="number" id="inputPortesFornecedor" placeholder="Portes" step="0.01">
-                    </div>
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
-                    </div>
+                    <div class="campo-euro"><span class="simbolo-euro">€</span><input type="number" id="inputPortesFornecedor" placeholder="Portes" step="0.01"></div>
+                    <div class="btn-row"><button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button><button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button></div>
                 </div>
             </div>
 
-            <!-- MATERIAL -->
+            <!-- Material -->
             <div class="card no-print">
                 <div class="section-title">👕 Material</div>
                 <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar</label>
-                        <select id="selMaterial" onchange="onChangeMaterial()"></select>
-                    </div>
+                    <div class="field flex-grow" style="margin-bottom:0;"><label>Selecionar</label><select id="selMaterial" onchange="onChangeMaterial()"></select></div>
                     <div style="display:flex;gap:4px;margin-bottom:8px;">
                         <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
                         <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
@@ -941,29 +837,20 @@
                         <div class="variante-form" id="varianteFormTemplate">
                             <input type="color" class="inputCor" value="#ffffff" style="width:36px;height:36px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer;">
                             <input type="text" class="inputVarianteNome" placeholder="Nome da cor" style="flex:1.5;">
-                            <div class="campo-euro" style="flex:1;">
-                                <span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>
-                                <input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;">
-                            </div>
+                            <div class="campo-euro" style="flex:1;"><span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span><input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;"></div>
                             <button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>
                         </div>
                     </div>
                     <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
-                    <div class="btn-row" style="margin-top:8px;">
-                        <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
-                    </div>
+                    <div class="btn-row" style="margin-top:8px;"><button class="btn btn-success" onclick="guardarMaterial()">Guardar</button><button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button></div>
                 </div>
             </div>
 
-            <!-- TÉCNICA -->
+            <!-- Técnica -->
             <div class="card no-print">
                 <div class="section-title">🖨️ Técnica</div>
                 <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar</label>
-                        <select id="selTecnica" onchange="onChangeTecnica()"></select>
-                    </div>
+                    <div class="field flex-grow" style="margin-bottom:0;"><label>Selecionar</label><select id="selTecnica" onchange="onChangeTecnica()"></select></div>
                     <div style="display:flex;gap:4px;margin-bottom:8px;">
                         <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
                         <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
@@ -971,96 +858,48 @@
                     </div>
                 </div>
                 <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:var(--text-light);background:#f8fafc;padding:6px 12px;border-radius:8px;border:1px solid var(--border);">
-                    <span id="infoTecNome">Nenhuma técnica selecionada</span>
-                    <span id="infoTecDetalhes"></span>
+                    <span id="infoTecNome">Nenhuma técnica selecionada</span><span id="infoTecDetalhes"></span>
                 </div>
                 <div class="form-panel hidden" id="formTecnica">
                     <h4 id="tituloTecnica">Nova técnica</h4>
                     <input type="hidden" id="editTecnicaId">
                     <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica">
                     <div class="grid-2">
-                        <div class="field" style="margin-bottom:0;">
-                            <label>Custo/Metro (€)</label>
-                            <div class="campo-euro">
-                                <span class="simbolo-euro">€</span>
-                                <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
-                            </div>
-                        </div>
-                        <div class="field" style="margin-bottom:0;">
-                            <label>Largura (cm)</label>
-                            <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
-                        </div>
+                        <div class="field" style="margin-bottom:0;"><label>Custo/Metro (€)</label><div class="campo-euro"><span class="simbolo-euro">€</span><input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01"></div></div>
+                        <div class="field" style="margin-bottom:0;"><label>Largura (cm)</label><input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1"></div>
                     </div>
-                    <div class="btn-row" style="margin-top:8px;">
-                        <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
-                    </div>
+                    <div class="btn-row" style="margin-top:8px;"><button class="btn btn-success" onclick="guardarTecnica()">Guardar</button><button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button></div>
                 </div>
             </div>
 
-            <!-- CÁLCULO -->
+            <!-- Cálculo -->
             <div class="card">
                 <div class="section-title">📐 Dimensões</div>
                 <div class="grid-2">
-                    <div class="field">
-                        <label>Altura (cm)</label>
-                        <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
-                    </div>
+                    <div class="field"><label>Altura (cm)</label><input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()"></div>
                     <div class="field" style="background:#f8fafc;border-radius:8px;padding:4px 12px;border:1.5px solid var(--border);">
                         <label style="color:var(--text-light);">Largura (técnica)</label>
                         <div style="font-size:1.1rem;font-weight:700;color:var(--secondary);padding:6px 0;" id="larguraExibida">28 cm</div>
                     </div>
                 </div>
                 <div class="grid-2">
-                    <div class="field">
-                        <label>Quantidade</label>
-                        <input type="number" id="quantidade" value="1" min="1" oninput="calcular();atualizarResumoOrcamento()" onchange="calcular();atualizarResumoOrcamento()">
-                    </div>
-                    <div class="field">
-                        <label>Cor</label>
-                        <select id="selVariante" onchange="onChangeVariante()">
-                            <option value="">Selecione uma cor</option>
-                        </select>
-                    </div>
+                    <div class="field"><label>Quantidade</label><input type="number" id="quantidade" value="1" min="1" oninput="calcular();atualizarResumoOrcamento()" onchange="calcular();atualizarResumoOrcamento()"></div>
+                    <div class="field"><label>Cor</label><select id="selVariante" onchange="onChangeVariante()"><option value="">-- Selecione uma cor --</option></select></div>
                 </div>
                 <div class="grid-2">
-                    <div class="field campo-euro">
-                        <label>Custo Peça (s/IVA)</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;">
-                    </div>
-                    <div class="field campo-euro">
-                        <label>Portes (s/IVA)</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;">
-                    </div>
+                    <div class="field campo-euro"><label>Custo Peça (s/IVA)</label><span class="simbolo-euro-topo">€</span><input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;"></div>
+                    <div class="field campo-euro"><label>Portes (s/IVA)</label><span class="simbolo-euro-topo">€</span><input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f8fafc;cursor:default;"></div>
                 </div>
                 <div class="grid-2">
-                    <div class="field campo-euro">
-                        <label>Margem</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem();calcular();atualizarResumoOrcamento()" onchange="guardarMargem();calcular();atualizarResumoOrcamento()">
-                    </div>
-                    <div class="field" style="margin-bottom:0;">
-                        <label>Tipo</label>
-                        <select id="tipoMargem" onchange="calcular();atualizarResumoOrcamento()">
-                            <option value="valor">Valor Fixo (€)</option>
-                            <option value="percentagem">Percentagem (%)</option>
-                        </select>
-                    </div>
+                    <div class="field campo-euro"><label>Margem</label><span class="simbolo-euro-topo">€</span><input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem();calcular();atualizarResumoOrcamento()" onchange="guardarMargem();calcular();atualizarResumoOrcamento()"></div>
+                    <div class="field" style="margin-bottom:0;"><label>Tipo</label><select id="tipoMargem" onchange="calcular();atualizarResumoOrcamento()"><option value="valor">Valor Fixo (€)</option><option value="percentagem">Percentagem (%)</option></select></div>
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
+            <!-- Resultados -->
             <div class="card card-resultados">
-                <div class="result-row result-destaque">
-                    <span>💰 Preço Venda / Un (c/IVA)</span>
-                    <strong id="resPrecoUn">0,00 €</strong>
-                </div>
-                <div class="result-row result-total">
-                    <span>📊 Total Comercial</span>
-                    <strong id="resTotalComercial">0,00 €</strong>
-                </div>
+                <div class="result-row result-destaque"><span>💰 Preço Venda / Un (c/IVA)</span><strong id="resPrecoUn">0,00 €</strong></div>
+                <div class="result-row result-total"><span>📊 Total Comercial</span><strong id="resTotalComercial">0,00 €</strong></div>
                 <hr>
                 <div class="result-row"><span>🧾 Material</span><span id="resCustoMaterial">0,00 €</span></div>
                 <div class="result-row"><span>🖨️ Impressão</span><span id="resCustoImpr">0,00 €</span></div>
@@ -1089,65 +928,29 @@
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- ===== TAB 3: LISTA DE ORÇAMENTOS ===== -->
-        <!-- ============================================================ -->
+        <!-- TAB 3: LISTA DE ORÇAMENTOS -->
         <div id="tab-lista" class="tab-content hidden">
             <div class="card no-print">
                 <div class="section-title">📋 Todos os Orçamentos</div>
                 <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-                    <div class="field" style="flex:1;min-width:100px;margin-bottom:0;">
-                        <label>Pesquisar</label>
-                        <input type="text" id="pesquisarOrcamento" placeholder="Pesquisar..." oninput="renderListaOrcamentos()">
-                    </div>
-                    <div class="field" style="flex:1;min-width:100px;margin-bottom:0;">
-                        <label>Filtro</label>
-                        <select id="filtroOrcamento" onchange="renderListaOrcamentos()">
-                            <option value="todos">Todos</option>
-                            <option value="pendente">Pendentes</option>
-                            <option value="aprovado">Aprovados</option>
-                            <option value="recusado">Recusados</option>
-                        </select>
-                    </div>
+                    <div class="field" style="flex:1;min-width:100px;margin-bottom:0;"><label>Pesquisar</label><input type="text" id="pesquisarOrcamento" placeholder="Pesquisar..." oninput="renderListaOrcamentos()"></div>
+                    <div class="field" style="flex:1;min-width:100px;margin-bottom:0;"><label>Filtro</label><select id="filtroOrcamento" onchange="renderListaOrcamentos()"><option value="todos">Todos</option><option value="pendente">Pendentes</option><option value="aprovado">Aprovados</option><option value="recusado">Recusados</option></select></div>
                 </div>
-                <div id="listaOrcamentos">
-                    <div style="text-align:center;padding:20px;color:var(--text-light);font-size:0.85rem;">
-                        Nenhum orçamento guardado
-                    </div>
-                </div>
+                <div id="listaOrcamentos"><div style="text-align:center;padding:20px;color:var(--text-light);font-size:0.85rem;">Nenhum orçamento guardado</div></div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- ===== TAB 4: GERIR ===== -->
-        <!-- ============================================================ -->
+        <!-- TAB 4: GERIR -->
         <div id="tab-gerir" class="tab-content hidden">
             <div class="card no-print">
                 <div class="section-title">📊 Estatísticas de Gestão</div>
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="icon">📦</div>
-                        <div class="number" id="statFornecedores">0</div>
-                        <div class="label">Fornecedores</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">👕</div>
-                        <div class="number" id="statMateriais">0</div>
-                        <div class="label">Materiais</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">🎨</div>
-                        <div class="number" id="statCores">0</div>
-                        <div class="label">Cores</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="icon">🖨️</div>
-                        <div class="number" id="statTecnicas">0</div>
-                        <div class="label">Técnicas</div>
-                    </div>
+                    <div class="stat-card"><div class="icon">📦</div><div class="number" id="statFornecedores">0</div><div class="label">Fornecedores</div></div>
+                    <div class="stat-card"><div class="icon">👕</div><div class="number" id="statMateriais">0</div><div class="label">Materiais</div></div>
+                    <div class="stat-card"><div class="icon">🎨</div><div class="number" id="statCores">0</div><div class="label">Cores</div></div>
+                    <div class="stat-card"><div class="icon">🖨️</div><div class="number" id="statTecnicas">0</div><div class="label">Técnicas</div></div>
                 </div>
             </div>
-
             <div class="card no-print">
                 <div class="section-title">💾 Gestão de Dados</div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -1155,43 +958,19 @@
                     <button class="btn btn-warning" style="flex:1;" onclick="document.getElementById('inputImportar').click()">📥 Importar Dados</button>
                     <input type="file" id="inputImportar" accept=".json" style="display:none" onchange="importarArquivo(event)">
                 </div>
-                <div style="margin-top:8px;">
-                    <button class="btn btn-danger" style="width:100%;" onclick="eliminarTodosDados()">🗑️ Eliminar Todos os Dados</button>
-                </div>
+                <div style="margin-top:8px;"><button class="btn btn-danger" style="width:100%;" onclick="eliminarTodosDados()">🗑️ Eliminar Todos os Dados</button></div>
             </div>
-
             <div class="card no-print">
                 <div class="section-title">⚙️ Configurações</div>
                 <div class="grid-2">
-                    <div class="field">
-                        <label>IVA (%)</label>
-                        <input type="number" id="configIva" value="23" step="1" onchange="guardarConfig()">
-                    </div>
-                    <div class="field">
-                        <label>Moeda</label>
-                        <select id="configMoeda" onchange="guardarConfig()">
-                            <option value="EUR">EUR (€)</option>
-                            <option value="USD">USD ($)</option>
-                            <option value="GBP">GBP (£)</option>
-                        </select>
-                    </div>
+                    <div class="field"><label>IVA (%)</label><input type="number" id="configIva" value="23" step="1" onchange="guardarConfig()"></div>
+                    <div class="field"><label>Moeda</label><select id="configMoeda" onchange="guardarConfig()"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option><option value="GBP">GBP (£)</option></select></div>
                 </div>
-                <div class="field" style="margin-bottom:0;">
-                    <label>Tema</label>
-                    <select id="configTema" onchange="guardarConfig()">
-                        <option value="claro">Claro</option>
-                        <option value="escuro">Escuro</option>
-                        <option value="auto">Automático</option>
-                    </select>
-                </div>
+                <div class="field" style="margin-bottom:0;"><label>Tema</label><select id="configTema" onchange="guardarConfig()"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="auto">Automático</option></select></div>
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
-        <div class="footer-info">
-            <span id="footerInfo">GrafiSantos Pro v2.0 | <span id="footerData"></span></span>
-        </div>
-
+        <div class="footer-info"><span id="footerInfo">GrafiSantos Pro v2.0 | <span id="footerData"></span></span></div>
     </div>
 
     <script>
@@ -1232,10 +1011,6 @@
 
         function gerarId() {
             return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-        }
-
-        function dataAtual() {
-            return new Date().toLocaleDateString('pt-PT');
         }
 
         function dataCompleta() {
@@ -1766,7 +1541,7 @@
         }
 
         // ============================================================
-        //  VARIANTES
+        //  VARIANTES (CORES) - CORRIGIDO
         // ============================================================
 
         function adicionarVarianteForm() {
@@ -1850,23 +1625,13 @@
         }
 
         // ============================================================
-        //  ATUALIZAR SELECTS
+        //  ATUALIZAR SELECT DE VARIANTES (CORES) - CORRIGIDO
         // ============================================================
-
-        function atualizarPortesFornecedor() {
-            var f = obterFornecedor(fornecedorId);
-            var el = document.getElementById('portesFornecedor');
-            if (el && f) {
-                el.value = formatarNumero(f.portes, 2);
-            } else if (el) {
-                el.value = "0.00";
-            }
-        }
 
         function atualizarSelectVariantes() {
             var sel = document.getElementById('selVariante');
             if (!sel) return;
-            sel.innerHTML = '<option value="">Selecione uma cor</option>';
+            sel.innerHTML = '<option value="">-- Selecione uma cor --</option>';
 
             var m = obterMaterial(materialId);
             if (!m || !m.variantes || !m.variantes.length) {
@@ -1879,35 +1644,49 @@
                 opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " €)";
                 if (v.cor) {
                     opt.style.color = v.cor;
+                    opt.style.fontWeight = 'bold';
                 }
                 sel.appendChild(opt);
             });
 
-            if (!varianteId || !obterVariante(varianteId)) {
-                varianteId = m.variantes[0] ? m.variantes[0].id : null;
+            // Selecionar a primeira variante automaticamente
+            if (m.variantes && m.variantes.length > 0) {
+                varianteId = m.variantes[0].id;
+                sel.value = varianteId;
+                onChangeVariante();
+            } else {
+                varianteId = null;
+                document.getElementById('custoPeca').value = "0.00";
             }
-            if (varianteId) sel.value = varianteId;
-
-            onChangeVariante();
         }
+
+        // ============================================================
+        //  onChangeVariante - CORRIGIDO
+        // ============================================================
 
         function onChangeVariante() {
             var sel = document.getElementById('selVariante');
             if (!sel) return;
+
             varianteId = sel.value;
             var v = obterVariante(varianteId);
             var el = document.getElementById('custoPeca');
+
             if (el && v) {
                 el.value = formatarNumero(v.preco, 2);
                 document.getElementById('footerPreco').textContent = moeda(v.preco) + " s/IVA";
+                showToast('🎨 Cor selecionada: ' + v.nome + ' (' + moeda(v.preco) + ')', 'success');
             } else if (el) {
                 el.value = "0.00";
+                document.getElementById('footerPreco').textContent = "0,00 € s/IVA";
             }
+
             calcular();
+            atualizarResumoOrcamento();
         }
 
         // ============================================================
-        //  FORNECEDORES - CRUD
+        //  FORNECEDORES
         // ============================================================
 
         function renderFornecedores() {
@@ -1991,8 +1770,18 @@
             renderFornecedores();
         }
 
+        function atualizarPortesFornecedor() {
+            var f = obterFornecedor(fornecedorId);
+            var el = document.getElementById('portesFornecedor');
+            if (el && f) {
+                el.value = formatarNumero(f.portes, 2);
+            } else if (el) {
+                el.value = "0.00";
+            }
+        }
+
         // ============================================================
-        //  MATERIAIS - CRUD
+        //  MATERIAIS - CORRIGIDO
         // ============================================================
 
         function renderMateriais() {
@@ -2008,7 +1797,7 @@
                 document.getElementById('footerMaterial').textContent = "Nenhum";
                 document.getElementById('footerPreco').textContent = "0,00 €";
                 document.getElementById('custoPeca').value = "0.00";
-                document.getElementById('variantesContainer').innerHTML = "";
+                document.getElementById('variantesContainer').innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
                 atualizarSelectVariantes();
                 calcular();
                 return;
@@ -2129,7 +1918,7 @@
         }
 
         // ============================================================
-        //  TÉCNICAS - CRUD
+        //  TÉCNICAS
         // ============================================================
 
         function renderTecnicas() {
@@ -2377,7 +2166,7 @@
         }
 
         // ============================================================
-        //  UTILITÁRIOS (Copiar, PDF)
+        //  UTILITÁRIOS
         // ============================================================
 
         function copiarResumo() {
