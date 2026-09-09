@@ -51,7 +51,6 @@ function obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoUnComIva) {
   return margemBase;
 }
 
-// FUNÇÃO AUXILIAR PARA TÉCNICAS BASEADAS EM BOBINA/METRO
 function calcularCustoMetroGeral(qtd, custoMetro, alturaCm, larguraCm, larguraBobinaCm) {
   const margemPerda = 1.05;
   const areaTotal = (alturaCm / 100) * (larguraCm / 100) * qtd * margemPerda;
@@ -392,7 +391,6 @@ function alternarTecnica() {
   const labelCustoMetro = document.getElementById('labelCustoMetro');
   const labelConsumoFilme = document.getElementById('labelConsumoFilme');
 
-  // Técnicas que usam dimensões e cálculo por metro de bobina
   if (tecnica === 'dtf' || tecnica === 'vinil' || tecnica === 'sublimacao') {
     grupoDTF.classList.remove('hidden');
     grupoCores.classList.add('hidden');
@@ -529,29 +527,35 @@ function guardarPDF() {
   html2pdf().set(opt).from(elemento).save();
 }
 
+// VINCULAÇÃO DIRETA DE EVENTOS NO JAVASCRIPT
 document.addEventListener("DOMContentLoaded", () => {
   carregarBD();
 
-  // Botoes Fornecedor
-  document.getElementById('btnNovoForn').onclick = prepararFormNovoFornecedor;
-  document.getElementById('btnEditarForn').onclick = prepararFormEditarFornecedor;
-  document.getElementById('btnEliminarForn').onclick = eliminarFornecedorAtivo;
-  document.getElementById('btnGuardarFornBD').onclick = guardarFornecedorBD;
-  document.getElementById('btnFecharFornBD').onclick = fecharFormFornecedor;
+  // Botões do Fornecedor
+  const btnNovoForn = document.getElementById('btnNovoForn');
+  if (btnNovoForn) btnNovoForn.addEventListener('click', prepararFormNovoFornecedor);
 
-  // Botoes Material
-  document.getElementById('btnNovoMat').onclick = prepararFormNovoMaterial;
-  document.getElementById('btnEditarMat').onclick = prepararFormEditarMaterial;
-  document.getElementById('btnEliminarMat').onclick = eliminarMaterialAtivo;
-  document.getElementById('btnGuardarMatBD').onclick = guardarMaterialBD;
-  document.getElementById('btnFecharMatBD').onclick = fecharFormMaterial;
+  const btnEditarForn = document.getElementById('btnEditarForn');
+  if (btnEditarForn) btnEditarForn.addEventListener('click', prepararFormEditarFornecedor);
 
-  // Topbar
-  document.getElementById('btnCopiarResumo').onclick = copiarResumo;
-  document.getElementById('btnGuardarPDF').onclick = guardarPDF;
-  document.getElementById('btnImprimir').onclick = () => window.print();
+  const btnEliminarForn = document.getElementById('btnEliminarForn');
+  if (btnEliminarForn) btnEliminarForn.addEventListener('click', eliminarFornecedorAtivo);
 
-  // Selects
-  document.getElementById('seletorFornecedorBD').onchange = selecionarFornecedorBD;
-  document.getElementById('seletorMaterialBD').onchange = selecionarMaterialBD;
-  document.getElementById('tecnica').onchange = () => { alternarTecnica()
+  const btnGuardarFornBD = document.getElementById('btnGuardarFornBD');
+  if (btnGuardarFornBD) btnGuardarFornBD.addEventListener('click', guardarFornecedorBD);
+
+  const btnFecharFornBD = document.getElementById('btnFecharFornBD');
+  if (btnFecharFornBD) btnFecharFornBD.addEventListener('click', fecharFormFornecedor);
+
+  // Botões do Material
+  const btnNovoMat = document.getElementById('btnNovoMat');
+  if (btnNovoMat) btnNovoMat.addEventListener('click', prepararFormNovoMaterial);
+
+  const btnEditarMat = document.getElementById('btnEditarMat');
+  if (btnEditarMat) btnEditarMat.addEventListener('click', prepararFormEditarMaterial);
+
+  const btnEliminarMat = document.getElementById('btnEliminarMat');
+  if (btnEliminarMat) btnEliminarMat.addEventListener('click', eliminarMaterialAtivo);
+
+  const btnGuardarMatBD = document.getElementById('btnGuardarMatBD');
+  if 
