@@ -110,21 +110,37 @@ function atualizarSeletorFornecedoresBD() {
   const select = document.getElementById('seletorFornecedorBD');
   if (!select) return;
   select.innerHTML = '';
+
+  if (baseDados.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = "";
+    opt.textContent = "Nenhum fornecedor registado";
+    select.appendChild(opt);
+    atualizarSeletorMateriaisBD([]);
+    return;
+  }
+
   baseDados.forEach(forn => {
     const opt = document.createElement('option');
     opt.value = forn.id;
     opt.textContent = `${forn.nome} (Portes: ${parseNum(forn.portes).toFixed(2)} €)`;
     select.appendChild(opt);
   });
+
   selecionarFornecedorBD();
 }
 
 function selecionarFornecedorBD() {
-  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const select = document.getElementById('seletorFornecedorBD');
+  if (!select) return;
+  const fornId = select.value;
   const forn = baseDados.find(f => f.id === fornId);
+
   if (forn) {
     document.getElementById('portesFornecedor').value = parseNum(forn.portes).toFixed(2);
     atualizarSeletorMateriaisBD(forn.materiais || []);
+  } else {
+    atualizarSeletorMateriaisBD([]);
   }
   calcular();
 }
@@ -133,20 +149,34 @@ function atualizarSeletorMateriaisBD(materiais) {
   const select = document.getElementById('seletorMaterialBD');
   if (!select) return;
   select.innerHTML = '';
+
+  if (!materiais || materiais.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = "";
+    opt.textContent = "Nenhum material";
+    select.appendChild(opt);
+    document.getElementById('nomeMaterialAtivo').innerText = "Manual";
+    document.getElementById('detalheMaterialAtivo').innerText = "0,00 € s/ IVA";
+    return;
+  }
+
   materiais.forEach(mat => {
     const opt = document.createElement('option');
     opt.value = mat.id;
     opt.textContent = `${mat.nome} (${parseNum(mat.preco).toFixed(2)} €)`;
     select.appendChild(opt);
   });
+
   selecionarMaterialBD();
 }
 
 function selecionarMaterialBD() {
   const fornId = document.getElementById('seletorFornecedorBD').value;
   const matId = document.getElementById('seletorMaterialBD').value;
+
   const forn = baseDados.find(f => f.id === fornId);
   if (!forn) return;
+
   const mat = (forn.materiais || []).find(m => m.id === matId);
   if (mat) {
     const precoNum = parseNum(mat.preco);
@@ -155,6 +185,186 @@ function selecionarMaterialBD() {
     document.getElementById('detalheMaterialAtivo').innerText = `${precoNum.toFixed(2).replace('.', ',')} € s/ IVA`;
   }
   calcular();
+}
+
+// --- FUNÇÕES DE NAVEGAÇÃO / AÇÕES DE FORNECEDOR E MATERIAL ---
+function prepararFormNovoFornecedor() {
+  document.getElementById('tituloFormFornecedor').innerText = 'Adicionar Fornecedor';
+  document.getElementById('editFornecedorId').value = '';
+  document.getElementById('novoNomeFornecedor').value = '';
+  document.getElementById('novoPortesFornecedor').value = '';
+  document.getElementById('formNovoFornecedor').style.display = 'block';
+}
+
+function prepararFormEditarFornecedor() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const forn = baseDados.find(f => f.id === fornId);
+
+  if (!forn) {
+    alert('Selecione um fornecedor para editar.');
+    return;
+  }
+
+  document.getElementById('tituloFormFornecedor').innerText = 'Editar Fornecedor';
+  document.getElementById('editFornecedorId').value = forn.id;
+  document.getElementById('novoNomeFornecedor').value = forn.nome;
+  document.getElementById('novoPortesFornecedor').value = parseNum(forn.portes).toFixed(2);
+  document.getElementById('formNovoFornecedor').style.display = 'block';
+}
+
+function fecharFormFornecedor() {
+  document.getElementById('formNovoFornecedor').style.display = 'none';
+}
+
+function guardarFornecedorBD() {
+  const editId = document.getElementById('editFornecedorId').value;
+  const nome = document.getElementById('novoNomeFornecedor').value.trim();
+  const portes = parseNum(document.getElementById('novoPortesFornecedor').value);
+
+  if (!nome) {
+    alert('Introduza o nome do fornecedor.');
+    return;
+  }
+
+  let targetId = editId;
+
+  if (editId) {
+    const forn = baseDados.find(f => f.id === editId);
+    if (forn) {
+      forn.nome = nome;
+      forn.portes = portes;
+    }
+  } else {
+    const novoForn = {
+      id: 'f_' + Date.now(),
+      nome: nome,
+      portes: portes,
+      materiais: []
+    };
+    baseDados.push(novoForn);
+    targetId = novoForn.id;
+  }
+
+  guardarBD();
+  atualizarSeletorFornecedoresBD();
+
+  if (targetId) {
+    document.getElementById('seletorFornecedorBD').value = targetId;
+    selecionarFornecedorBD();
+  }
+
+  fecharFormFornecedor();
+}
+
+function eliminarFornecedorAtivo() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  if (!fornId) return;
+
+  if (confirm('Tem a certeza que deseja eliminar este fornecedor e todos os seus materiais?')) {
+    baseDados = baseDados.filter(f => f.id !== fornId);
+    guardarBD();
+    atualizarSeletorFornecedoresBD();
+  }
+}
+
+function prepararFormNovoMaterial() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  if (!fornId) {
+    alert('Selecione primeiro um fornecedor.');
+    return;
+  }
+
+  document.getElementById('tituloFormMaterial').innerText = 'Adicionar Material';
+  document.getElementById('editMaterialId').value = '';
+  document.getElementById('novoNomeMaterial').value = '';
+  document.getElementById('novoPrecoMaterial').value = '';
+  document.getElementById('formNovoMaterial').style.display = 'block';
+}
+
+function prepararFormEditarMaterial() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const matId = document.getElementById('seletorMaterialBD').value;
+
+  const forn = baseDados.find(f => f.id === fornId);
+  if (!forn) return;
+
+  const mat = (forn.materiais || []).find(m => m.id === matId);
+  if (!mat) {
+    alert('Selecione um material para editar.');
+    return;
+  }
+
+  document.getElementById('tituloFormMaterial').innerText = 'Editar Material';
+  document.getElementById('editMaterialId').value = mat.id;
+  document.getElementById('novoNomeMaterial').value = mat.nome;
+  document.getElementById('novoPrecoMaterial').value = parseNum(mat.preco).toFixed(2);
+  document.getElementById('formNovoMaterial').style.display = 'block';
+}
+
+function fecharFormMaterial() {
+  document.getElementById('formNovoMaterial').style.display = 'none';
+}
+
+function guardarMaterialBD() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const forn = baseDados.find(f => f.id === fornId);
+
+  if (!forn) {
+    alert('Selecione primeiro um fornecedor.');
+    return;
+  }
+
+  const editId = document.getElementById('editMaterialId').value;
+  const nome = document.getElementById('novoNomeMaterial').value.trim();
+  const preco = parseNum(document.getElementById('novoPrecoMaterial').value);
+
+  if (!nome) {
+    alert('Introduza o nome do material.');
+    return;
+  }
+
+  let matTargetId = editId;
+
+  if (editId) {
+    const mat = (forn.materiais || []).find(m => m.id === editId);
+    if (mat) {
+      mat.nome = nome;
+      mat.preco = preco;
+    }
+  } else {
+    const novoMat = {
+      id: 'm_' + Date.now(),
+      nome: nome,
+      preco: preco
+    };
+    if (!forn.materiais) forn.materiais = [];
+    forn.materiais.push(novoMat);
+    matTargetId = novoMat.id;
+  }
+
+  guardarBD();
+  atualizarSeletorMateriaisBD(forn.materiais);
+
+  if (matTargetId) {
+    document.getElementById('seletorMaterialBD').value = matTargetId;
+    selecionarMaterialBD();
+  }
+
+  fecharFormMaterial();
+}
+
+function eliminarMaterialAtivo() {
+  const fornId = document.getElementById('seletorFornecedorBD').value;
+  const matId = document.getElementById('seletorMaterialBD').value;
+
+  const forn = baseDados.find(f => f.id === fornId);
+  if (!forn || !matId) return;
+
+  if (confirm('Tem a certeza que deseja eliminar este material?')) {
+    forn.materiais = forn.materiais.filter(m => m.id !== matId);
+    guardarBD();
+    atualizarSeletorMateriaisBD(forn.materiais);
+  }
 }
 
 function formatarMoeda(valor) {
@@ -182,8 +392,10 @@ function calcular() {
   const qtd = Math.max(1, parseInt(document.getElementById('quantidade').value) || 1);
   const custoPecaBase = parseNum(document.getElementById('custoPeca').value);
   const portesFornecedorBase = parseNum(document.getElementById('portesFornecedor').value);
+  
   const custoPecaBaseComIva = custoPecaBase * TAXA_IVA;
   const portesFornecedorComIva = portesFornecedorBase * TAXA_IVA;
+  
   const tecnica = document.getElementById('tecnica').value;
   const tipoMargem = document.getElementById('tipoMargem').value;
   const valMargemInput = parseNum(document.getElementById('valMargem').value);
@@ -204,8 +416,10 @@ function calcular() {
 
   const portesPorPecaComIva = portesFornecedorComIva / qtd;
   const custoTotalUnComIva = custoPecaBaseComIva + resImpressao.custoUnComIva + portesPorPecaComIva;
+
   const lucroUn = parseNum(obterMargemPorUnidade(qtd, valMargemInput, tipoMargem, custoTotalUnComIva));
   const lucroTotal = lucroUn * qtd;
+
   const precoVendaUn = custoTotalUnComIva + lucroUn;
   const totalComercial = precoVendaUn * qtd;
   const custoTotalLoteComIva = custoTotalUnComIva * qtd;
@@ -215,22 +429,114 @@ function calcular() {
   document.getElementById('resTotalComercial').innerText = formatarMoeda(totalComercial);
   document.getElementById('resLucroUn').innerText = formatarMoeda(lucroUn);
   document.getElementById('resLucroTotal').innerText = formatarMoeda(lucroTotal);
+
   document.getElementById('resCustoMaterialUn').innerText = formatarMoeda(custoPecaBaseComIva);
   document.getElementById('resCustoImprUn').innerText = formatarMoeda(resImpressao.custoUnComIva);
   document.getElementById('resPortes').innerText = formatarMoeda(portesFornecedorComIva);
   document.getElementById('resCustoTotalLote').innerText = formatarMoeda(custoTotalLoteComIva);
+
+  const elMargemUn = document.getElementById('resMargemUn');
+  if (elMargemUn) elMargemUn.innerText = `${formatarMoeda(lucroUn)} / un`;
+
+  gerarComparativoEscaloes(qtd, custoPecaBaseComIva, portesFornecedorComIva, tecnica, tipoMargem, valMargemInput);
 }
 
-// INICIALIZAÇÃO SEGURA NO ANDROID
-window.addEventListener('DOMContentLoaded', () => {
-  carregarBD();
-  
-  // Associar cliques aos botões diretamente
-  const btnNovoForn = document.querySelector('button[onclick*="prepararFormNovoFornecedor"]');
-  if(btnNovoForn) btnNovoForn.onclick = () => document.getElementById('formNovoFornecedor').style.display = 'block';
+function gerarComparativoEscaloes(qtdAtual, custoPecaComIva, portesComIva, tecnica, tipoMargem, valMargemInput) {
+  const listaEscaloes = [1, 10, 25, 50, 100];
+  const container = document.getElementById('tabelaComparativa');
+  if (!container) return;
+  container.innerHTML = '';
 
-  const btnNovoMat = document.querySelector('button[onclick*="prepararFormNovoMaterial"]');
-  if(btnNovoMat) btnNovoMat.onclick = () => document.getElementById('formNovoMaterial').style.display = 'block';
+  listaEscaloes.forEach(q => {
+    const config = TECNICAS[tecnica];
+    let res = { custoUnComIva: 0 };
+
+    if (tecnica === 'dtf') {
+      const custoMetro = parseNum(document.getElementById('custoMetroDTF').value);
+      const alt = parseNum(document.getElementById('alturaEstampaDTF').value);
+      const larg = parseNum(document.getElementById('larguraEstampaDTF').value);
+      res = config.obterCusto(q, custoMetro, alt, larg);
+    } else {
+      const numCores = parseInt(document.getElementById('numCores').value) || 1;
+      res = config.obterCusto(q, numCores);
+    }
+
+    const custoUn = custoPecaComIva + res.custoUnComIva + (portesComIva / q);
+    const lucroUn = parseNum(obterMargemPorUnidade(q, valMargemInput, tipoMargem, custoUn));
+    const precoVendaUn = custoUn + lucroUn;
+
+    const div = document.createElement('div');
+    div.className = `escalao-item ${q === qtdAtual ? 'active' : ''}`;
+    div.innerHTML = `
+      <span>${q} un</span>
+      <strong>${formatarMoeda(precoVendaUn)} / un</strong>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function copiarResumo() {
+  const artigo = document.getElementById('nomeMaterialAtivo').innerText;
+  const qtd = document.getElementById('quantidade').value;
+  const precoUn = document.getElementById('resPrecoUn').innerText;
+  const total = document.getElementById('resTotalComercial').innerText;
+
+  const texto = `ORÇAMENTO GRAFISANTOS PRINT\nArtigo: ${artigo}\nQuantidade: ${qtd} un\nPreço Unitário (c/ IVA): ${precoUn}\nTotal (c/ IVA): ${total}`;
+
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Resumo copiado para a área de transferência!');
+  }).catch(err => {
+    alert('Erro ao copiar resumo: ' + err);
+  });
+}
+
+function guardarPDF() {
+  const elemento = document.getElementById('areaParaPdf');
+  const opt = {
+    margin:       10,
+    filename:     'Orcamento_GrafiSantos.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(elemento).save();
+}
+
+// --- ASSOCIAR EVENTOS DIRETAMENTE NO JS (MUITO MAIS FIÁVEL EM MOBILE) ---
+document.addEventListener("DOMContentLoaded", () => {
+  carregarBD();
+
+  // Botoes Fornecedor
+  document.getElementById('btnNovoForn').onclick = prepararFormNovoFornecedor;
+  document.getElementById('btnEditarForn').onclick = prepararFormEditarFornecedor;
+  document.getElementById('btnEliminarForn').onclick = eliminarFornecedorAtivo;
+  document.getElementById('btnGuardarFornBD').onclick = guardarFornecedorBD;
+  document.getElementById('btnFecharFornBD').onclick = fecharFormFornecedor;
+
+  // Botoes Material
+  document.getElementById('btnNovoMat').onclick = prepararFormNovoMaterial;
+  document.getElementById('btnEditarMat').onclick = prepararFormEditarMaterial;
+  document.getElementById('btnEliminarMat').onclick = eliminarMaterialAtivo;
+  document.getElementById('btnGuardarMatBD').onclick = guardarMaterialBD;
+  document.getElementById('btnFecharMatBD').onclick = fecharFormMaterial;
+
+  // Topbar
+  document.getElementById('btnCopiarResumo').onclick = copiarResumo;
+  document.getElementById('btnGuardarPDF').onclick = guardarPDF;
+  document.getElementById('btnImprimir').onclick = () => window.print();
+
+  // Selects
+  document.getElementById('seletorFornecedorBD').onchange = selecionarFornecedorBD;
+  document.getElementById('seletorMaterialBD').onchange = selecionarMaterialBD;
+  document.getElementById('tecnica').onchange = () => { alternarTecnica(); calcular(); };
+  document.getElementById('tipoMargem').onchange = calcular;
+
+  // Inputs para calculo imediato
+  const inputsCalculo = ['quantidade', 'custoPeca', 'portesFornecedor', 'custoMetroDTF', 'alturaEstampaDTF', 'larguraEstampaDTF', 'numCores', 'valMargem'];
+  inputsCalculo.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.oninput = calcular;
+  });
 
   alternarTecnica();
   calcular();

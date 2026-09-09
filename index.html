@@ -29,9 +29,9 @@
         <h1>Gestor de Orçamentos <span class="badge-pro">PRO</span></h1>
       </div>
       <div class="topbar-actions">
-        <button type="button" class="btn btn-outline" onclick="copiarResumo()">📋 Copiar</button>
-        <button type="button" class="btn btn-primary" onclick="guardarPDF()">📄 Descarregar PDF</button>
-        <button type="button" class="btn btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+        <button type="button" class="btn btn-outline" id="btnCopiarResumo">📋 Copiar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarPDF">📄 Descarregar PDF</button>
+        <button type="button" class="btn btn-outline" id="btnImprimir">🖨️ Imprimir</button>
       </div>
     </header>
 
@@ -46,15 +46,15 @@
 
         <div class="form-group">
           <label for="seletorFornecedorBD">Selecionar Fornecedor:</label>
-          <select id="seletorFornecedorBD" onchange="selecionarFornecedorBD()">
+          <select id="seletorFornecedorBD">
             <!-- Preenchido via JS -->
           </select>
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormNovoFornecedor()">+ Novo</button>
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormEditarFornecedor()">✏️ Editar</button>
-          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarFornecedorAtivo()">🗑️ Eliminar</button>
+          <button type="button" class="btn btn-outline" id="btnNovoForn" style="font-size: 0.85rem;">+ Novo</button>
+          <button type="button" class="btn btn-outline" id="btnEditarForn" style="font-size: 0.85rem;">✏️ Editar</button>
+          <button type="button" class="btn btn-danger-outline" id="btnEliminarForn" style="font-size: 0.85rem;">🗑️ Eliminar</button>
         </div>
 
         <!-- FORMULÁRIO FORNECEDOR (NOVO / EDITAR) -->
@@ -73,8 +73,8 @@
             </div>
           </div>
           <div class="form-row">
-            <button type="button" class="btn btn-primary" onclick="guardarFornecedorBD()">Guardar</button>
-            <button type="button" class="btn btn-outline" onclick="fecharFormFornecedor()">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="btnGuardarFornBD">Guardar</button>
+            <button type="button" class="btn btn-outline" id="btnFecharFornBD">Cancelar</button>
           </div>
         </div>
 
@@ -87,15 +87,15 @@
 
         <div class="form-group">
           <label for="seletorMaterialBD">Selecionar Material:</label>
-          <select id="seletorMaterialBD" onchange="selecionarMaterialBD()">
+          <select id="seletorMaterialBD">
             <!-- Preenchido via JS -->
           </select>
         </div>
 
         <div class="db-actions">
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormNovoMaterial()">+ Novo</button>
-          <button type="button" class="btn btn-outline" style="font-size: 0.85rem;" onclick="prepararFormEditarMaterial()">✏️ Editar</button>
-          <button type="button" class="btn btn-danger-outline" style="font-size: 0.85rem;" onclick="eliminarMaterialAtivo()">🗑️ Eliminar</button>
+          <button type="button" class="btn btn-outline" id="btnNovoMat" style="font-size: 0.85rem;">+ Novo</button>
+          <button type="button" class="btn btn-outline" id="btnEditarMat" style="font-size: 0.85rem;">✏️ Editar</button>
+          <button type="button" class="btn btn-danger-outline" id="btnEliminarMat" style="font-size: 0.85rem;">🗑️ Eliminar</button>
         </div>
 
         <!-- FORMULÁRIO MATERIAL (NOVO / EDITAR) -->
@@ -114,8 +114,8 @@
             </div>
           </div>
           <div class="form-row">
-            <button type="button" class="btn btn-primary" onclick="guardarMaterialBD()">Guardar</button>
-            <button type="button" class="btn btn-outline" onclick="fecharFormMaterial()">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="btnGuardarMatBD">Guardar</button>
+            <button type="button" class="btn btn-outline" id="btnFecharMatBD">Cancelar</button>
           </div>
         </div>
 
@@ -137,12 +137,12 @@
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
             <label for="quantidade">Quantidade (un):</label>
-            <input type="number" id="quantidade" value="1" min="1" oninput="calcular()">
+            <input type="number" id="quantidade" value="1" min="1">
           </div>
           <div class="form-group" style="flex: 1;">
             <label for="custoPeca">Custo Base s/ IVA:</label>
             <div class="input-symbol">
-              <input type="number" id="custoPeca" value="1.85" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
+              <input type="number" id="custoPeca" value="1.85" step="0.01" min="0">
               <span>€</span>
             </div>
           </div>
@@ -151,14 +151,14 @@
         <div class="form-group">
           <label for="portesFornecedor">Portes Envio s/ IVA:</label>
           <div class="input-symbol">
-            <input type="number" id="portesFornecedor" value="4.50" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
+            <input type="number" id="portesFornecedor" value="4.50" step="0.01" min="0">
             <span>€</span>
           </div>
         </div>
 
         <div class="form-group">
           <label for="tecnica">Técnica de Personalização:</label>
-          <select id="tecnica" onchange="alternarTecnica(); calcular();">
+          <select id="tecnica">
             <option value="dtf">DTF (Direct to Film)</option>
             <option value="serigrafia">Serigrafia</option>
             <option value="bordado">Bordado</option>
@@ -170,18 +170,18 @@
           <div class="form-group">
             <label for="custoMetroDTF">Custo Metro DTF s/ IVA:</label>
             <div class="input-symbol">
-              <input type="number" id="custoMetroDTF" value="5.50" step="0.01" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
+              <input type="number" id="custoMetroDTF" value="5.50" step="0.01" min="0">
               <span>€</span>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group" style="flex: 1;">
               <label for="alturaEstampaDTF">Altura (cm):</label>
-              <input type="number" id="alturaEstampaDTF" value="10" min="1" oninput="calcular()">
+              <input type="number" id="alturaEstampaDTF" value="10" min="1">
             </div>
             <div class="form-group" style="flex: 1;">
               <label for="larguraEstampaDTF">Largura (cm):</label>
-              <input type="number" id="larguraEstampaDTF" value="28" min="1" oninput="calcular()">
+              <input type="number" id="larguraEstampaDTF" value="28" min="1">
             </div>
           </div>
         </div>
@@ -190,21 +190,21 @@
         <div id="grupoCores" class="grupo-tecnica hidden">
           <div class="form-group">
             <label for="numCores">N.º de Cores / Linhas:</label>
-            <input type="number" id="numCores" value="1" min="1" max="6" oninput="calcular()">
+            <input type="number" id="numCores" value="1" min="1" max="6">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
             <label for="tipoMargem">Margem:</label>
-            <select id="tipoMargem" onchange="calcular()">
+            <select id="tipoMargem">
               <option value="fixo">Fixo (€ Tabela)</option>
               <option value="percentagem">Percentual (%)</option>
             </select>
           </div>
           <div class="form-group" style="flex: 1;">
             <label for="valMargem">Valor Margem:</label>
-            <input type="number" id="valMargem" value="7.00" step="0.1" min="0" oninput="calcular()" onchange="formatarInputDecimal(this)">
+            <input type="number" id="valMargem" value="7.00" step="0.1" min="0">
           </div>
         </div>
       </section>
@@ -279,6 +279,6 @@
     </main>
   </div>
 
-  <script src="script.js?v=4.2"></script>
+  <script src="script.js?v=5.0"></script>
 </body>
 </html>
