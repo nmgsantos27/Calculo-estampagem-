@@ -192,11 +192,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-        }
         .hidden {
             display: none !important;
         }
@@ -494,10 +489,6 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 6px;
             }
-            .grid-3 {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
             .flex {
                 gap: 6px;
             }
@@ -562,7 +553,7 @@
         <!-- ============================================ -->
         <div id="tabNovo" class="tab-content">
 
-            <!-- CLIENTE E ORÇAMENTO -->
+            <!-- ORÇAMENTO + CLIENTE -->
             <div class="card card-orcamento">
                 <div class="section-title">📄 Orçamento</div>
                 <div class="grid-2">
@@ -576,7 +567,21 @@
                     </div>
                 </div>
 
-                <div class="section-title" style="margin-top:8px;">👤 Cliente</div>
+                <!-- SELETOR DE CLIENTE -->
+                <div class="section-title" style="margin-top:12px;">👤 Cliente</div>
+                <div class="flex">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Selecionar cliente:</label>
+                        <select id="selCliente" onchange="onChangeCliente()"></select>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:8px;">
+                        <button class="btn-icon" onclick="abrirFormCliente(false)" title="Novo cliente">+</button>
+                        <button class="btn-icon" onclick="abrirFormCliente(true)" title="Editar cliente">✎</button>
+                        <button class="btn-icon btn-icon-danger" onclick="eliminarCliente()" title="Eliminar cliente">✕</button>
+                    </div>
+                </div>
+
+                <!-- DADOS DO CLIENTE (preenchidos ao selecionar) -->
                 <div class="field">
                     <label>Nome:</label>
                     <input type="text" id="inputClienteNome" placeholder="Nome do Cliente">
@@ -589,6 +594,23 @@
                     <div class="field">
                         <label>Email:</label>
                         <input type="text" id="inputClienteEmail" placeholder="Email">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="guardarClienteAtual()">
+                    💾 Guardar Cliente
+                </button>
+
+                <!-- FORM NOVO/EDITAR CLIENTE -->
+                <div class="form-panel hidden" id="formCliente">
+                    <h4 id="tituloFormCliente">Novo cliente</h4>
+                    <input type="hidden" id="editClienteId">
+                    <input type="text" id="novoNomeCliente" placeholder="Nome do Cliente">
+                    <input type="text" id="novoContactoCliente" placeholder="Contacto (telefone)">
+                    <input type="text" id="novoEmailCliente" placeholder="Email">
+                    <div class="btn-row">
+                        <button class="btn btn-success" onclick="guardarClienteForm()">Guardar</button>
+                        <button class="btn btn-cancel" onclick="fecharFormCliente()">Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -846,9 +868,10 @@
         "use strict";
 
         var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v7";
+        var STORAGE_KEY = "grafisantos_v8";
         var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
         var STORAGE_CONTADOR = "grafisantos_contador";
+        var STORAGE_CLIENTES = "grafisantos_clientes";
         var MARGEM_KEY = "grafisantos_margem";
 
         function parseNum(v) {
@@ -961,6 +984,7 @@
         var materialId = null;
         var varianteId = null;
         var tecnicaId = null;
+        var clienteSelecionadoId = null;
 
         // ============================================================
         //  PERSISTÊNCIA
@@ -1009,6 +1033,222 @@
 
         function obterTecnica(id) {
             return dados.tecnicas.find(function(t) { return t.id === id; });
+        }
+
+        // ============================================================
+        //  CLIENTES
+        // ============================================================
+
+        function carregarClientes() {
+            try {
+                var raw = localStorage.getItem(STORAGE_CLIENTES);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            } catch (e) {}
+            return [];
+        }
+
+        function guardarClientesLista(lista) {
+            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
+        }
+
+        function obterCliente(id) {
+            var lista = carregarClientes();
+            return lista.find(function(c) { return c.id === id; });
+        }
+
+        function renderSelectClientes() {
+            var sel = document.getElementById("selCliente");
+            if (!sel) return;
+
+            var clientes = carregarClientes();
+            sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
+
+            // Ordenar alfabeticamente
+            clientes.sort(function(a, b) {
+                return (a.nome || "").localeCompare(b.nome || "");
+            });
+
+            clientes.forEach(function(c) {
+                var opt = document.createElement("option");
+                opt.value = c.id;
+                var label = c.nome;
+                if (c.contacto) label += " (" + c.contacto + ")";
+                opt.textContent = label;
+                sel.appendChild(opt);
+            });
+
+            // Manter seleção se ainda existir
+            if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
+                sel.value = clienteSelecionadoId;
+            } else {
+                clienteSelecionadoId = null;
+                sel.value = "";
+            }
+        }
+
+        function onChangeCliente() {
+            var sel = document.getElementById("selCliente");
+            if (!sel) return;
+            clienteSelecionadoId = sel.value || null;
+
+            if (!clienteSelecionadoId) {
+                // Cliente sem registo - não limpar campos (o utilizador pode querer preencher manualmente)
+                return;
+            }
+
+            var c = obterCliente(clienteSelecionadoId);
+            if (!c) return;
+
+            document.getElementById("inputClienteNome").value = c.nome || "";
+            document.getElementById("inputClienteContacto").value = c.contacto || "";
+            document.getElementById("inputClienteEmail").value = c.email || "";
+        }
+
+        function abrirFormCliente(editar) {
+            var c = editar && clienteSelecionadoId ? obterCliente(clienteSelecionadoId) : null;
+            if (editar && !c) {
+                alert("⚠️ Selecione um cliente da lista para editar.");
+                return;
+            }
+            document.getElementById("formCliente").classList.remove("hidden");
+            document.getElementById("tituloFormCliente").textContent = editar ? "✏️ Editar cliente" : "➕ Novo cliente";
+            document.getElementById("editClienteId").value = editar && c ? c.id : "";
+            document.getElementById("novoNomeCliente").value = editar && c ? (c.nome || "") : "";
+            document.getElementById("novoContactoCliente").value = editar && c ? (c.contacto || "") : "";
+            document.getElementById("novoEmailCliente").value = editar && c ? (c.email || "") : "";
+        }
+
+        function fecharFormCliente() {
+            document.getElementById("formCliente").classList.add("hidden");
+        }
+
+        function guardarClienteForm() {
+            var nome = document.getElementById("novoNomeCliente").value.trim();
+            if (!nome) { alert("⚠️ Indica o nome do cliente."); return; }
+            var contacto = document.getElementById("novoContactoCliente").value.trim();
+            var email = document.getElementById("novoEmailCliente").value.trim();
+            var eid = document.getElementById("editClienteId").value;
+
+            var lista = carregarClientes();
+
+            if (eid) {
+                // Verificar se existe outro cliente com o mesmo nome
+                var duplicado = lista.find(function(c) {
+                    return c.id !== eid && c.nome.toLowerCase() === nome.toLowerCase();
+                });
+                if (duplicado && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
+
+                var c = lista.find(function(x) { return x.id === eid; });
+                if (c) {
+                    c.nome = nome;
+                    c.contacto = contacto;
+                    c.email = email;
+                }
+                clienteSelecionadoId = eid;
+            } else {
+                // Verificar duplicado
+                var duplicado2 = lista.find(function(c) {
+                    return c.nome.toLowerCase() === nome.toLowerCase();
+                });
+                if (duplicado2 && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
+
+                var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
+                lista.push(novo);
+                clienteSelecionadoId = novo.id;
+            }
+
+            guardarClientesLista(lista);
+            fecharFormCliente();
+            renderSelectClientes();
+
+            // Preencher os campos do orçamento com os dados do cliente atual
+            var c2 = obterCliente(clienteSelecionadoId);
+            if (c2) {
+                document.getElementById("inputClienteNome").value = c2.nome || "";
+                document.getElementById("inputClienteContacto").value = c2.contacto || "";
+                document.getElementById("inputClienteEmail").value = c2.email || "";
+            }
+
+            alert("✅ Cliente guardado!");
+        }
+
+        function eliminarCliente() {
+            if (!clienteSelecionadoId) {
+                alert("⚠️ Selecione um cliente primeiro.");
+                return;
+            }
+            var c = obterCliente(clienteSelecionadoId);
+            if (!c) return;
+            if (!confirm("🗑️ Eliminar o cliente \"" + c.nome + "\"?\n\nOs orçamentos no histórico mantêm-se.")) return;
+
+            var lista = carregarClientes();
+            lista = lista.filter(function(x) { return x.id !== clienteSelecionadoId; });
+            guardarClientesLista(lista);
+
+            clienteSelecionadoId = null;
+            renderSelectClientes();
+
+            document.getElementById("inputClienteNome").value = "";
+            document.getElementById("inputClienteContacto").value = "";
+            document.getElementById("inputClienteEmail").value = "";
+
+            alert("🗑️ Cliente eliminado!");
+        }
+
+        // Botão "Guardar Cliente" - guarda os dados atuais do formulário
+        function guardarClienteAtual() {
+            var nome = document.getElementById("inputClienteNome").value.trim();
+            if (!nome) {
+                alert("⚠️ Preenche o nome do cliente primeiro.");
+                return;
+            }
+
+            var contacto = document.getElementById("inputClienteContacto").value.trim();
+            var email = document.getElementById("inputClienteEmail").value.trim();
+
+            var lista = carregarClientes();
+
+            // Se já temos um cliente selecionado, atualizar esse
+            if (clienteSelecionadoId) {
+                var c = lista.find(function(x) { return x.id === clienteSelecionadoId; });
+                if (c) {
+                    c.nome = nome;
+                    c.contacto = contacto;
+                    c.email = email;
+                    guardarClientesLista(lista);
+                    renderSelectClientes();
+                    alert("✅ Cliente atualizado!");
+                    return;
+                }
+            }
+
+            // Verificar se existe cliente com o mesmo nome
+            var existente = lista.find(function(c) {
+                return c.nome.toLowerCase() === nome.toLowerCase();
+            });
+
+            if (existente) {
+                if (confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nAtualizar os dados desse cliente?")) {
+                    existente.contacto = contacto;
+                    existente.email = email;
+                    guardarClientesLista(lista);
+                    clienteSelecionadoId = existente.id;
+                    renderSelectClientes();
+                    alert("✅ Cliente atualizado!");
+                }
+                return;
+            }
+
+            // Criar novo cliente
+            var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
+            lista.push(novo);
+            guardarClientesLista(lista);
+            clienteSelecionadoId = novo.id;
+            renderSelectClientes();
+            alert("✅ Cliente guardado!");
         }
 
         // ============================================================
@@ -1112,6 +1352,7 @@
                 numero: document.getElementById("numeroOrcamento").value,
                 data: document.getElementById("dataOrcamento").value,
                 cliente: {
+                    id: clienteSelecionadoId || null,
                     nome: nome,
                     contacto: document.getElementById("inputClienteContacto").value.trim(),
                     email: document.getElementById("inputClienteEmail").value.trim()
@@ -1148,6 +1389,12 @@
             document.getElementById("inputClienteEmail").value = "";
             document.getElementById("quantidade").value = "1";
             document.getElementById("alturaEstampa").value = "10";
+
+            // Reset do cliente selecionado
+            clienteSelecionadoId = null;
+            var selCli = document.getElementById("selCliente");
+            if (selCli) selCli.value = "";
+
             atualizarNumeroEData();
             calcular();
             atualizarContadorTab();
@@ -1211,10 +1458,6 @@
             return lista.find(function(o) { return o.id === id; });
         }
 
-        // ============================================================
-        //  DUPLICAR ORÇAMENTO (NOVO)
-        // ============================================================
-
         function duplicarOrcamento(id) {
             var o = obterOrcamentoPorId(id);
             if (!o) {
@@ -1232,15 +1475,17 @@
                 return;
             }
 
-            // Ir para o tab "Novo"
             mudarTab('novo');
 
-            // Preencher Cliente
+            // Restaurar cliente selecionado se existir
+            clienteSelecionadoId = o.cliente.id || null;
+
             document.getElementById("inputClienteNome").value = o.cliente.nome || "";
             document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
             document.getElementById("inputClienteEmail").value = o.cliente.email || "";
 
-            // Encontrar o fornecedor pelo nome
+            renderSelectClientes();
+
             var fornecedorEncontrado = dados.fornecedores.find(function(f) {
                 return f.nome === o.fornecedor;
             });
@@ -1250,12 +1495,10 @@
                 atualizarPortesFornecedor();
             }
 
-            // Reset do filtro de tipo
             tipoSelecionadoId = "todos";
             var selTipo = document.getElementById("selTipoMaterial");
             if (selTipo) selTipo.value = "todos";
 
-            // Encontrar o material pelo nome
             var fAtual = obterFornecedor(fornecedorId);
             var materialEncontrado = null;
             if (fAtual) {
@@ -1270,7 +1513,6 @@
                 materialId = materialEncontrado.id;
                 document.getElementById("selMaterial").value = materialId;
 
-                // Encontrar a variante (cor)
                 var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
                     return v.nome === o.cor;
                 });
@@ -1281,7 +1523,6 @@
                 }
             }
 
-            // Encontrar a técnica
             var tecnicaEncontrada = dados.tecnicas.find(function(t) {
                 return t.nome === o.tecnica;
             });
@@ -1291,14 +1532,10 @@
                 atualizarInfoTecnica();
             }
 
-            // Quantidade e Altura
             document.getElementById("quantidade").value = o.quantidade || 1;
             document.getElementById("alturaEstampa").value = o.altura || 10;
 
-            // Novo nº e data
             atualizarNumeroEData();
-
-            // Recalcular
             calcular();
 
             setTimeout(function() {
@@ -1509,10 +1746,11 @@
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "4.0",
+                    versao: "5.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados,
                     orcamentos: carregarOrcamentos(),
+                    clientes: carregarClientes(),
                     contador: localStorage.getItem(STORAGE_CONTADOR)
                 };
                 var json = JSON.stringify(backup, null, 2);
@@ -1526,7 +1764,7 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                alert("✅ Backup criado!\n\nInclui: fornecedores, materiais, técnicas e histórico de orçamentos.");
+                alert("✅ Backup criado!\n\nInclui: fornecedores, materiais, técnicas, clientes e histórico.");
             } catch (e) {
                 alert("❌ Erro ao exportar: " + e.message);
             }
@@ -1563,6 +1801,9 @@
                     if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
                         guardarOrcamentosLista(conteudo.orcamentos);
                     }
+                    if (conteudo.clientes && Array.isArray(conteudo.clientes)) {
+                        guardarClientesLista(conteudo.clientes);
+                    }
                     if (conteudo.contador) {
                         localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
                     }
@@ -1572,9 +1813,12 @@
                     materialId = null;
                     varianteId = null;
                     tecnicaId = null;
+                    clienteSelecionadoId = null;
+
                     renderTipos();
                     renderFornecedores();
                     renderTecnicas();
+                    renderSelectClientes();
                     calcular();
                     atualizarInfoTecnica();
                     atualizarNumeroEData();
@@ -2237,6 +2481,7 @@
                 renderTipos();
                 renderFornecedores();
                 renderTecnicas();
+                renderSelectClientes();
                 atualizarNumeroEData();
                 atualizarContadorTab();
                 calcular();
