@@ -422,6 +422,8 @@
 </head>
 <body>
 
+    <input type="file" id="inputImportar" accept=".json" style="display:none" onchange="processarImportacao(event)">
+
     <div class="container" id="areaParaPdf">
 
         <div id="debugErro"></div>
@@ -430,9 +432,11 @@
         <div class="header no-print">
             <h1>🖨️ Grafi<span>Santos</span></h1>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="btn btn-secondary" onclick="copiarResumo()">📋 Copiar</button>
-                <button class="btn btn-secondary" onclick="gerarPDF()">📄 PDF</button>
-                <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
+                <button class="btn btn-secondary" onclick="copiarResumo()" title="Copiar resumo">📋</button>
+                <button class="btn btn-secondary" onclick="gerarPDF()" title="Gerar PDF">📄</button>
+                <button class="btn btn-secondary" onclick="window.print()" title="Imprimir">🖨️</button>
+                <button class="btn btn-secondary" onclick="exportarDados()" title="Exportar backup">💾</button>
+                <button class="btn btn-secondary" onclick="importarDados()" title="Importar backup">📥</button>
             </div>
         </div>
 
@@ -465,7 +469,7 @@
             </div>
         </div>
 
-        <!-- MATERIAIS COM VARIANTES (CORES) -->
+        <!-- MATERIAIS -->
         <div class="card no-print">
             <div class="section-title">👕 Material / Peça</div>
             <div class="flex">
@@ -479,21 +483,17 @@
                     <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
                 </div>
             </div>
-
             <div id="listaVariantes" class="lista-variantes">
                 <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
                 <div id="variantesContainer"></div>
             </div>
-
             <div class="form-panel hidden" id="formMaterial">
                 <h4 id="tituloMaterial">Novo material</h4>
                 <input type="hidden" id="editMaterialId">
                 <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt)">
-
                 <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
                 <div id="variantesFormContainer"></div>
                 <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
-
                 <div class="btn-row" style="margin-top:8px;">
                     <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
                     <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
@@ -771,7 +771,105 @@
         }
 
         // ============================================================
-        //  VARIANTES (CORES) - CRIAR CAMPOS DINAMICAMENTE
+        //  EXPORTAR DADOS (BACKUP)
+        // ============================================================
+
+        function exportarDados() {
+            try {
+                var backup = {
+                    versao: "1.0",
+                    dataBackup: new Date().toLocaleString("pt-PT"),
+                    dados: dados
+                };
+                
+                var json = JSON.stringify(backup, null, 2);
+                var blob = new Blob([json], { type: "application/json" });
+                var url = URL.createObjectURL(blob);
+                
+                var data = new Date().toISOString().slice(0, 10);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "grafisantos_backup_" + data + ".json";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert("✅ Backup criado com sucesso!\n\nO ficheiro foi guardado na pasta de Downloads do seu telemóvel.\n\nRecomendação: envie-o para si mesmo por email ou guarde no Google Drive.");
+            } catch (e) {
+                alert("❌ Erro ao exportar: " + e.message);
+            }
+        }
+
+        // ============================================================
+        //  IMPORTAR DADOS (RESTAURAR)
+        // ============================================================
+
+        function importarDados() {
+            var input = document.getElementById("inputImportar");
+            if (input) input.click();
+        }
+
+        function processarImportacao(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    var conteudo = JSON.parse(e.target.result);
+                    var dadosImportados = conteudo.dados || conteudo;
+                    
+                    if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
+                        alert("❌ Ficheiro de backup inválido!");
+                        event.target.value = "";
+                        return;
+                    }
+                    
+                    var confirmar = confirm(
+                        "⚠️ ATENÇÃO\n\n" +
+                        "Vai substituir TODOS os dados atuais pelos dados do backup.\n\n" +
+                        "📅 Data do backup: " + (conteudo.dataBackup || "Desconhecida") + "\n" +
+                        "📦 Fornecedores: " + dadosImportados.fornecedores.length + "\n" +
+                        "🖨️ Técnicas: " + dadosImportados.tecnicas.length + "\n\n" +
+                        "Continuar?"
+                    );
+                    
+                    if (!confirmar) {
+                        event.target.value = "";
+                        return;
+                    }
+                    
+                    dados = dadosImportados;
+                    guardarDados();
+                    
+                    fornecedorId = null;
+                    materialId = null;
+                    varianteId = null;
+                    tecnicaId = null;
+                    
+                    renderFornecedores();
+                    renderTecnicas();
+                    calcular();
+                    atualizarInfoTecnica();
+                    
+                    alert("✅ Backup restaurado com sucesso!\n\n" +
+                          "📦 Fornecedores: " + dados.fornecedores.length + "\n" +
+                          "🖨️ Técnicas: " + dados.tecnicas.length);
+                    
+                } catch (err) {
+                    alert("❌ Erro ao ler o ficheiro: " + err.message);
+                }
+                
+                event.target.value = "";
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // ============================================================
+        //  VARIANTES
         // ============================================================
 
         function criarCampoVariante(variante) {
@@ -813,17 +911,13 @@
         function carregarVariantesForm(material) {
             var container = document.getElementById("variantesFormContainer");
             if (!container) return;
-
-            // Limpar tudo
             container.innerHTML = "";
 
-            // Se o material tem variantes, criar um campo para cada uma
             if (material && material.variantes && material.variantes.length) {
                 material.variantes.forEach(function(v) {
                     container.appendChild(criarCampoVariante(v));
                 });
             } else {
-                // Se não tem, criar um campo vazio
                 container.appendChild(criarCampoVariante(null));
             }
         }
