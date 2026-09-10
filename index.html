@@ -77,6 +77,10 @@
             background: #94a3b8;
             color: #fff;
         }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
         .btn-danger {
             background: #dc2626;
             color: #fff;
@@ -130,6 +134,10 @@
             background: #eff6ff;
             border-color: #bfdbfe;
         }
+        .card-orcamento {
+            background: #f0f9ff;
+            border-color: #bae6fd;
+        }
         .section-title {
             font-size: 0.8rem;
             color: #64748b;
@@ -175,9 +183,18 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
+        .field input:read-only {
+            background: #f1f5f9;
+            cursor: default;
+        }
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
         .hidden {
@@ -386,20 +403,97 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        .tag-tipo {
-            display: inline-block;
-            background: #e0e7ff;
-            color: #3730a3;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
+        .historico-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+        .historico-item .topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .historico-item .numero {
+            font-weight: bold;
+            color: #2563eb;
+            font-size: 0.9rem;
+        }
+        .historico-item .data {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .historico-item .cliente {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .historico-item .detalhes {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .historico-item .total {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-top: 6px;
+        }
+        .historico-item .acoes {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .historico-item .acoes .btn {
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #fff;
             border-radius: 10px;
-            margin-left: 4px;
+            padding: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.15s;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            touch-action: manipulation;
+        }
+        .tab-btn.active {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+        .tab-content {
+            display: block;
+        }
+        .tab-content.hidden {
+            display: none;
         }
         @media (max-width: 480px) {
             .grid-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .grid-3 {
                 grid-template-columns: 1fr 1fr;
                 gap: 6px;
             }
@@ -452,221 +546,299 @@
             </div>
         </div>
 
-        <!-- FORNECEDORES -->
-        <div class="card no-print">
-            <div class="section-title">📦 Fornecedor</div>
-            <div class="flex">
-                <div class="field flex-grow" style="margin-bottom:0;">
-                    <label>Selecionar:</label>
-                    <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
-                </div>
-                <div style="display:flex;gap:4px;margin-bottom:8px;">
-                    <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
-                    <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
-                    <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
-                </div>
-            </div>
-            <div class="form-panel hidden" id="formFornecedor">
-                <h4 id="tituloFornecedor">Novo fornecedor</h4>
-                <input type="hidden" id="editFornecedorId">
-                <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
-                <div class="campo-euro">
-                    <span class="simbolo-euro">€</span>
-                    <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
-                </div>
-                <div class="btn-row">
-                    <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
-                    <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
-                </div>
-            </div>
+        <!-- TABS -->
+        <div class="tabs no-print">
+            <button class="tab-btn active" id="tabBtnNovo" onclick="mudarTab('novo')">
+                ➕ Novo
+            </button>
+            <button class="tab-btn" id="tabBtnHistorico" onclick="mudarTab('historico')">
+                📋 Histórico (<span id="contadorHistorico">0</span>)
+            </button>
         </div>
 
-        <!-- TIPOS DE MATERIAL -->
-        <div class="card no-print">
-            <div class="section-title">🏷️ Tipo de Material</div>
-            <div class="flex">
-                <div class="field flex-grow" style="margin-bottom:0;">
-                    <label>Selecionar tipo:</label>
-                    <select id="selTipoMaterial" onchange="onChangeTipo()"></select>
-                </div>
-                <div style="display:flex;gap:4px;margin-bottom:8px;">
-                    <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
-                    <button class="btn-icon" onclick="abrirFormTipo(true)">✎</button>
-                    <button class="btn-icon btn-icon-danger" onclick="eliminarTipo()">✕</button>
-                </div>
-            </div>
-            <div class="form-panel hidden" id="formTipo">
-                <h4 id="tituloTipo">Novo tipo de material</h4>
-                <input type="hidden" id="editTipoId">
-                <input type="text" id="inputNomeTipo" placeholder="Nome do tipo (ex: T-Shirt, Polo, Sweats)">
-                <div class="btn-row">
-                    <button class="btn btn-success" onclick="guardarTipo()">Guardar</button>
-                    <button class="btn btn-cancel" onclick="fecharFormTipo()">Cancelar</button>
-                </div>
-            </div>
-        </div>
+        <!-- ============================================ -->
+        <!-- TAB NOVO ORÇAMENTO -->
+        <!-- ============================================ -->
+        <div id="tabNovo" class="tab-content">
 
-        <!-- MATERIAIS -->
-        <div class="card no-print">
-            <div class="section-title">👕 Material / Peça</div>
-            <div class="flex">
-                <div class="field flex-grow" style="margin-bottom:0;">
-                    <label>Selecionar:</label>
-                    <select id="selMaterial" onchange="onChangeMaterial()"></select>
+            <!-- CLIENTE E ORÇAMENTO -->
+            <div class="card card-orcamento">
+                <div class="section-title">📄 Orçamento</div>
+                <div class="grid-3">
+                    <div class="field">
+                        <label>Nº Orçamento:</label>
+                        <input type="text" id="numeroOrcamento" readonly>
+                    </div>
+                    <div class="field">
+                        <label>Data:</label>
+                        <input type="text" id="dataOrcamento" readonly>
+                    </div>
+                    <div class="field" style="margin-bottom:0;"></div>
                 </div>
-                <div style="display:flex;gap:4px;margin-bottom:8px;">
-                    <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
-                    <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
-                    <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
-                </div>
-            </div>
-            <div id="listaVariantes" class="lista-variantes">
-                <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
-                <div id="variantesContainer"></div>
-            </div>
-            <div class="form-panel hidden" id="formMaterial">
-                <h4 id="tituloMaterial">Novo material</h4>
-                <input type="hidden" id="editMaterialId">
-                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt Beagle 150g)">
-                <input type="text" id="inputReferenciaMaterial" placeholder="Referência (ex: REF-1234)">
-                <div class="field" style="margin-bottom:8px;">
-                    <label>Tipo de Material</label>
-                    <select id="selTipoMaterialForm"></select>
-                </div>
-                <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
-                <div id="variantesFormContainer"></div>
-                <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
-                <div class="btn-row" style="margin-top:8px;">
-                    <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
-                    <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- TÉCNICAS -->
-        <div class="card no-print">
-            <div class="section-title">🖨️ Técnica de Estampagem</div>
-            <div class="flex">
-                <div class="field flex-grow" style="margin-bottom:0;">
-                    <label>Selecionar:</label>
-                    <select id="selTecnica" onchange="onChangeTecnica()"></select>
+                <div class="section-title" style="margin-top:8px;">👤 Cliente</div>
+                <div class="field">
+                    <label>Nome:</label>
+                    <input type="text" id="inputClienteNome" placeholder="Nome do Cliente">
                 </div>
-                <div style="display:flex;gap:4px;margin-bottom:8px;">
-                    <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
-                    <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
-                    <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
-                </div>
-            </div>
-            <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:#475569;background:#f8fafc;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;">
-                <span id="infoTecNome">Nenhuma técnica selecionada</span>
-                <span id="infoTecDetalhes"></span>
-            </div>
-            <div class="form-panel hidden" id="formTecnica">
-                <h4 id="tituloTecnica">Nova técnica</h4>
-                <input type="hidden" id="editTecnicaId">
-                <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
                 <div class="grid-2">
-                    <div class="field" style="margin-bottom:0;">
-                        <label>Custo/Metro (€):</label>
-                        <div class="campo-euro">
-                            <span class="simbolo-euro">€</span>
-                            <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
+                    <div class="field">
+                        <label>Contacto:</label>
+                        <input type="text" id="inputClienteContacto" placeholder="Telefone / Telemóvel">
+                    </div>
+                    <div class="field">
+                        <label>Email:</label>
+                        <input type="text" id="inputClienteEmail" placeholder="Email">
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORNECEDORES -->
+            <div class="card no-print">
+                <div class="section-title">📦 Fornecedor</div>
+                <div class="flex">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Selecionar:</label>
+                        <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:8px;">
+                        <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
+                        <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
+                        <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
+                    </div>
+                </div>
+                <div class="form-panel hidden" id="formFornecedor">
+                    <h4 id="tituloFornecedor">Novo fornecedor</h4>
+                    <input type="hidden" id="editFornecedorId">
+                    <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
+                    <div class="campo-euro">
+                        <span class="simbolo-euro">€</span>
+                        <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
+                        <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIPOS DE MATERIAL -->
+            <div class="card no-print">
+                <div class="section-title">🏷️ Tipo de Material</div>
+                <div class="flex">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Selecionar tipo:</label>
+                        <select id="selTipoMaterial" onchange="onChangeTipo()"></select>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:8px;">
+                        <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
+                        <button class="btn-icon" onclick="abrirFormTipo(true)">✎</button>
+                        <button class="btn-icon btn-icon-danger" onclick="eliminarTipo()">✕</button>
+                    </div>
+                </div>
+                <div class="form-panel hidden" id="formTipo">
+                    <h4 id="tituloTipo">Novo tipo de material</h4>
+                    <input type="hidden" id="editTipoId">
+                    <input type="text" id="inputNomeTipo" placeholder="Nome do tipo (ex: T-Shirt, Polo, Sweats)">
+                    <div class="btn-row">
+                        <button class="btn btn-success" onclick="guardarTipo()">Guardar</button>
+                        <button class="btn btn-cancel" onclick="fecharFormTipo()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MATERIAIS -->
+            <div class="card no-print">
+                <div class="section-title">👕 Material / Peça</div>
+                <div class="flex">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Selecionar:</label>
+                        <select id="selMaterial" onchange="onChangeMaterial()"></select>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:8px;">
+                        <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
+                        <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
+                        <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
+                    </div>
+                </div>
+                <div id="listaVariantes" class="lista-variantes">
+                    <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
+                    <div id="variantesContainer"></div>
+                </div>
+                <div class="form-panel hidden" id="formMaterial">
+                    <h4 id="tituloMaterial">Novo material</h4>
+                    <input type="hidden" id="editMaterialId">
+                    <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt Beagle 150g)">
+                    <input type="text" id="inputReferenciaMaterial" placeholder="Referência (ex: REF-1234)">
+                    <div class="field" style="margin-bottom:8px;">
+                        <label>Tipo de Material</label>
+                        <select id="selTipoMaterialForm"></select>
+                    </div>
+                    <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
+                    <div id="variantesFormContainer"></div>
+                    <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
+                    <div class="btn-row" style="margin-top:8px;">
+                        <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
+                        <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TÉCNICAS -->
+            <div class="card no-print">
+                <div class="section-title">🖨️ Técnica de Estampagem</div>
+                <div class="flex">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Selecionar:</label>
+                        <select id="selTecnica" onchange="onChangeTecnica()"></select>
+                    </div>
+                    <div style="display:flex;gap:4px;margin-bottom:8px;">
+                        <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
+                        <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
+                        <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
+                    </div>
+                </div>
+                <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:#475569;background:#f8fafc;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;">
+                    <span id="infoTecNome">Nenhuma técnica selecionada</span>
+                    <span id="infoTecDetalhes"></span>
+                </div>
+                <div class="form-panel hidden" id="formTecnica">
+                    <h4 id="tituloTecnica">Nova técnica</h4>
+                    <input type="hidden" id="editTecnicaId">
+                    <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
+                    <div class="grid-2">
+                        <div class="field" style="margin-bottom:0;">
+                            <label>Custo/Metro (€):</label>
+                            <div class="campo-euro">
+                                <span class="simbolo-euro">€</span>
+                                <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+                        <div class="field" style="margin-bottom:0;">
+                            <label>Largura (cm):</label>
+                            <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
                         </div>
                     </div>
-                    <div class="field" style="margin-bottom:0;">
-                        <label>Largura (cm):</label>
-                        <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
+                    <div class="btn-row" style="margin-top:8px;">
+                        <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
+                        <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
                     </div>
                 </div>
-                <div class="btn-row" style="margin-top:8px;">
-                    <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
-                    <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
-                </div>
             </div>
-        </div>
 
-        <!-- CÁLCULO -->
-        <div class="card">
-            <div class="section-title">📐 Dimensões da Estampa</div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Altura (cm):</label>
-                    <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
+            <!-- CÁLCULO -->
+            <div class="card">
+                <div class="section-title">📐 Dimensões da Estampa</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Altura (cm):</label>
+                        <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
+                    </div>
+                    <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
+                        <label style="color:#64748b;">Largura (da técnica):</label>
+                        <div style="font-size:1.1rem;font-weight:bold;color:#2563eb;padding:6px 0;" id="larguraExibida">28 cm</div>
+                    </div>
                 </div>
-                <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
-                    <label style="color:#64748b;">Largura (da técnica):</label>
-                    <div style="font-size:1.1rem;font-weight:bold;color:#2563eb;padding:6px 0;" id="larguraExibida">28 cm</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Quantidade:</label>
+                        <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
+                    </div>
+                    <div class="field">
+                        <label>Cor / Variante:</label>
+                        <select id="selVariante" onchange="onChangeVariante()">
+                            <option value="">Selecione uma cor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field campo-euro">
+                        <label>Custo Peça (s/IVA) €:</label>
+                        <span class="simbolo-euro-topo">€</span>
+                        <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                    </div>
+                    <div class="field campo-euro">
+                        <label>Portes Lote (s/IVA) €:</label>
+                        <span class="simbolo-euro-topo">€</span>
+                        <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field campo-euro">
+                        <label>Margem Lucro:</label>
+                        <span class="simbolo-euro-topo">€</span>
+                        <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
+                    </div>
+                    <div class="field" style="margin-bottom:0;">
+                        <label>Tipo de Margem:</label>
+                        <select id="tipoMargem" onchange="calcular()">
+                            <option value="valor">Valor Fixo (€)</option>
+                            <option value="percentagem">Percentagem (%)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Quantidade:</label>
-                    <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
-                </div>
-                <div class="field">
-                    <label>Cor / Variante:</label>
-                    <select id="selVariante" onchange="onChangeVariante()">
-                        <option value="">Selecione uma cor</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field campo-euro">
-                    <label>Custo Peça (s/IVA) €:</label>
-                    <span class="simbolo-euro-topo">€</span>
-                    <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
-                </div>
-                <div class="field campo-euro">
-                    <label>Portes Lote (s/IVA) €:</label>
-                    <span class="simbolo-euro-topo">€</span>
-                    <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field campo-euro">
-                    <label>Margem Lucro:</label>
-                    <span class="simbolo-euro-topo">€</span>
-                    <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
-                </div>
-                <div class="field" style="margin-bottom:0;">
-                    <label>Tipo de Margem:</label>
-                    <select id="tipoMargem" onchange="calcular()">
-                        <option value="valor">Valor Fixo (€)</option>
-                        <option value="percentagem">Percentagem (%)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
 
-        <!-- RESULTADOS -->
-        <div class="card card-resultados">
-            <div class="result-row result-destaque">
-                <span>💰 Preço Venda / Un:</span>
-                <strong id="resPrecoUn">0,00 €</strong>
+            <!-- RESULTADOS -->
+            <div class="card card-resultados">
+                <div class="result-row result-destaque">
+                    <span>💰 Preço Venda / Un (c/IVA):</span>
+                    <strong id="resPrecoUn">0,00 €</strong>
+                </div>
+                <div class="result-row result-total">
+                    <span>📊 Total Comercial (c/IVA):</span>
+                    <strong id="resTotalComercial">0,00 €</strong>
+                </div>
+                <hr>
+                <div class="result-row"><span>🧾 Material (c/IVA):</span><span id="resCustoMaterial">0,00 €</span></div>
+                <div class="result-row"><span>🖨️ Impressão (c/IVA):</span><span id="resCustoImpr">0,00 €</span></div>
+                <div class="result-row"><span>📦 Portes Lote (c/IVA):</span><span id="resPortes">0,00 €</span></div>
+                <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo:</span><span id="resConsumo">0,00 m</span></div>
+                <div class="result-row"><span>📋 Custo Total Lote (c/IVA):</span><span id="resCustoTotal">0,00 €</span></div>
+                <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
+                <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
+                <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
+                <div style="margin-top:10px;">
+                    <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;font-weight:600;">📊 Tabela Comparativa por Quantidade</div>
+                    <div class="grid-escaloes" id="tabelaComparativa"></div>
+                </div>
+                <div style="margin-top:12px;">
+                    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:0.95rem;" onclick="guardarOrcamento()">
+                        💾 Guardar Orçamento
+                    </button>
+                </div>
             </div>
-            <div class="result-row result-total">
-                <span>📊 Total Comercial:</span>
-                <strong id="resTotalComercial">0,00 €</strong>
-            </div>
-            <hr>
-            <div class="result-row"><span>🧾 Material:</span><span id="resCustoMaterial">0,00 €</span></div>
-            <div class="result-row"><span>🖨️ Impressão:</span><span id="resCustoImpr">0,00 €</span></div>
-            <div class="result-row"><span>📦 Portes Lote:</span><span id="resPortes">0,00 €</span></div>
-            <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo:</span><span id="resConsumo">0,00 m</span></div>
-            <div class="result-row"><span>📋 Custo Total Lote:</span><span id="resCustoTotal">0,00 €</span></div>
-            <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
-            <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
-            <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
-            <div style="margin-top:10px;">
-                <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;font-weight:600;">📊 Tabela Comparativa por Quantidade</div>
-                <div class="grid-escaloes" id="tabelaComparativa"></div>
-            </div>
-        </div>
 
-        <!-- FOOTER -->
-        <div class="footer-info">
-            <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
+            <!-- FOOTER -->
+            <div class="footer-info">
+                <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
+            </div>
+
         </div>
+        <!-- FIM TAB NOVO -->
+
+        <!-- ============================================ -->
+        <!-- TAB HISTÓRICO -->
+        <!-- ============================================ -->
+        <div id="tabHistorico" class="tab-content hidden">
+            <div class="card">
+                <div class="section-title">📋 Histórico de Orçamentos</div>
+
+                <div class="flex" style="margin-bottom:10px;">
+                    <div class="field flex-grow" style="margin-bottom:0;">
+                        <label>Pesquisar:</label>
+                        <input type="text" id="pesquisaHistorico" placeholder="Nome, nº ou data..." oninput="renderHistorico()">
+                    </div>
+                </div>
+
+                <div id="listaHistorico">
+                    <div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">
+                        Nenhum orçamento guardado
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FIM TAB HISTÓRICO -->
 
     </div>
 
@@ -674,7 +846,9 @@
         "use strict";
 
         var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v6";
+        var STORAGE_KEY = "grafisantos_v7";
+        var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
+        var STORAGE_CONTADOR = "grafisantos_contador";
         var MARGEM_KEY = "grafisantos_margem";
 
         function parseNum(v) {
@@ -713,6 +887,30 @@
         }
 
         // ============================================================
+        //  TABS
+        // ============================================================
+
+        function mudarTab(tab) {
+            var tabNovo = document.getElementById("tabNovo");
+            var tabHist = document.getElementById("tabHistorico");
+            var btnNovo = document.getElementById("tabBtnNovo");
+            var btnHist = document.getElementById("tabBtnHistorico");
+
+            if (tab === "novo") {
+                tabNovo.classList.remove("hidden");
+                tabHist.classList.add("hidden");
+                btnNovo.classList.add("active");
+                btnHist.classList.remove("active");
+            } else {
+                tabNovo.classList.add("hidden");
+                tabHist.classList.remove("hidden");
+                btnNovo.classList.remove("active");
+                btnHist.classList.add("active");
+                renderHistorico();
+            }
+        }
+
+        // ============================================================
         //  DADOS PADRÃO
         // ============================================================
 
@@ -737,12 +935,6 @@
                         { id: "v4", nome: "Branco", cor: "#ffffff", preco: 5.20 },
                         { id: "v5", nome: "Vermelho", cor: "#dc2626", preco: 5.50 }
                     ]
-                }, {
-                    id: "m3", nome: "Hoodie Capuz Capuchana", referencia: "CAPUCHANA", tipoId: "tp3",
-                    variantes: [
-                        { id: "v6", nome: "Preto", cor: "#000000", preco: 9.80 },
-                        { id: "v7", nome: "Cinza", cor: "#94a3b8", preco: 9.50 }
-                    ]
                 }]
             }, {
                 id: "f2", nome: "Makito", portes: 6.00,
@@ -751,19 +943,6 @@
                     variantes: [
                         { id: "v8", nome: "Branco", cor: "#ffffff", preco: 1.45 },
                         { id: "v9", nome: "Preto", cor: "#000000", preco: 1.60 }
-                    ]
-                }, {
-                    id: "m5", nome: "Saco Algodão Tabela", referencia: "SACO-ALG", tipoId: "tp1",
-                    variantes: [
-                        { id: "v10", nome: "Cru", cor: "#f5deb3", preco: 0.95 }
-                    ]
-                }]
-            }, {
-                id: "f3", nome: "Levantar em Loja", portes: 0,
-                materiais: [{
-                    id: "m6", nome: "Material do Cliente", referencia: "CLIENTE", tipoId: "tp1",
-                    variantes: [
-                        { id: "v11", nome: "Padrão", cor: "#e2e8f0", preco: 0 }
                     ]
                 }]
             }],
@@ -833,6 +1012,304 @@
         }
 
         // ============================================================
+        //  ORÇAMENTO - Nº E DATA AUTOMÁTICOS
+        // ============================================================
+
+        function obterAnoAtual() {
+            return new Date().getFullYear();
+        }
+
+        function obterContador() {
+            try {
+                var raw = localStorage.getItem(STORAGE_CONTADOR);
+                if (raw) {
+                    var obj = JSON.parse(raw);
+                    if (obj.ano === obterAnoAtual()) return obj.numero;
+                }
+            } catch (e) {}
+            return 0;
+        }
+
+        function incrementarContador() {
+            var num = obterContador() + 1;
+            try {
+                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                    ano: obterAnoAtual(),
+                    numero: num
+                }));
+            } catch (e) {}
+            return num;
+        }
+
+        function formatarNumeroOrcamento(num) {
+            var ano = obterAnoAtual();
+            var str = String(num).padStart(4, "0");
+            return "#" + ano + "-" + str;
+        }
+
+        function gerarNumeroOrcamento() {
+            var proximo = obterContador() + 1;
+            return formatarNumeroOrcamento(proximo);
+        }
+
+        function obterDataHoje() {
+            var d = new Date();
+            var dia = String(d.getDate()).padStart(2, "0");
+            var mes = String(d.getMonth() + 1).padStart(2, "0");
+            var ano = d.getFullYear();
+            return dia + "/" + mes + "/" + ano;
+        }
+
+        function atualizarNumeroEData() {
+            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
+            document.getElementById("dataOrcamento").value = obterDataHoje();
+        }
+
+        // ============================================================
+        //  ORÇAMENTOS - GUARDAR / HISTÓRICO
+        // ============================================================
+
+        function carregarOrcamentos() {
+            try {
+                var raw = localStorage.getItem(STORAGE_ORCAMENTOS);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            } catch (e) {}
+            return [];
+        }
+
+        function guardarOrcamentosLista(lista) {
+            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
+        }
+
+        function guardarOrcamento() {
+            var nome = document.getElementById("inputClienteNome").value.trim();
+            if (!nome) {
+                alert("⚠️ Preenche o nome do cliente antes de guardar.");
+                return;
+            }
+
+            var material = obterMaterial(materialId);
+            if (!material) {
+                alert("⚠️ Seleciona um material.");
+                return;
+            }
+
+            var tecnica = obterTecnica(tecnicaId);
+            var variante = obterVariante(varianteId);
+            var fornecedor = obterFornecedor(fornecedorId);
+            var tipo = obterTipo(material.tipoId);
+
+            // Ler os valores calculados dos campos
+            var precoUnStr = document.getElementById("resPrecoUn").textContent;
+            var totalStr = document.getElementById("resTotalComercial").textContent;
+            var lucroUnStr = document.getElementById("resLucroUn").textContent;
+            var lucroTotalStr = document.getElementById("resLucroTotal").textContent;
+
+            var orcamento = {
+                id: gerarId(),
+                numero: document.getElementById("numeroOrcamento").value,
+                data: document.getElementById("dataOrcamento").value,
+                cliente: {
+                    nome: nome,
+                    contacto: document.getElementById("inputClienteContacto").value.trim(),
+                    email: document.getElementById("inputClienteEmail").value.trim()
+                },
+                fornecedor: fornecedor ? fornecedor.nome : "",
+                material: material.nome,
+                referencia: material.referencia || "",
+                tipo: tipo ? tipo.nome : "",
+                cor: variante ? variante.nome : "",
+                tecnica: tecnica ? tecnica.nome : "",
+                quantidade: parseNum(document.getElementById("quantidade").value),
+                altura: parseNum(document.getElementById("alturaEstampa").value),
+                precoUn: precoUnStr,
+                total: totalStr,
+                lucroUn: lucroUnStr,
+                lucroTotal: lucroTotalStr,
+                dataGuardado: new Date().toLocaleString("pt-PT")
+            };
+
+            var lista = carregarOrcamentos();
+            lista.push(orcamento);
+            guardarOrcamentosLista(lista);
+
+            // Incrementar contador
+            incrementarContador();
+
+            alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
+
+            // Limpar formulário (Opção A)
+            limparFormularioNovo();
+        }
+
+        function limparFormularioNovo() {
+            // Limpar cliente
+            document.getElementById("inputClienteNome").value = "";
+            document.getElementById("inputClienteContacto").value = "";
+            document.getElementById("inputClienteEmail").value = "";
+
+            // Reset quantidade e altura
+            document.getElementById("quantidade").value = "1";
+            document.getElementById("alturaEstampa").value = "10";
+
+            // Atualizar nº e data
+            atualizarNumeroEData();
+
+            // Recalcular
+            calcular();
+
+            // Atualizar contador do tab
+            atualizarContadorTab();
+        }
+
+        function renderHistorico() {
+            var lista = carregarOrcamentos();
+            var pesquisa = (document.getElementById("pesquisaHistorico").value || "").toLowerCase().trim();
+
+            if (pesquisa) {
+                lista = lista.filter(function(o) {
+                    return (o.cliente.nome || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                        (o.numero || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                        (o.data || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                        (o.material || "").toLowerCase().indexOf(pesquisa) !== -1;
+                });
+            }
+
+            // Mostrar do mais recente para o mais antigo
+            lista = lista.slice().reverse();
+
+            var container = document.getElementById("listaHistorico");
+
+            if (!lista.length) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">' +
+                    (pesquisa ? "Nenhum orçamento encontrado" : "Nenhum orçamento guardado") +
+                    '</div>';
+                return;
+            }
+
+            var html = "";
+            lista.forEach(function(o) {
+                html += '<div class="historico-item">';
+                html += '<div class="topo">';
+                html += '<span class="numero">' + o.numero + '</span>';
+                html += '<span class="data">📅 ' + o.data + '</span>';
+                html += '</div>';
+                html += '<div class="cliente">👤 ' + o.cliente.nome + '</div>';
+                if (o.cliente.contacto || o.cliente.email) {
+                    html += '<div class="detalhes">';
+                    if (o.cliente.contacto) html += '📞 ' + o.cliente.contacto;
+                    if (o.cliente.email) html += (o.cliente.contacto ? ' | ' : '') + '📧 ' + o.cliente.email;
+                    html += '</div>';
+                }
+                html += '<div class="detalhes">📦 ' + o.material + (o.tipo ? ' [' + o.tipo + ']' : '') + ' · 🎨 ' + o.cor + '</div>';
+                html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
+                html += '<div class="total">💰 ' + o.total + '</div>';
+                html += '<div class="acoes">';
+                html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
+                html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
+                html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
+                html += '</div>';
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function obterOrcamentoPorId(id) {
+            var lista = carregarOrcamentos();
+            return lista.find(function(o) { return o.id === id; });
+        }
+
+        function verOrcamentoHistorico(id) {
+            var o = obterOrcamentoPorId(id);
+            if (!o) return;
+
+            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "📄 Nº: " + o.numero + "\n";
+            txt += "📅 Data: " + o.data + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "👤 Cliente: " + o.cliente.nome + "\n";
+            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+            txt += "🎨 Cor: " + o.cor + "\n";
+            txt += "🖨️ Técnica: " + o.tecnica + "\n";
+            txt += "🔢 Quantidade: " + o.quantidade + "\n";
+            txt += "📏 Altura: " + o.altura + " cm\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "💰 Preço/un.: " + o.precoUn + "\n";
+            txt += "📊 Total: " + o.total + "\n";
+            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "Guardado em: " + o.dataGuardado;
+
+            alert(txt);
+        }
+
+        function copiarOrcamentoHistorico(id) {
+            var o = obterOrcamentoPorId(id);
+            if (!o) return;
+
+            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "📄 Nº: " + o.numero + "\n";
+            txt += "📅 Data: " + o.data + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "👤 Cliente: " + o.cliente.nome + "\n";
+            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+            txt += "🎨 Cor: " + o.cor + "\n";
+            txt += "🖨️ Técnica: " + o.tecnica + "\n";
+            txt += "🔢 Quantidade: " + o.quantidade + "\n";
+            txt += "📏 Altura: " + o.altura + " cm\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            txt += "💰 Preço/un.: " + o.precoUn + "\n";
+            txt += "📊 Total: " + o.total + "\n";
+            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(txt).then(function() {
+                    alert("✅ Orçamento copiado!");
+                }).catch(function() {
+                    prompt("📋 Copia o orçamento:", txt);
+                });
+            } else {
+                prompt("📋 Copia o orçamento:", txt);
+            }
+        }
+
+        function eliminarOrcamentoHistorico(id) {
+            var o = obterOrcamentoPorId(id);
+            if (!o) return;
+            if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
+
+            var lista = carregarOrcamentos();
+            lista = lista.filter(function(x) { return x.id !== id; });
+            guardarOrcamentosLista(lista);
+            renderHistorico();
+            atualizarContadorTab();
+            alert("🗑️ Orçamento eliminado!");
+        }
+
+        function atualizarContadorTab() {
+            var lista = carregarOrcamentos();
+            var contador = document.getElementById("contadorHistorico");
+            if (contador) contador.textContent = lista.length;
+        }
+
+        // ============================================================
         //  TIPOS DE MATERIAL
         // ============================================================
 
@@ -844,7 +1321,6 @@
             sel.innerHTML = "";
             selForm.innerHTML = "";
 
-            // Adicionar opção "Todos" no select de filtro
             var optTodos = document.createElement("option");
             optTodos.value = "todos";
             optTodos.textContent = "🔍 Todos os tipos";
@@ -858,20 +1334,17 @@
             }
 
             dados.tipos.forEach(function(t) {
-                // Select do filtro
                 var opt1 = document.createElement("option");
                 opt1.value = t.id;
                 opt1.textContent = t.nome;
                 sel.appendChild(opt1);
 
-                // Select do formulário
                 var opt2 = document.createElement("option");
                 opt2.value = t.id;
                 opt2.textContent = t.nome;
                 selForm.appendChild(opt2);
             });
 
-            // Manter seleção
             if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
                 tipoSelecionadoId = "todos";
             }
@@ -907,9 +1380,7 @@
         function guardarTipo() {
             var nome = document.getElementById("inputNomeTipo").value.trim();
             if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
-
             var eid = document.getElementById("editTipoId").value;
-
             if (eid) {
                 var t = obterTipo(eid);
                 if (t) t.nome = nome;
@@ -918,7 +1389,6 @@
                 dados.tipos.push(novo);
                 tipoSelecionadoId = novo.id;
             }
-
             guardarDados();
             fecharFormTipo();
             renderTipos();
@@ -931,19 +1401,15 @@
                 return;
             }
             if (!tipoSelecionadoId) return;
-            if (dados.tipos.length <= 1) { alert("⚠️ É necessário manter pelo menos um tipo."); return; }
-
+            if (dados.tipos.length <= 1) { alert("⚠️ Manter pelo menos um tipo."); return; }
             var t = obterTipo(tipoSelecionadoId);
-            if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?\n\nOs materiais com este tipo ficarão sem tipo associado.")) return;
-
+            if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?")) return;
             dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
-
             dados.fornecedores.forEach(function(f) {
                 (f.materiais || []).forEach(function(m) {
                     if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
                 });
             });
-
             tipoSelecionadoId = "todos";
             guardarDados();
             renderTipos();
@@ -957,9 +1423,11 @@
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "2.0",
+                    versao: "3.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
-                    dados: dados
+                    dados: dados,
+                    orcamentos: carregarOrcamentos(),
+                    contador: localStorage.getItem(STORAGE_CONTADOR)
                 };
                 var json = JSON.stringify(backup, null, 2);
                 var blob = new Blob([json], { type: "application/json" });
@@ -972,7 +1440,7 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                alert("✅ Backup criado com sucesso!\n\nGuarde o ficheiro num local seguro (Google Drive, email, etc.).");
+                alert("✅ Backup criado!\n\nInclui: fornecedores, materiais, técnicas e histórico de orçamentos.");
             } catch (e) {
                 alert("❌ Erro ao exportar: " + e.message);
             }
@@ -1005,6 +1473,14 @@
                     }
                     dados = dadosImportados;
                     guardarDados();
+
+                    if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
+                        guardarOrcamentosLista(conteudo.orcamentos);
+                    }
+                    if (conteudo.contador) {
+                        localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
+                    }
+
                     fornecedorId = null;
                     tipoSelecionadoId = "todos";
                     materialId = null;
@@ -1015,6 +1491,8 @@
                     renderTecnicas();
                     calcular();
                     atualizarInfoTecnica();
+                    atualizarNumeroEData();
+                    atualizarContadorTab();
                     alert("✅ Backup restaurado!");
                 } catch (err) {
                     alert("❌ Erro ao ler o ficheiro: " + err.message);
@@ -1212,7 +1690,7 @@
         }
 
         // ============================================================
-        //  MATERIAIS (COM FILTRO POR TIPO)
+        //  MATERIAIS
         // ============================================================
 
         function renderMateriais() {
@@ -1234,7 +1712,6 @@
                 return;
             }
 
-            // ===== FILTRAR POR TIPO SELECIONADO =====
             var materiaisFiltrados = f.materiais;
             if (tipoSelecionadoId && tipoSelecionadoId !== "todos") {
                 materiaisFiltrados = f.materiais.filter(function(m) {
@@ -1242,7 +1719,6 @@
                 });
             }
 
-            // Se não há materiais deste tipo
             if (!materiaisFiltrados.length) {
                 sel.innerHTML = '<option value="">⚠️ Nenhum material deste tipo</option>';
                 materialId = null;
@@ -1256,7 +1732,6 @@
                 return;
             }
 
-            // Preencher o select
             materiaisFiltrados.forEach(function(m) {
                 var opt = document.createElement("option");
                 opt.value = m.id;
@@ -1268,7 +1743,6 @@
                 sel.appendChild(opt);
             });
 
-            // Verificar se materialId atual pertence ao filtro
             var encontrado = materiaisFiltrados.find(function(m) { return m.id === materialId; });
             if (!encontrado) {
                 materialId = materiaisFiltrados[0].id;
@@ -1324,7 +1798,6 @@
             document.getElementById("inputNomeMaterial").value = editar && m ? m.nome : "";
             document.getElementById("inputReferenciaMaterial").value = editar && m ? (m.referencia || "") : "";
 
-            // Selecionar o tipo no form
             var selTipoForm = document.getElementById("selTipoMaterialForm");
             if (editar && m && m.tipoId) {
                 selTipoForm.value = m.tipoId;
@@ -1344,21 +1817,16 @@
         function guardarMaterial() {
             var f = obterFornecedor(fornecedorId);
             if (!f) return;
-
             var nome = document.getElementById("inputNomeMaterial").value.trim();
             if (!nome) { alert("⚠️ Indica o nome do material."); return; }
-
             var referencia = document.getElementById("inputReferenciaMaterial").value.trim();
             var tipoId = document.getElementById("selTipoMaterialForm").value;
-
             var variantes = obterVariantesDoForm();
             if (!variantes.length) {
                 alert("⚠️ Adicione pelo menos uma cor.");
                 return;
             }
-
             var eid = document.getElementById("editMaterialId").value;
-
             if (eid) {
                 var m = f.materiais.find(function(x) { return x.id === eid; });
                 if (m) {
@@ -1373,7 +1841,6 @@
                 f.materiais.push(novo);
                 materialId = novo.id;
             }
-
             guardarDados();
             fecharFormMaterial();
             renderMateriais();
@@ -1625,10 +2092,24 @@
             var mat = document.getElementById("footerMaterial").textContent;
             var selVar = document.getElementById("selVariante");
             var varNome = selVar && selVar.selectedOptions && selVar.selectedOptions[0] ? selVar.selectedOptions[0].text : "";
+            var numero = document.getElementById("numeroOrcamento").value;
+            var data = document.getElementById("dataOrcamento").value;
+            var cliNome = document.getElementById("inputClienteNome").value.trim();
+            var cliContacto = document.getElementById("inputClienteContacto").value.trim();
+            var cliEmail = document.getElementById("inputClienteEmail").value.trim();
 
             var txt = "🖨️ GrafiSantos Print - Orçamento\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "📦 Material: " + mat + "\n" +
+                "📄 Nº: " + numero + "\n" +
+                "📅 Data: " + data + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            if (cliNome) {
+                txt += "👤 Cliente: " + cliNome + "\n";
+                if (cliContacto) txt += "📞 Contacto: " + cliContacto + "\n";
+                if (cliEmail) txt += "📧 Email: " + cliEmail + "\n";
+                txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            }
+            txt += "📦 Material: " + mat + "\n" +
                 "🎨 Cor: " + varNome + "\n" +
                 "📐 Quantidade: " + q + "\n" +
                 "🖨️ Técnica: " + tec + "\n" +
@@ -1670,6 +2151,8 @@
                 renderTipos();
                 renderFornecedores();
                 renderTecnicas();
+                atualizarNumeroEData();
+                atualizarContadorTab();
                 calcular();
                 atualizarInfoTecnica();
 
