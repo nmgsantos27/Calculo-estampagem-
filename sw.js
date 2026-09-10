@@ -1,31 +1,41 @@
-// Service Worker para GrafiSantos Print
-const CACHE_NAME = 'grafisantos-v4';
-const urlsToCache = [
-    './',
-    './index.html',
-    './manifest.json',
-    './icon-192.png',
-    './icon-512.png'
+var CACHE_NAME = "grafisantos-v2";
+
+var urlsToCache = [
+    "./",
+    "./index.html",
+    "./manifest.json",
+    "./icon-192.png",
+    "./icon-512.png"
 ];
 
-self.addEventListener('install', function(event) {
+self.addEventListener("install", function(event) {
+    self.skipWaiting();
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(function(cache) {
-                console.log('Cache aberto');
-                return cache.addAll(urlsToCache);
-            })
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.addAll(urlsToCache);
+        })
     );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener("activate", function(event) {
+    event.waitUntil(
+        caches.keys().then(function(cacheNames) {
+            return Promise.all(
+                cacheNames.map(function(name) {
+                    if (name !== CACHE_NAME) {
+                        return caches.delete(name);
+                    }
+                })
+            );
+        })
+    );
+    return self.clients.claim();
+});
+
+self.addEventListener("fetch", function(event) {
     event.respondWith(
-        caches.match(event.request)
-            .then(function(response) {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
+        caches.match(event.request).then(function(response) {
+            return response || fetch(event.request);
+        })
     );
 });
