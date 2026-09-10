@@ -449,8 +449,9 @@
             flex-wrap: wrap;
         }
         .historico-item .acoes .btn {
-            padding: 4px 10px;
+            padding: 5px 10px;
             font-size: 0.7rem;
+            margin-bottom: 4px;
         }
         .tabs {
             display: flex;
@@ -564,7 +565,7 @@
             <!-- CLIENTE E ORÇAMENTO -->
             <div class="card card-orcamento">
                 <div class="section-title">📄 Orçamento</div>
-                <div class="grid-3">
+                <div class="grid-2">
                     <div class="field">
                         <label>Nº Orçamento:</label>
                         <input type="text" id="numeroOrcamento" readonly>
@@ -573,7 +574,6 @@
                         <label>Data:</label>
                         <input type="text" id="dataOrcamento" readonly>
                     </div>
-                    <div class="field" style="margin-bottom:0;"></div>
                 </div>
 
                 <div class="section-title" style="margin-top:8px;">👤 Cliente</div>
@@ -1012,7 +1012,7 @@
         }
 
         // ============================================================
-        //  ORÇAMENTO - Nº E DATA AUTOMÁTICOS
+        //  ORÇAMENTO - Nº E DATA
         // ============================================================
 
         function obterAnoAtual() {
@@ -1066,7 +1066,7 @@
         }
 
         // ============================================================
-        //  ORÇAMENTOS - GUARDAR / HISTÓRICO
+        //  ORÇAMENTOS
         // ============================================================
 
         function carregarOrcamentos() {
@@ -1102,7 +1102,6 @@
             var fornecedor = obterFornecedor(fornecedorId);
             var tipo = obterTipo(material.tipoId);
 
-            // Ler os valores calculados dos campos
             var precoUnStr = document.getElementById("resPrecoUn").textContent;
             var totalStr = document.getElementById("resTotalComercial").textContent;
             var lucroUnStr = document.getElementById("resLucroUn").textContent;
@@ -1136,32 +1135,21 @@
             lista.push(orcamento);
             guardarOrcamentosLista(lista);
 
-            // Incrementar contador
             incrementarContador();
 
             alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
 
-            // Limpar formulário (Opção A)
             limparFormularioNovo();
         }
 
         function limparFormularioNovo() {
-            // Limpar cliente
             document.getElementById("inputClienteNome").value = "";
             document.getElementById("inputClienteContacto").value = "";
             document.getElementById("inputClienteEmail").value = "";
-
-            // Reset quantidade e altura
             document.getElementById("quantidade").value = "1";
             document.getElementById("alturaEstampa").value = "10";
-
-            // Atualizar nº e data
             atualizarNumeroEData();
-
-            // Recalcular
             calcular();
-
-            // Atualizar contador do tab
             atualizarContadorTab();
         }
 
@@ -1178,7 +1166,6 @@
                 });
             }
 
-            // Mostrar do mais recente para o mais antigo
             lista = lista.slice().reverse();
 
             var container = document.getElementById("listaHistorico");
@@ -1208,6 +1195,7 @@
                 html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
                 html += '<div class="total">💰 ' + o.total + '</div>';
                 html += '<div class="acoes">';
+                html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
                 html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
                 html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
                 html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
@@ -1221,6 +1209,104 @@
         function obterOrcamentoPorId(id) {
             var lista = carregarOrcamentos();
             return lista.find(function(o) { return o.id === id; });
+        }
+
+        // ============================================================
+        //  DUPLICAR ORÇAMENTO (NOVO)
+        // ============================================================
+
+        function duplicarOrcamento(id) {
+            var o = obterOrcamentoPorId(id);
+            if (!o) {
+                alert("⚠️ Orçamento não encontrado.");
+                return;
+            }
+
+            if (!confirm("📝 Duplicar o orçamento " + o.numero + "?\n\n" +
+                         "Vai ser criado um NOVO orçamento com:\n" +
+                         "• Novo número\n" +
+                         "• Data de hoje\n" +
+                         "• Os mesmos dados para poder editar\n\n" +
+                         "O orçamento original mantém-se no histórico.\n\n" +
+                         "Continuar?")) {
+                return;
+            }
+
+            // Ir para o tab "Novo"
+            mudarTab('novo');
+
+            // Preencher Cliente
+            document.getElementById("inputClienteNome").value = o.cliente.nome || "";
+            document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
+            document.getElementById("inputClienteEmail").value = o.cliente.email || "";
+
+            // Encontrar o fornecedor pelo nome
+            var fornecedorEncontrado = dados.fornecedores.find(function(f) {
+                return f.nome === o.fornecedor;
+            });
+            if (fornecedorEncontrado) {
+                fornecedorId = fornecedorEncontrado.id;
+                document.getElementById("selFornecedor").value = fornecedorId;
+                atualizarPortesFornecedor();
+            }
+
+            // Reset do filtro de tipo
+            tipoSelecionadoId = "todos";
+            var selTipo = document.getElementById("selTipoMaterial");
+            if (selTipo) selTipo.value = "todos";
+
+            // Encontrar o material pelo nome
+            var fAtual = obterFornecedor(fornecedorId);
+            var materialEncontrado = null;
+            if (fAtual) {
+                materialEncontrado = fAtual.materiais.find(function(m) {
+                    return m.nome === o.material && (m.referencia || "") === (o.referencia || "");
+                });
+            }
+
+            renderMateriais();
+
+            if (materialEncontrado) {
+                materialId = materialEncontrado.id;
+                document.getElementById("selMaterial").value = materialId;
+
+                // Encontrar a variante (cor)
+                var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
+                    return v.nome === o.cor;
+                });
+                if (varianteEncontrada) {
+                    varianteId = varianteEncontrada.id;
+                    document.getElementById("selVariante").value = varianteId;
+                    onChangeVariante();
+                }
+            }
+
+            // Encontrar a técnica
+            var tecnicaEncontrada = dados.tecnicas.find(function(t) {
+                return t.nome === o.tecnica;
+            });
+            if (tecnicaEncontrada) {
+                tecnicaId = tecnicaEncontrada.id;
+                document.getElementById("selTecnica").value = tecnicaId;
+                atualizarInfoTecnica();
+            }
+
+            // Quantidade e Altura
+            document.getElementById("quantidade").value = o.quantidade || 1;
+            document.getElementById("alturaEstampa").value = o.altura || 10;
+
+            // Novo nº e data
+            atualizarNumeroEData();
+
+            // Recalcular
+            calcular();
+
+            setTimeout(function() {
+                alert("✅ Orçamento duplicado!\n\n" +
+                      "• Novo Nº: " + document.getElementById("numeroOrcamento").value + "\n" +
+                      "• Data: " + document.getElementById("dataOrcamento").value + "\n\n" +
+                      "Altere o que quiser e clique em 💾 Guardar Orçamento.");
+            }, 300);
         }
 
         function verOrcamentoHistorico(id) {
@@ -1423,7 +1509,7 @@
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "3.0",
+                    versao: "4.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados,
                     orcamentos: carregarOrcamentos(),
