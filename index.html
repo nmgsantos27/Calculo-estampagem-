@@ -487,7 +487,7 @@
             <div class="flex">
                 <div class="field flex-grow" style="margin-bottom:0;">
                     <label>Selecionar tipo:</label>
-                    <select id="selTipoMaterial"></select>
+                    <select id="selTipoMaterial" onchange="onChangeTipo()"></select>
                 </div>
                 <div style="display:flex;gap:4px;margin-bottom:8px;">
                     <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
@@ -674,7 +674,7 @@
         "use strict";
 
         var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v5";
+        var STORAGE_KEY = "grafisantos_v6";
         var MARGEM_KEY = "grafisantos_margem";
 
         function parseNum(v) {
@@ -713,7 +713,7 @@
         }
 
         // ============================================================
-        //  DADOS PADRÃO (com tipos e referências)
+        //  DADOS PADRÃO
         // ============================================================
 
         var DADOS_PADRAO = {
@@ -778,7 +778,7 @@
 
         var dados = null;
         var fornecedorId = null;
-        var tipoSelecionadoId = null;
+        var tipoSelecionadoId = "todos";
         var materialId = null;
         var varianteId = null;
         var tecnicaId = null;
@@ -793,7 +793,6 @@
                 if (raw) {
                     var parsed = JSON.parse(raw);
                     if (parsed && parsed.fornecedores && parsed.tecnicas) {
-                        // Garantir que existe o array de tipos
                         if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
                         dados = parsed;
                         return;
@@ -813,7 +812,7 @@
         }
 
         function obterTipo(id) {
-            if (!dados.tipos) return null;
+            if (!dados.tipos || id === "todos") return null;
             return dados.tipos.find(function(t) { return t.id === id; });
         }
 
@@ -845,32 +844,55 @@
             sel.innerHTML = "";
             selForm.innerHTML = "";
 
+            // Adicionar opção "Todos" no select de filtro
+            var optTodos = document.createElement("option");
+            optTodos.value = "todos";
+            optTodos.textContent = "🔍 Todos os tipos";
+            sel.appendChild(optTodos);
+
             if (!dados.tipos || !dados.tipos.length) {
-                sel.innerHTML = '<option value="">⚠️ Nenhum tipo</option>';
                 selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
-                tipoSelecionadoId = null;
+                tipoSelecionadoId = "todos";
+                sel.value = "todos";
                 return;
             }
 
             dados.tipos.forEach(function(t) {
+                // Select do filtro
                 var opt1 = document.createElement("option");
                 opt1.value = t.id;
                 opt1.textContent = t.nome;
                 sel.appendChild(opt1);
 
+                // Select do formulário
                 var opt2 = document.createElement("option");
                 opt2.value = t.id;
                 opt2.textContent = t.nome;
                 selForm.appendChild(opt2);
             });
 
-            if (!tipoSelecionadoId || !obterTipo(tipoSelecionadoId)) {
-                tipoSelecionadoId = dados.tipos[0].id;
+            // Manter seleção
+            if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
+                tipoSelecionadoId = "todos";
             }
             sel.value = tipoSelecionadoId;
         }
 
+        function onChangeTipo() {
+            var sel = document.getElementById("selTipoMaterial");
+            if (!sel) return;
+            tipoSelecionadoId = sel.value;
+            materialId = null;
+            varianteId = null;
+            renderMateriais();
+            calcular();
+        }
+
         function abrirFormTipo(editar) {
+            if (editar && tipoSelecionadoId === "todos") {
+                alert("⚠️ Selecione um tipo específico para editar.\n\n\"Todos\" é apenas um filtro.");
+                return;
+            }
             var t = obterTipo(tipoSelecionadoId);
             document.getElementById("formTipo").classList.remove("hidden");
             document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
@@ -900,9 +922,14 @@
             guardarDados();
             fecharFormTipo();
             renderTipos();
+            renderMateriais();
         }
 
         function eliminarTipo() {
+            if (tipoSelecionadoId === "todos") {
+                alert("⚠️ \"Todos\" é apenas um filtro, não pode ser eliminado.");
+                return;
+            }
             if (!tipoSelecionadoId) return;
             if (dados.tipos.length <= 1) { alert("⚠️ É necessário manter pelo menos um tipo."); return; }
 
@@ -911,14 +938,13 @@
 
             dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
 
-            // Remover referência nos materiais
             dados.fornecedores.forEach(function(f) {
                 (f.materiais || []).forEach(function(m) {
                     if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
                 });
             });
 
-            tipoSelecionadoId = null;
+            tipoSelecionadoId = "todos";
             guardarDados();
             renderTipos();
             renderMateriais();
@@ -980,7 +1006,7 @@
                     dados = dadosImportados;
                     guardarDados();
                     fornecedorId = null;
-                    tipoSelecionadoId = null;
+                    tipoSelecionadoId = "todos";
                     materialId = null;
                     varianteId = null;
                     tecnicaId = null;
@@ -1186,7 +1212,7 @@
         }
 
         // ============================================================
-        //  MATERIAIS
+        //  MATERIAIS (COM FILTRO POR TIPO)
         // ============================================================
 
         function renderMateriais() {
@@ -1208,23 +1234,47 @@
                 return;
             }
 
-            f.materiais.forEach(function(m) {
+            // ===== FILTRAR POR TIPO SELECIONADO =====
+            var materiaisFiltrados = f.materiais;
+            if (tipoSelecionadoId && tipoSelecionadoId !== "todos") {
+                materiaisFiltrados = f.materiais.filter(function(m) {
+                    return m.tipoId === tipoSelecionadoId;
+                });
+            }
+
+            // Se não há materiais deste tipo
+            if (!materiaisFiltrados.length) {
+                sel.innerHTML = '<option value="">⚠️ Nenhum material deste tipo</option>';
+                materialId = null;
+                varianteId = null;
+                document.getElementById("footerMaterial").textContent = "Nenhum material deste tipo";
+                document.getElementById("footerPreco").textContent = "0,00 €";
+                document.getElementById("custoPeca").value = "0.00";
+                document.getElementById("variantesContainer").innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
+                atualizarSelectVariantes();
+                calcular();
+                return;
+            }
+
+            // Preencher o select
+            materiaisFiltrados.forEach(function(m) {
                 var opt = document.createElement("option");
                 opt.value = m.id;
                 var qtdCores = m.variantes ? m.variantes.length : 0;
-                var tipo = obterTipo(m.tipoId);
                 var label = m.nome;
-                if (tipo) label += " [" + tipo.nome + "]";
                 if (m.referencia) label += " (" + m.referencia + ")";
                 label += " - " + qtdCores + " cor" + (qtdCores > 1 ? "es" : "");
                 opt.textContent = label;
                 sel.appendChild(opt);
             });
 
-            if (!materialId || !obterMaterial(materialId)) {
-                materialId = f.materiais[0] ? f.materiais[0].id : null;
+            // Verificar se materialId atual pertence ao filtro
+            var encontrado = materiaisFiltrados.find(function(m) { return m.id === materialId; });
+            if (!encontrado) {
+                materialId = materiaisFiltrados[0].id;
             }
-            if (materialId) sel.value = materialId;
+            sel.value = materialId;
+
             atualizarVariantes();
             atualizarSelectVariantes();
             calcular();
@@ -1263,7 +1313,7 @@
             varianteId = null;
             atualizarVariantes();
             atualizarSelectVariantes();
-            renderMateriais();
+            calcular();
         }
 
         function abrirFormMaterial(editar) {
@@ -1278,6 +1328,8 @@
             var selTipoForm = document.getElementById("selTipoMaterialForm");
             if (editar && m && m.tipoId) {
                 selTipoForm.value = m.tipoId;
+            } else if (tipoSelecionadoId && tipoSelecionadoId !== "todos") {
+                selTipoForm.value = tipoSelecionadoId;
             } else if (dados.tipos && dados.tipos.length) {
                 selTipoForm.value = dados.tipos[0].id;
             }
@@ -1436,7 +1488,7 @@
         }
 
         // ============================================================
-        //  CÁLCULOS (sem alterações)
+        //  CÁLCULOS
         // ============================================================
 
         function calcularConsumo(qtd, metro, alt, larg, bobina) {
