@@ -386,6 +386,18 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        .tag-tipo {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -469,6 +481,31 @@
             </div>
         </div>
 
+        <!-- TIPOS DE MATERIAL -->
+        <div class="card no-print">
+            <div class="section-title">🏷️ Tipo de Material</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar tipo:</label>
+                    <select id="selTipoMaterial"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormTipo(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarTipo()">✕</button>
+                </div>
+            </div>
+            <div class="form-panel hidden" id="formTipo">
+                <h4 id="tituloTipo">Novo tipo de material</h4>
+                <input type="hidden" id="editTipoId">
+                <input type="text" id="inputNomeTipo" placeholder="Nome do tipo (ex: T-Shirt, Polo, Sweats)">
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="guardarTipo()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormTipo()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- MATERIAIS -->
         <div class="card no-print">
             <div class="section-title">👕 Material / Peça</div>
@@ -490,7 +527,12 @@
             <div class="form-panel hidden" id="formMaterial">
                 <h4 id="tituloMaterial">Novo material</h4>
                 <input type="hidden" id="editMaterialId">
-                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt)">
+                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt Beagle 150g)">
+                <input type="text" id="inputReferenciaMaterial" placeholder="Referência (ex: REF-1234)">
+                <div class="field" style="margin-bottom:8px;">
+                    <label>Tipo de Material</label>
+                    <select id="selTipoMaterialForm"></select>
+                </div>
                 <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
                 <div id="variantesFormContainer"></div>
                 <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
@@ -632,7 +674,7 @@
         "use strict";
 
         var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v4";
+        var STORAGE_KEY = "grafisantos_v5";
         var MARGEM_KEY = "grafisantos_margem";
 
         function parseNum(v) {
@@ -670,24 +712,33 @@
             } catch (e) {}
         }
 
+        // ============================================================
+        //  DADOS PADRÃO (com tipos e referências)
+        // ============================================================
+
         var DADOS_PADRAO = {
+            tipos: [
+                { id: "tp1", nome: "T-Shirt" },
+                { id: "tp2", nome: "Polo" },
+                { id: "tp3", nome: "Sweats" }
+            ],
             fornecedores: [{
                 id: "f1", nome: "Roly", portes: 4.50,
                 materiais: [{
-                    id: "m1", nome: "T-Shirt Beagle 150g",
+                    id: "m1", nome: "T-Shirt Beagle 150g", referencia: "BEAGLE-150", tipoId: "tp1",
                     variantes: [
                         { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
                         { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 },
                         { id: "v3", nome: "Azul", cor: "#2563eb", preco: 1.95 }
                     ]
                 }, {
-                    id: "m2", nome: "Polo Star 200g",
+                    id: "m2", nome: "Polo Star 200g", referencia: "STAR-200", tipoId: "tp2",
                     variantes: [
                         { id: "v4", nome: "Branco", cor: "#ffffff", preco: 5.20 },
                         { id: "v5", nome: "Vermelho", cor: "#dc2626", preco: 5.50 }
                     ]
                 }, {
-                    id: "m3", nome: "Hoodie Capuz Capuchana",
+                    id: "m3", nome: "Hoodie Capuz Capuchana", referencia: "CAPUCHANA", tipoId: "tp3",
                     variantes: [
                         { id: "v6", nome: "Preto", cor: "#000000", preco: 9.80 },
                         { id: "v7", nome: "Cinza", cor: "#94a3b8", preco: 9.50 }
@@ -696,13 +747,13 @@
             }, {
                 id: "f2", nome: "Makito", portes: 6.00,
                 materiais: [{
-                    id: "m4", nome: "T-Shirt Tecnic Sport",
+                    id: "m4", nome: "T-Shirt Tecnic Sport", referencia: "TECNIC-SPORT", tipoId: "tp1",
                     variantes: [
                         { id: "v8", nome: "Branco", cor: "#ffffff", preco: 1.45 },
                         { id: "v9", nome: "Preto", cor: "#000000", preco: 1.60 }
                     ]
                 }, {
-                    id: "m5", nome: "Saco Algodão Tabela",
+                    id: "m5", nome: "Saco Algodão Tabela", referencia: "SACO-ALG", tipoId: "tp1",
                     variantes: [
                         { id: "v10", nome: "Cru", cor: "#f5deb3", preco: 0.95 }
                     ]
@@ -710,7 +761,7 @@
             }, {
                 id: "f3", nome: "Levantar em Loja", portes: 0,
                 materiais: [{
-                    id: "m6", nome: "Material do Cliente",
+                    id: "m6", nome: "Material do Cliente", referencia: "CLIENTE", tipoId: "tp1",
                     variantes: [
                         { id: "v11", nome: "Padrão", cor: "#e2e8f0", preco: 0 }
                     ]
@@ -727,9 +778,14 @@
 
         var dados = null;
         var fornecedorId = null;
+        var tipoSelecionadoId = null;
         var materialId = null;
         var varianteId = null;
         var tecnicaId = null;
+
+        // ============================================================
+        //  PERSISTÊNCIA
+        // ============================================================
 
         function carregarDados() {
             try {
@@ -737,6 +793,8 @@
                 if (raw) {
                     var parsed = JSON.parse(raw);
                     if (parsed && parsed.fornecedores && parsed.tecnicas) {
+                        // Garantir que existe o array de tipos
+                        if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
                         dados = parsed;
                         return;
                     }
@@ -752,6 +810,11 @@
 
         function obterFornecedor(id) {
             return dados.fornecedores.find(function(f) { return f.id === id; });
+        }
+
+        function obterTipo(id) {
+            if (!dados.tipos) return null;
+            return dados.tipos.find(function(t) { return t.id === id; });
         }
 
         function obterMaterial(id) {
@@ -771,21 +834,110 @@
         }
 
         // ============================================================
-        //  EXPORTAR DADOS (BACKUP)
+        //  TIPOS DE MATERIAL
+        // ============================================================
+
+        function renderTipos() {
+            var sel = document.getElementById("selTipoMaterial");
+            var selForm = document.getElementById("selTipoMaterialForm");
+            if (!sel || !selForm) return;
+
+            sel.innerHTML = "";
+            selForm.innerHTML = "";
+
+            if (!dados.tipos || !dados.tipos.length) {
+                sel.innerHTML = '<option value="">⚠️ Nenhum tipo</option>';
+                selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
+                tipoSelecionadoId = null;
+                return;
+            }
+
+            dados.tipos.forEach(function(t) {
+                var opt1 = document.createElement("option");
+                opt1.value = t.id;
+                opt1.textContent = t.nome;
+                sel.appendChild(opt1);
+
+                var opt2 = document.createElement("option");
+                opt2.value = t.id;
+                opt2.textContent = t.nome;
+                selForm.appendChild(opt2);
+            });
+
+            if (!tipoSelecionadoId || !obterTipo(tipoSelecionadoId)) {
+                tipoSelecionadoId = dados.tipos[0].id;
+            }
+            sel.value = tipoSelecionadoId;
+        }
+
+        function abrirFormTipo(editar) {
+            var t = obterTipo(tipoSelecionadoId);
+            document.getElementById("formTipo").classList.remove("hidden");
+            document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
+            document.getElementById("editTipoId").value = editar && t ? t.id : "";
+            document.getElementById("inputNomeTipo").value = editar && t ? t.nome : "";
+        }
+
+        function fecharFormTipo() {
+            document.getElementById("formTipo").classList.add("hidden");
+        }
+
+        function guardarTipo() {
+            var nome = document.getElementById("inputNomeTipo").value.trim();
+            if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
+
+            var eid = document.getElementById("editTipoId").value;
+
+            if (eid) {
+                var t = obterTipo(eid);
+                if (t) t.nome = nome;
+            } else {
+                var novo = { id: gerarId(), nome: nome };
+                dados.tipos.push(novo);
+                tipoSelecionadoId = novo.id;
+            }
+
+            guardarDados();
+            fecharFormTipo();
+            renderTipos();
+        }
+
+        function eliminarTipo() {
+            if (!tipoSelecionadoId) return;
+            if (dados.tipos.length <= 1) { alert("⚠️ É necessário manter pelo menos um tipo."); return; }
+
+            var t = obterTipo(tipoSelecionadoId);
+            if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?\n\nOs materiais com este tipo ficarão sem tipo associado.")) return;
+
+            dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
+
+            // Remover referência nos materiais
+            dados.fornecedores.forEach(function(f) {
+                (f.materiais || []).forEach(function(m) {
+                    if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
+                });
+            });
+
+            tipoSelecionadoId = null;
+            guardarDados();
+            renderTipos();
+            renderMateriais();
+        }
+
+        // ============================================================
+        //  EXPORTAR / IMPORTAR
         // ============================================================
 
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "1.0",
+                    versao: "2.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados
                 };
-                
                 var json = JSON.stringify(backup, null, 2);
                 var blob = new Blob([json], { type: "application/json" });
                 var url = URL.createObjectURL(blob);
-                
                 var data = new Date().toISOString().slice(0, 10);
                 var a = document.createElement("a");
                 a.href = url;
@@ -794,16 +946,11 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                
-                alert("✅ Backup criado com sucesso!\n\nO ficheiro foi guardado na pasta de Downloads do seu telemóvel.\n\nRecomendação: envie-o para si mesmo por email ou guarde no Google Drive.");
+                alert("✅ Backup criado com sucesso!\n\nGuarde o ficheiro num local seguro (Google Drive, email, etc.).");
             } catch (e) {
                 alert("❌ Erro ao exportar: " + e.message);
             }
         }
-
-        // ============================================================
-        //  IMPORTAR DADOS (RESTAURAR)
-        // ============================================================
 
         function importarDados() {
             var input = document.getElementById("inputImportar");
@@ -813,58 +960,41 @@
         function processarImportacao(event) {
             var file = event.target.files[0];
             if (!file) return;
-            
             var reader = new FileReader();
-            
             reader.onload = function(e) {
                 try {
                     var conteudo = JSON.parse(e.target.result);
                     var dadosImportados = conteudo.dados || conteudo;
-                    
                     if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
-                        alert("❌ Ficheiro de backup inválido!");
+                        alert("❌ Ficheiro inválido!");
                         event.target.value = "";
                         return;
                     }
-                    
-                    var confirmar = confirm(
-                        "⚠️ ATENÇÃO\n\n" +
-                        "Vai substituir TODOS os dados atuais pelos dados do backup.\n\n" +
-                        "📅 Data do backup: " + (conteudo.dataBackup || "Desconhecida") + "\n" +
-                        "📦 Fornecedores: " + dadosImportados.fornecedores.length + "\n" +
-                        "🖨️ Técnicas: " + dadosImportados.tecnicas.length + "\n\n" +
-                        "Continuar?"
-                    );
-                    
-                    if (!confirmar) {
+                    if (!dadosImportados.tipos) {
+                        dadosImportados.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
+                    }
+                    if (!confirm("⚠️ Vai substituir TODOS os dados atuais.\n\nContinuar?")) {
                         event.target.value = "";
                         return;
                     }
-                    
                     dados = dadosImportados;
                     guardarDados();
-                    
                     fornecedorId = null;
+                    tipoSelecionadoId = null;
                     materialId = null;
                     varianteId = null;
                     tecnicaId = null;
-                    
+                    renderTipos();
                     renderFornecedores();
                     renderTecnicas();
                     calcular();
                     atualizarInfoTecnica();
-                    
-                    alert("✅ Backup restaurado com sucesso!\n\n" +
-                          "📦 Fornecedores: " + dados.fornecedores.length + "\n" +
-                          "🖨️ Técnicas: " + dados.tecnicas.length);
-                    
+                    alert("✅ Backup restaurado!");
                 } catch (err) {
                     alert("❌ Erro ao ler o ficheiro: " + err.message);
                 }
-                
                 event.target.value = "";
             };
-            
             reader.readAsText(file);
         }
 
@@ -874,10 +1004,8 @@
 
         function criarCampoVariante(variante) {
             variante = variante || { id: "", nome: "", cor: "#ffffff", preco: 0 };
-            
             var div = document.createElement("div");
             div.className = "variante-form";
-            
             var html = '<input type="color" class="inputCor" value="' + (variante.cor || '#ffffff') + '" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">';
             html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
             html += '<div class="campo-euro" style="flex:1;">';
@@ -886,7 +1014,6 @@
             html += '</div>';
             html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
             html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
-            
             div.innerHTML = html;
             return div;
         }
@@ -900,19 +1027,17 @@
         function removerVarianteForm(btn) {
             var container = document.getElementById("variantesFormContainer");
             if (!container) return;
-            var item = btn.parentNode;
             if (container.children.length <= 1) {
                 alert("⚠️ É necessário manter pelo menos uma cor.");
                 return;
             }
-            container.removeChild(item);
+            container.removeChild(btn.parentNode);
         }
 
         function carregarVariantesForm(material) {
             var container = document.getElementById("variantesFormContainer");
             if (!container) return;
             container.innerHTML = "";
-
             if (material && material.variantes && material.variantes.length) {
                 material.variantes.forEach(function(v) {
                     container.appendChild(criarCampoVariante(v));
@@ -949,21 +1074,16 @@
         function atualizarPortesFornecedor() {
             var f = obterFornecedor(fornecedorId);
             var el = document.getElementById("portesFornecedor");
-            if (el && f) {
-                el.value = formatarNumero(f.portes, 2);
-            } else if (el) {
-                el.value = "0.00";
-            }
+            if (el && f) el.value = formatarNumero(f.portes, 2);
+            else if (el) el.value = "0.00";
         }
 
         function atualizarSelectVariantes() {
             var sel = document.getElementById("selVariante");
             if (!sel) return;
             sel.innerHTML = '<option value="">Selecione uma cor</option>';
-
             var m = obterMaterial(materialId);
             if (!m || !m.variantes || !m.variantes.length) return;
-
             m.variantes.forEach(function(v) {
                 var opt = document.createElement("option");
                 opt.value = v.id;
@@ -971,7 +1091,6 @@
                 if (v.cor) opt.style.color = v.cor;
                 sel.appendChild(opt);
             });
-
             if (!varianteId || !obterVariante(varianteId)) {
                 varianteId = m.variantes[0] ? m.variantes[0].id : null;
             }
@@ -998,14 +1117,12 @@
             var sel = document.getElementById("selFornecedor");
             if (!sel) return;
             sel.innerHTML = "";
-
             dados.fornecedores.forEach(function(f) {
                 var opt = document.createElement("option");
                 opt.value = f.id;
                 opt.textContent = f.nome + " (Portes: " + formatarNumero(f.portes, 2) + " €)";
                 sel.appendChild(opt);
             });
-
             if (!fornecedorId || !obterFornecedor(fornecedorId)) {
                 fornecedorId = dados.fornecedores[0] ? dados.fornecedores[0].id : null;
             }
@@ -1040,10 +1157,8 @@
         function guardarFornecedor() {
             var nome = document.getElementById("inputNomeFornecedor").value.trim();
             if (!nome) { alert("⚠️ Indica o nome do fornecedor."); return; }
-
             var portes = Math.max(0, parseNum(document.getElementById("inputPortesFornecedor").value));
             var eid = document.getElementById("editFornecedorId").value;
-
             if (eid) {
                 var f = obterFornecedor(eid);
                 if (f) { f.nome = nome; f.portes = portes; }
@@ -1052,7 +1167,6 @@
                 dados.fornecedores.push(novo);
                 fornecedorId = novo.id;
             }
-
             guardarDados();
             fecharFormFornecedor();
             renderFornecedores();
@@ -1060,11 +1174,9 @@
 
         function eliminarFornecedor() {
             if (!fornecedorId) return;
-            if (dados.fornecedores.length <= 1) { alert("⚠️ É necessário manter pelo menos um fornecedor."); return; }
-
+            if (dados.fornecedores.length <= 1) { alert("⚠️ Manter pelo menos um fornecedor."); return; }
             var f = obterFornecedor(fornecedorId);
             if (!confirm("🗑️ Eliminar \"" + (f ? f.nome : "") + "\"?")) return;
-
             dados.fornecedores = dados.fornecedores.filter(function(x) { return x.id !== fornecedorId; });
             fornecedorId = null;
             materialId = null;
@@ -1100,7 +1212,12 @@
                 var opt = document.createElement("option");
                 opt.value = m.id;
                 var qtdCores = m.variantes ? m.variantes.length : 0;
-                opt.textContent = m.nome + " (" + qtdCores + " cor" + (qtdCores > 1 ? "es" : "") + ")";
+                var tipo = obterTipo(m.tipoId);
+                var label = m.nome;
+                if (tipo) label += " [" + tipo.nome + "]";
+                if (m.referencia) label += " (" + m.referencia + ")";
+                label += " - " + qtdCores + " cor" + (qtdCores > 1 ? "es" : "");
+                opt.textContent = label;
                 sel.appendChild(opt);
             });
 
@@ -1116,7 +1233,6 @@
         function atualizarVariantes() {
             var m = obterMaterial(materialId);
             var container = document.getElementById("variantesContainer");
-
             if (!m || !m.variantes || !m.variantes.length) {
                 container.innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
                 document.getElementById("footerMaterial").textContent = m ? m.nome : "Nenhum";
@@ -1132,7 +1248,12 @@
                 html += '</div>';
             });
             container.innerHTML = html;
-            document.getElementById("footerMaterial").textContent = m.nome + (m.variantes.length > 1 ? " (" + m.variantes.length + " cores)" : "");
+
+            var tipo = obterTipo(m.tipoId);
+            var nomeFooter = m.nome;
+            if (tipo) nomeFooter += " · " + tipo.nome;
+            if (m.referencia) nomeFooter += " (" + m.referencia + ")";
+            document.getElementById("footerMaterial").textContent = nomeFooter;
         }
 
         function onChangeMaterial() {
@@ -1151,6 +1272,16 @@
             document.getElementById("tituloMaterial").textContent = editar ? "✏️ Editar material" : "➕ Novo material";
             document.getElementById("editMaterialId").value = editar && m ? m.id : "";
             document.getElementById("inputNomeMaterial").value = editar && m ? m.nome : "";
+            document.getElementById("inputReferenciaMaterial").value = editar && m ? (m.referencia || "") : "";
+
+            // Selecionar o tipo no form
+            var selTipoForm = document.getElementById("selTipoMaterialForm");
+            if (editar && m && m.tipoId) {
+                selTipoForm.value = m.tipoId;
+            } else if (dados.tipos && dados.tipos.length) {
+                selTipoForm.value = dados.tipos[0].id;
+            }
+
             carregarVariantesForm(m);
         }
 
@@ -1165,6 +1296,9 @@
             var nome = document.getElementById("inputNomeMaterial").value.trim();
             if (!nome) { alert("⚠️ Indica o nome do material."); return; }
 
+            var referencia = document.getElementById("inputReferenciaMaterial").value.trim();
+            var tipoId = document.getElementById("selTipoMaterialForm").value;
+
             var variantes = obterVariantesDoForm();
             if (!variantes.length) {
                 alert("⚠️ Adicione pelo menos uma cor.");
@@ -1175,10 +1309,15 @@
 
             if (eid) {
                 var m = f.materiais.find(function(x) { return x.id === eid; });
-                if (m) { m.nome = nome; m.variantes = variantes; }
+                if (m) {
+                    m.nome = nome;
+                    m.referencia = referencia;
+                    m.tipoId = tipoId;
+                    m.variantes = variantes;
+                }
                 materialId = eid;
             } else {
-                var novo = { id: gerarId(), nome: nome, variantes: variantes };
+                var novo = { id: gerarId(), nome: nome, referencia: referencia, tipoId: tipoId, variantes: variantes };
                 f.materiais.push(novo);
                 materialId = novo.id;
             }
@@ -1192,10 +1331,8 @@
             var f = obterFornecedor(fornecedorId);
             if (!f) return;
             if (!materialId) return;
-
             var m = f.materiais.find(function(x) { return x.id === materialId; });
             if (!confirm("🗑️ Eliminar \"" + (m ? m.nome : "") + "\"?")) return;
-
             f.materiais = f.materiais.filter(function(x) { return x.id !== materialId; });
             materialId = null;
             varianteId = null;
@@ -1211,7 +1348,6 @@
             var sel = document.getElementById("selTecnica");
             if (!sel) return;
             sel.innerHTML = "";
-
             dados.tecnicas.forEach(function(t) {
                 var opt = document.createElement("option");
                 opt.value = t.id;
@@ -1220,7 +1356,6 @@
                 opt.textContent = label;
                 sel.appendChild(opt);
             });
-
             if (!tecnicaId || !obterTecnica(tecnicaId)) {
                 tecnicaId = dados.tecnicas[0] ? dados.tecnicas[0].id : null;
             }
@@ -1241,7 +1376,6 @@
             var t = obterTecnica(tecnicaId);
             document.getElementById("footerTecnica").textContent = t ? t.nome : "Nenhuma";
             document.getElementById("infoTecNome").textContent = t ? "📌 " + t.nome : "Nenhuma técnica selecionada";
-
             var detalhes = [];
             if (t) {
                 if (t.custoMetro > 0) detalhes.push("💰 " + formatarNumero(t.custoMetro, 2) + "€/m");
@@ -1274,11 +1408,9 @@
         function guardarTecnica() {
             var nome = document.getElementById("inputNomeTecnica").value.trim();
             if (!nome) { alert("⚠️ Indica o nome da técnica."); return; }
-
             var custoMetro = parseNum(document.getElementById("inputCustoMetro").value);
             var largura = parseNum(document.getElementById("inputLarguraTecnica").value);
             var eid = document.getElementById("editTecnicaId").value;
-
             if (eid) {
                 var t = obterTecnica(eid);
                 if (t) { t.nome = nome; t.custoMetro = custoMetro; t.largura = largura; }
@@ -1287,7 +1419,6 @@
                 dados.tecnicas.push(novo);
                 tecnicaId = novo.id;
             }
-
             guardarDados();
             fecharFormTecnica();
             renderTecnicas();
@@ -1295,11 +1426,9 @@
 
         function eliminarTecnica() {
             if (!tecnicaId) return;
-            if (dados.tecnicas.length <= 1) { alert("⚠️ É necessário manter pelo menos uma técnica."); return; }
-
+            if (dados.tecnicas.length <= 1) { alert("⚠️ Manter pelo menos uma técnica."); return; }
             var t = obterTecnica(tecnicaId);
             if (!confirm("🗑️ Eliminar \"" + (t ? t.nome : "") + "\"?")) return;
-
             dados.tecnicas = dados.tecnicas.filter(function(x) { return x.id !== tecnicaId; });
             tecnicaId = null;
             guardarDados();
@@ -1307,7 +1436,7 @@
         }
 
         // ============================================================
-        //  CÁLCULOS
+        //  CÁLCULOS (sem alterações)
         // ============================================================
 
         function calcularConsumo(qtd, metro, alt, larg, bobina) {
@@ -1320,12 +1449,10 @@
         function obterCustoImpressao(qtd, tecId) {
             var t = obterTecnica(tecId);
             if (!t) return { custoUn: 0, metros: 0, escala: 1 };
-
             var alt = parseNum(document.getElementById("alturaEstampa").value) || 10;
             var larg = t.largura || 0;
             var cores = 1;
             var nome = (t.nome || "").toLowerCase();
-
             if (t.custoMetro > 0 && alt > 0 && larg > 0) {
                 var bobina = 28;
                 if (nome.indexOf("vinil") !== -1) bobina = 50;
@@ -1333,7 +1460,6 @@
                 var res = calcularConsumo(qtd, t.custoMetro, alt, larg, bobina);
                 return { custoUn: res.custoUn, metros: res.metrosTotais, escala: res.escala };
             }
-
             if (nome.indexOf("serigrafia") !== -1) {
                 var escSerigrafia = [
                     { min: 1, max: 9, precos: [8, 10, 12] },
@@ -1346,7 +1472,6 @@
                 var idx = Math.max(0, Math.min(2, cores - 1));
                 return { custoUn: e.precos[idx] * TAXA_IVA, metros: 0, escala: e.min };
             }
-
             if (nome.indexOf("bordado") !== -1) {
                 var escBordado = [
                     { min: 1, max: 9, precos: [6, 8] },
@@ -1358,19 +1483,16 @@
                 var idx2 = cores > 1 ? 1 : 0;
                 return { custoUn: e2.precos[idx2] * TAXA_IVA, metros: 0, escala: e2.min };
             }
-
             if (t.custoMetro > 0 && alt > 0 && larg > 0) {
                 var res2 = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
                 return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
             }
-
             return { custoUn: 0, metros: 0, escala: 1 };
         }
 
         function calcularMargem(qtd, valor, tipo, custo) {
             var v = parseNum(valor);
             if (tipo === "percentagem") return Math.max(0, custo * (v / 100));
-
             var m = v;
             if (qtd >= 100) m -= 3.50;
             else if (qtd >= 50) m -= 2.50;
@@ -1388,20 +1510,17 @@
                 var tecId = document.getElementById("selTecnica").value;
                 var tipoMargem = document.getElementById("tipoMargem").value;
                 var margem = parseNum(document.getElementById("valMargem").value);
-
                 if (!tecId || !obterTecnica(tecId)) {
                     document.getElementById("resPrecoUn").textContent = "0,00 €";
                     document.getElementById("resTotalComercial").textContent = "0,00 €";
                     return;
                 }
-
                 var imp = obterCustoImpressao(qtd, tecId);
                 var pIva = custoPeca * TAXA_IVA;
                 var portesIva = portes * TAXA_IVA;
                 var custoUn = pIva + imp.custoUn + (portesIva / qtd);
                 var lucro = calcularMargem(qtd, margem, tipoMargem, custoUn);
                 var venda = custoUn + lucro;
-
                 document.getElementById("resPrecoUn").textContent = moeda(venda);
                 document.getElementById("resTotalComercial").textContent = moeda(venda * qtd);
                 document.getElementById("resCustoMaterial").textContent = moeda(pIva);
@@ -1411,7 +1530,6 @@
                 document.getElementById("resLucroUn").textContent = moeda(lucro);
                 document.getElementById("resLucroTotal").textContent = moeda(lucro * qtd);
                 document.getElementById("escalaoBadge").textContent = "🏷️ Escalão ≥ " + imp.escala + " un";
-
                 var t = obterTecnica(tecId);
                 var linha = document.getElementById("linhaConsumo");
                 if (linha) {
@@ -1423,9 +1541,7 @@
                         linha.style.display = "none";
                     }
                 }
-
                 gerarComparativo(qtd, pIva, portesIva, tecId, tipoMargem, margem);
-
             } catch (e) {
                 console.log("Erro calcular:", e);
             }
@@ -1435,7 +1551,6 @@
             var el = document.getElementById("tabelaComparativa");
             if (!el) return;
             el.innerHTML = "";
-
             [1, 10, 25, 50, 100].forEach(function(q) {
                 var imp = obterCustoImpressao(q, tecId);
                 var custo = pIva + imp.custoUn + (portesIva / q);
@@ -1483,7 +1598,6 @@
             if (typeof html2pdf === "undefined") { window.print(); return; }
             var el = document.getElementById("areaParaPdf");
             if (!el) return;
-
             html2pdf().set({
                 margin: 8,
                 filename: "GrafiSantos-Orcamento.pdf",
@@ -1501,6 +1615,7 @@
             try {
                 carregarDados();
                 carregarMargem();
+                renderTipos();
                 renderFornecedores();
                 renderTecnicas();
                 calcular();
