@@ -1541,7 +1541,7 @@
         }
 
         // ============================================================
-        //  VARIANTES (CORES) - CORRIGIDO
+        //  VARIANTES (CORES)
         // ============================================================
 
         function adicionarVarianteForm() {
@@ -1630,13 +1630,33 @@
 
         function atualizarSelectVariantes() {
             var sel = document.getElementById('selVariante');
-            if (!sel) return;
-            sel.innerHTML = '<option value="">-- Selecione uma cor --</option>';
-
-            var m = obterMaterial(materialId);
-            if (!m || !m.variantes || !m.variantes.length) {
+            if (!sel) {
+                console.log("ERRO: Elemento selVariante não encontrado!");
                 return;
             }
+
+            sel.innerHTML = '<option value="">-- Selecione uma cor --</option>';
+
+            if (!materialId) {
+                console.log("Nenhum material selecionado");
+                document.getElementById('custoPeca').value = "0.00";
+                return;
+            }
+
+            var m = obterMaterial(materialId);
+            if (!m) {
+                console.log("Material não encontrado:", materialId);
+                document.getElementById('custoPeca').value = "0.00";
+                return;
+            }
+
+            if (!m.variantes || !m.variantes.length) {
+                console.log("Material sem variantes:", m.nome);
+                document.getElementById('custoPeca').value = "0.00";
+                return;
+            }
+
+            console.log("A adicionar " + m.variantes.length + " cores para:", m.nome);
 
             m.variantes.forEach(function(v) {
                 var opt = document.createElement('option');
@@ -1649,10 +1669,10 @@
                 sel.appendChild(opt);
             });
 
-            // Selecionar a primeira variante automaticamente
             if (m.variantes && m.variantes.length > 0) {
                 varianteId = m.variantes[0].id;
                 sel.value = varianteId;
+                console.log("Cor selecionada automaticamente:", m.variantes[0].nome);
                 onChangeVariante();
             } else {
                 varianteId = null;
@@ -1669,16 +1689,19 @@
             if (!sel) return;
 
             varianteId = sel.value;
+            console.log("Variante selecionada:", varianteId);
+
             var v = obterVariante(varianteId);
             var el = document.getElementById('custoPeca');
 
             if (el && v) {
                 el.value = formatarNumero(v.preco, 2);
                 document.getElementById('footerPreco').textContent = moeda(v.preco) + " s/IVA";
-                showToast('🎨 Cor selecionada: ' + v.nome + ' (' + moeda(v.preco) + ')', 'success');
+                console.log("Preço da cor:", v.preco);
             } else if (el) {
                 el.value = "0.00";
                 document.getElementById('footerPreco').textContent = "0,00 € s/IVA";
+                console.log("Nenhuma cor selecionada");
             }
 
             calcular();
@@ -1798,7 +1821,9 @@
                 document.getElementById('footerPreco').textContent = "0,00 €";
                 document.getElementById('custoPeca').value = "0.00";
                 document.getElementById('variantesContainer').innerHTML = '<div style="font-size:0.75rem;color:#94a3b8;">Nenhuma cor</div>';
-                atualizarSelectVariantes();
+                // LIMPAR O SELECT DE CORES
+                var selCor = document.getElementById('selVariante');
+                if (selCor) selCor.innerHTML = '<option value="">-- Selecione uma cor --</option>';
                 calcular();
                 return;
             }
@@ -1853,9 +1878,11 @@
             if (!sel) return;
             materialId = sel.value;
             varianteId = null;
+            console.log("Material alterado para:", materialId);
+
             atualizarVariantes();
             atualizarSelectVariantes();
-            renderMateriais();
+            calcular();
         }
 
         function abrirFormMaterial(editar) {
@@ -2316,6 +2343,12 @@
 
                 renderFornecedores();
                 renderTecnicas();
+
+                // Forçar atualização de variantes após render
+                setTimeout(function() {
+                    atualizarVariantes();
+                    atualizarSelectVariantes();
+                }, 100);
 
                 calcular();
                 atualizarInfoTecnica();
