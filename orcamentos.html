@@ -538,1087 +538,1088 @@
 </head>
 <body>
 
-    <input type="file" id="inputImportar" accept=".json" style="display:none" onchange="processarImportacao(event)">
+<input type="file" id="inputImportar" accept=".json" style="display:none" onchange="processarImportacao(event)">
 
-    <div class="container" id="areaParaPdf">
+<div class="container" id="areaParaPdf">
 
-        <div id="debugErro"></div>
+    <div id="debugErro"></div>
 
-        <!-- HEADER -->
-        <div class="header no-print">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <a href="index.html" class="btn-menu-voltar">🏠 Menu</a>
-                <h1>🖨️ Grafi<span>Santos</span></h1>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="btn btn-secondary" onclick="copiarResumo()" title="Copiar resumo">📋</button>
-                <button class="btn btn-secondary" onclick="gerarPDF()" title="Gerar PDF">📄</button>
-                <button class="btn btn-secondary" onclick="window.print()" title="Imprimir">🖨️</button>
-                <button class="btn btn-secondary" onclick="exportarDados()" title="Exportar backup local">💾</button>
-                <button class="btn btn-secondary" onclick="importarDados()" title="Importar backup local">📥</button>
-                <button class="btn btn-secondary" onclick="backupGitHub()" title="Backup para GitHub">☁️</button>
-            </div>
+    <!-- HEADER -->
+    <div class="header no-print">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <a href="index.html" class="btn-menu-voltar">🏠 Menu</a>
+            <h1>🖨️ Grafi<span>Santos</span></h1>
         </div>
-
-        <!-- CARD DE UTILIZADOR / LOGIN -->
-        <div class="card no-print" id="cardUser" style="background:#f0fdf4;border-color:#bbf7d0;padding:10px 14px;">
-            <div id="areaLogin" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                <div style="font-size:0.85rem;color:#166534;font-weight:600;">
-                    🔐 Sincroniza entre dispositivos
-                </div>
-                <button onclick="fazerLogin()" style="background:#fff;color:#1e293b;border:1px solid #cbd5e1;padding:8px 14px;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 48 48">
-                        <path fill="#FFC107" d="M43.6 20.5H42V20.5H24v7h11.3C33.7 31.4 29.3 34 24 34c-5.5 0-10.1-3.7-11.8-8.7-0.5-1.4-0.7-2.8-0.7-4.3s0.3-3 0.7-4.3c1.6-5 6.3-8.7 11.8-8.7 3 0 5.7 1.1 7.7 2.9l5.3-5.3C33.6 3.1 29 1.5 24 1.5 14.4 1.5 6.2 7 2.4 15c-1.3 2.7-2 5.7-2 8.9s0.7 6.2 2 8.9c3.8 8 12 13.5 21.6 13.5 10.9 0 19.8-7.8 19.8-22.4 0-1.5-0.2-3-0.5-4.4z"/>
-                        <path fill="#4CAF50" d="M24 46.5c5.5 0 10.5-2 14.3-5.3l-5.5-4.6C30.7 38.3 27.5 39.5 24 39.5c-5.3 0-9.7-2.6-11.3-7.5l-5.8 4.4C10.6 42.3 16.6 46.5 24 46.5z"/>
-                        <path fill="#1976D2" d="M43.6 20.5H42V20.5H24v7h11.3c-0.7 2-2 3.7-3.7 4.9l5.5 4.6C40.9 34.2 44 29.7 44 24.5c0-1.4-0.1-2.7-0.4-4z"/>
-                    </svg>
-                    Entrar com Google
-                </button>
-            </div>
-
-            <div id="areaUserLogado" class="hidden">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                    <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;">
-                        <img id="userAvatar" src="" alt="" style="width:28px;height:28px;border-radius:50%;">
-                        <div>
-                            <div style="font-weight:600;color:#1e293b;" id="userNome">—</div>
-                            <div style="font-size:0.7rem;color:#64748b;" id="userEmail">—</div>
-                        </div>
-                    </div>
-                    <button onclick="fazerLogout()" class="btn btn-secondary">Sair</button>
-                </div>
-                <div style="margin-top:8px;font-size:0.75rem;color:#065f46;">
-                    ✅ Dados sincronizados automaticamente entre dispositivos
-                </div>
-            </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-secondary" onclick="copiarResumo()" title="Copiar resumo">📋</button>
+            <button class="btn btn-secondary" onclick="gerarPDF()" title="Gerar PDF">📄</button>
+            <button class="btn btn-secondary" onclick="window.print()" title="Imprimir">🖨️</button>
+            <button class="btn btn-secondary" onclick="exportarDados()" title="Exportar backup local">💾</button>
+            <button class="btn btn-secondary" onclick="importarDados()" title="Importar backup local">📥</button>
+            <button class="btn btn-secondary" onclick="backupGitHub()" title="Backup para GitHub">☁️</button>
         </div>
+    </div>
 
-        <!-- TABS -->
-        <div class="tabs no-print">
-            <button class="tab-btn active" id="tabBtnNovo" onclick="mudarTab('novo')">
-                ➕ Novo
-            </button>
-            <button class="tab-btn" id="tabBtnHistorico" onclick="mudarTab('historico')">
-                📋 Histórico (<span id="contadorHistorico">0</span>)
+    <!-- CARD DE UTILIZADOR / LOGIN -->
+    <div class="card no-print" id="cardUser" style="background:#f0fdf4;border-color:#bbf7d0;padding:10px 14px;">
+        <div id="areaLogin" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:0.85rem;color:#166534;font-weight:600;">
+                🔐 Sincroniza entre dispositivos
+            </div>
+            <button onclick="fazerLogin()" style="background:#fff;color:#1e293b;border:1px solid #cbd5e1;padding:8px 14px;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                <svg width="16" height="16" viewBox="0 0 48 48">
+                    <path fill="#FFC107" d="M43.6 20.5H42V20.5H24v7h11.3C33.7 31.4 29.3 34 24 34c-5.5 0-10.1-3.7-11.8-8.7-0.5-1.4-0.7-2.8-0.7-4.3s0.3-3 0.7-4.3c1.6-5 6.3-8.7 11.8-8.7 3 0 5.7 1.1 7.7 2.9l5.3-5.3C33.6 3.1 29 1.5 24 1.5 14.4 1.5 6.2 7 2.4 15c-1.3 2.7-2 5.7-2 8.9s0.7 6.2 2 8.9c3.8 8 12 13.5 21.6 13.5 10.9 0 19.8-7.8 19.8-22.4 0-1.5-0.2-3-0.5-4.4z"/>
+                    <path fill="#4CAF50" d="M24 46.5c5.5 0 10.5-2 14.3-5.3l-5.5-4.6C30.7 38.3 27.5 39.5 24 39.5c-5.3 0-9.7-2.6-11.3-7.5l-5.8 4.4C10.6 42.3 16.6 46.5 24 46.5z"/>
+                    <path fill="#1976D2" d="M43.6 20.5H42V20.5H24v7h11.3c-0.7 2-2 3.7-3.7 4.9l5.5 4.6C40.9 34.2 44 29.7 44 24.5c0-1.4-0.1-2.7-0.4-4z"/>
+                </svg>
+                Entrar com Google
             </button>
         </div>
 
-        <!-- TAB NOVO ORÇAMENTO -->
-        <div id="tabNovo" class="tab-content">
-
-            <div class="card card-orcamento">
-                <div class="section-title">📄 Orçamento</div>
-                <div class="grid-2">
-                    <div class="field">
-                        <label>Nº Orçamento:</label>
-                        <input type="text" id="numeroOrcamento" readonly>
-                    </div>
-                    <div class="field">
-                        <label>Data:</label>
-                        <input type="text" id="dataOrcamento" readonly>
+        <div id="areaUserLogado" class="hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;">
+                    <img id="userAvatar" src="" alt="" style="width:28px;height:28px;border-radius:50%;">
+                    <div>
+                        <div style="font-weight:600;color:#1e293b;" id="userNome">—</div>
+                        <div style="font-size:0.7rem;color:#64748b;" id="userEmail">—</div>
                     </div>
                 </div>
+                <button onclick="fazerLogout()" class="btn btn-secondary">Sair</button>
+            </div>
+            <div style="margin-top:8px;font-size:0.75rem;color:#065f46;">
+                ✅ Dados sincronizados automaticamente entre dispositivos
+            </div>
+        </div>
+    </div>
 
-                <div class="section-title" style="margin-top:12px;">👤 Cliente</div>
-                <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar cliente:</label>
-                        <select id="selCliente" onchange="onChangeCliente()"></select>
-                    </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormCliente(false)" title="Novo cliente">+</button>
-                        <button class="btn-icon" onclick="abrirFormCliente(true)" title="Editar cliente">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarCliente()" title="Eliminar cliente">✕</button>
-                    </div>
-                </div>
+    <!-- TABS -->
+    <div class="tabs no-print">
+        <button class="tab-btn active" id="tabBtnNovo" onclick="mudarTab('novo')">
+            ➕ Novo
+        </button>
+        <button class="tab-btn" id="tabBtnHistorico" onclick="mudarTab('historico')">
+            📋 Histórico (<span id="contadorHistorico">0</span>)
+        </button>
+    </div>
 
+    <!-- TAB NOVO ORÇAMENTO -->
+    <div id="tabNovo" class="tab-content">
+
+        <div class="card card-orcamento">
+            <div class="section-title">📄 Orçamento</div>
+            <div class="grid-2">
                 <div class="field">
-                    <label>Nome:</label>
-                    <input type="text" id="inputClienteNome" placeholder="Nome do Cliente">
+                    <label>Nº Orçamento:</label>
+                    <input type="text" id="numeroOrcamento" readonly>
                 </div>
+                <div class="field">
+                    <label>Data:</label>
+                    <input type="text" id="dataOrcamento" readonly>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:12px;">👤 Cliente</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar cliente:</label>
+                    <select id="selCliente" onchange="onChangeCliente()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormCliente(false)" title="Novo cliente">+</button>
+                    <button class="btn-icon" onclick="abrirFormCliente(true)" title="Editar cliente">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarCliente()" title="Eliminar cliente">✕</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Nome:</label>
+                <input type="text" id="inputClienteNome" placeholder="Nome do Cliente">
+            </div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Contacto:</label>
+                    <input type="text" id="inputClienteContacto" placeholder="Telefone / Telemóvel">
+                </div>
+                <div class="field">
+                    <label>Email:</label>
+                    <input type="text" id="inputClienteEmail" placeholder="Email">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="guardarClienteAtual()">
+                💾 Guardar Cliente
+            </button>
+
+            <div class="form-panel hidden" id="formCliente">
+                <h4 id="tituloFormCliente">Novo cliente</h4>
+                <input type="hidden" id="editClienteId">
+                <input type="text" id="novoNomeCliente" placeholder="Nome do Cliente">
+                <input type="text" id="novoContactoCliente" placeholder="Contacto (telefone)">
+                <input type="text" id="novoEmailCliente" placeholder="Email">
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="guardarClienteForm()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormCliente()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <div class="section-title">📦 Fornecedor</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar:</label>
+                    <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
+                </div>
+            </div>
+            <div class="form-panel hidden" id="formFornecedor">
+                <h4 id="tituloFornecedor">Novo fornecedor</h4>
+                <input type="hidden" id="editFornecedorId">
+                <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
+                <div class="campo-euro">
+                    <span class="simbolo-euro">€</span>
+                    <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <div class="section-title">🏷️ Tipo de Material</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar tipo:</label>
+                    <select id="selTipoMaterial" onchange="onChangeTipo()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormTipo(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarTipo()">✕</button>
+                </div>
+            </div>
+            <div class="form-panel hidden" id="formTipo">
+                <h4 id="tituloTipo">Novo tipo de material</h4>
+                <input type="hidden" id="editTipoId">
+                <input type="text" id="inputNomeTipo" placeholder="Nome do tipo (ex: T-Shirt, Polo, Sweats)">
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="guardarTipo()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormTipo()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <div class="section-title">👕 Material / Peça</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar:</label>
+                    <select id="selMaterial" onchange="onChangeMaterial()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
+                </div>
+            </div>
+            <div id="listaVariantes" class="lista-variantes">
+                <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
+                <div id="variantesContainer"></div>
+            </div>
+            <div class="form-panel hidden" id="formMaterial">
+                <h4 id="tituloMaterial">Novo material</h4>
+                <input type="hidden" id="editMaterialId">
+                <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt Beagle 150g)">
+                <input type="text" id="inputReferenciaMaterial" placeholder="Referência (ex: REF-1234)">
+                <div class="field" style="margin-bottom:8px;">
+                    <label>Tipo de Material</label>
+                    <select id="selTipoMaterialForm"></select>
+                </div>
+                <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
+                <div id="variantesFormContainer"></div>
+                <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
+                <div class="btn-row" style="margin-top:8px;">
+                    <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <div class="section-title">🖨️ Técnica de Estampagem</div>
+            <div class="flex">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Selecionar:</label>
+                    <select id="selTecnica" onchange="onChangeTecnica()"></select>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                    <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
+                    <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
+                    <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
+                </div>
+            </div>
+            <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:#475569;background:#f8fafc;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;">
+                <span id="infoTecNome">Nenhuma técnica selecionada</span>
+                <span id="infoTecDetalhes"></span>
+            </div>
+            <div class="form-panel hidden" id="formTecnica">
+                <h4 id="tituloTecnica">Nova técnica</h4>
+                <input type="hidden" id="editTecnicaId">
+                <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
                 <div class="grid-2">
-                    <div class="field">
-                        <label>Contacto:</label>
-                        <input type="text" id="inputClienteContacto" placeholder="Telefone / Telemóvel">
-                    </div>
-                    <div class="field">
-                        <label>Email:</label>
-                        <input type="text" id="inputClienteEmail" placeholder="Email">
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="guardarClienteAtual()">
-                    💾 Guardar Cliente
-                </button>
-
-                <div class="form-panel hidden" id="formCliente">
-                    <h4 id="tituloFormCliente">Novo cliente</h4>
-                    <input type="hidden" id="editClienteId">
-                    <input type="text" id="novoNomeCliente" placeholder="Nome do Cliente">
-                    <input type="text" id="novoContactoCliente" placeholder="Contacto (telefone)">
-                    <input type="text" id="novoEmailCliente" placeholder="Email">
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="guardarClienteForm()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormCliente()">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card no-print">
-                <div class="section-title">📦 Fornecedor</div>
-                <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar:</label>
-                        <select id="selFornecedor" onchange="onChangeFornecedor()"></select>
-                    </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormFornecedor(false)">+</button>
-                        <button class="btn-icon" onclick="abrirFormFornecedor(true)">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarFornecedor()">✕</button>
-                    </div>
-                </div>
-                <div class="form-panel hidden" id="formFornecedor">
-                    <h4 id="tituloFornecedor">Novo fornecedor</h4>
-                    <input type="hidden" id="editFornecedorId">
-                    <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
-                    <div class="campo-euro">
-                        <span class="simbolo-euro">€</span>
-                        <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
-                    </div>
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormFornecedor()">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card no-print">
-                <div class="section-title">🏷️ Tipo de Material</div>
-                <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar tipo:</label>
-                        <select id="selTipoMaterial" onchange="onChangeTipo()"></select>
-                    </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormTipo(false)">+</button>
-                        <button class="btn-icon" onclick="abrirFormTipo(true)">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarTipo()">✕</button>
-                    </div>
-                </div>
-                <div class="form-panel hidden" id="formTipo">
-                    <h4 id="tituloTipo">Novo tipo de material</h4>
-                    <input type="hidden" id="editTipoId">
-                    <input type="text" id="inputNomeTipo" placeholder="Nome do tipo (ex: T-Shirt, Polo, Sweats)">
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="guardarTipo()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormTipo()">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card no-print">
-                <div class="section-title">👕 Material / Peça</div>
-                <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar:</label>
-                        <select id="selMaterial" onchange="onChangeMaterial()"></select>
-                    </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormMaterial(false)">+</button>
-                        <button class="btn-icon" onclick="abrirFormMaterial(true)">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarMaterial()">✕</button>
-                    </div>
-                </div>
-                <div id="listaVariantes" class="lista-variantes">
-                    <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;">Cores disponíveis:</div>
-                    <div id="variantesContainer"></div>
-                </div>
-                <div class="form-panel hidden" id="formMaterial">
-                    <h4 id="tituloMaterial">Novo material</h4>
-                    <input type="hidden" id="editMaterialId">
-                    <input type="text" id="inputNomeMaterial" placeholder="Nome do Material (ex: T-Shirt Beagle 150g)">
-                    <input type="text" id="inputReferenciaMaterial" placeholder="Referência (ex: REF-1234)">
-                    <div class="field" style="margin-bottom:8px;">
-                        <label>Tipo de Material</label>
-                        <select id="selTipoMaterialForm"></select>
-                    </div>
-                    <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
-                    <div id="variantesFormContainer"></div>
-                    <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
-                    <div class="btn-row" style="margin-top:8px;">
-                        <button class="btn btn-success" onclick="guardarMaterial()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormMaterial()">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card no-print">
-                <div class="section-title">🖨️ Técnica de Estampagem</div>
-                <div class="flex">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Selecionar:</label>
-                        <select id="selTecnica" onchange="onChangeTecnica()"></select>
-                    </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormTecnica(false)">+</button>
-                        <button class="btn-icon" onclick="abrirFormTecnica(true)">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarTecnica()">✕</button>
-                    </div>
-                </div>
-                <div id="infoTecnica" style="margin-top:6px;font-size:0.75rem;color:#475569;background:#f8fafc;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;">
-                    <span id="infoTecNome">Nenhuma técnica selecionada</span>
-                    <span id="infoTecDetalhes"></span>
-                </div>
-                <div class="form-panel hidden" id="formTecnica">
-                    <h4 id="tituloTecnica">Nova técnica</h4>
-                    <input type="hidden" id="editTecnicaId">
-                    <input type="text" id="inputNomeTecnica" placeholder="Nome da Técnica (ex: DTF, Vinil...)">
-                    <div class="grid-2">
-                        <div class="field" style="margin-bottom:0;">
-                            <label>Custo/Metro (€):</label>
-                            <div class="campo-euro">
-                                <span class="simbolo-euro">€</span>
-                                <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
-                            </div>
+                    <div class="field" style="margin-bottom:0;">
+                        <label>Custo/Metro (€):</label>
+                        <div class="campo-euro">
+                            <span class="simbolo-euro">€</span>
+                            <input type="number" id="inputCustoMetro" placeholder="0.00" step="0.01">
                         </div>
-                        <div class="field" style="margin-bottom:0;">
-                            <label>Largura (cm):</label>
-                            <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
-                        </div>
-                    </div>
-                    <div class="btn-row" style="margin-top:8px;">
-                        <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">📐 Dimensões da Estampa</div>
-                <div class="grid-2">
-                    <div class="field">
-                        <label>Altura (cm):</label>
-                        <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
-                    </div>
-                    <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
-                        <label style="color:#64748b;">Largura (da técnica):</label>
-                        <div style="font-size:1.1rem;font-weight:bold;color:#2563eb;padding:6px 0;" id="larguraExibida">28 cm</div>
-                    </div>
-                </div>
-                <div class="grid-2">
-                    <div class="field">
-                        <label>Quantidade:</label>
-                        <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
-                    </div>
-                    <div class="field">
-                        <label>Cor / Variante:</label>
-                        <select id="selVariante" onchange="onChangeVariante()">
-                            <option value="">Selecione uma cor</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid-2">
-                    <div class="field campo-euro">
-                        <label>Custo Peça (s/IVA) €:</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
-                    </div>
-                    <div class="field campo-euro">
-                        <label>Portes Lote (s/IVA) €:</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
-                    </div>
-                </div>
-                <div class="grid-2">
-                    <div class="field campo-euro">
-                        <label>Margem Lucro:</label>
-                        <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
                     </div>
                     <div class="field" style="margin-bottom:0;">
-                        <label>Tipo de Margem:</label>
-                        <select id="tipoMargem" onchange="calcular()">
-                            <option value="valor">Valor Fixo (€)</option>
-                            <option value="percentagem">Percentagem (%)</option>
-                        </select>
+                        <label>Largura (cm):</label>
+                        <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
                     </div>
                 </div>
-            </div>
-
-            <div class="card card-resultados">
-                <div class="result-row result-destaque">
-                    <span>💰 Preço Venda / Un (c/IVA):</span>
-                    <strong id="resPrecoUn">0,00 €</strong>
-                </div>
-                <div class="result-row result-total">
-                    <span>📊 Total Comercial (c/IVA):</span>
-                    <strong id="resTotalComercial">0,00 €</strong>
-                </div>
-                <hr>
-                <div class="result-row"><span>🧾 Material (c/IVA):</span><span id="resCustoMaterial">0,00 €</span></div>
-                <div class="result-row"><span>🖨️ Impressão (c/IVA):</span><span id="resCustoImpr">0,00 €</span></div>
-                <div class="result-row"><span>📦 Portes Lote (c/IVA):</span><span id="resPortes">0,00 €</span></div>
-                <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo:</span><span id="resConsumo">0,00 m</span></div>
-                <div class="result-row"><span>📋 Custo Total Lote (c/IVA):</span><span id="resCustoTotal">0,00 €</span></div>
-                <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
-                <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
-                <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
-                <div style="margin-top:10px;">
-                    <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;font-weight:600;">📊 Tabela Comparativa por Quantidade</div>
-                    <div class="grid-escaloes" id="tabelaComparativa"></div>
-                </div>
-                <div style="margin-top:12px;">
-                    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:0.95rem;" onclick="guardarOrcamento()">
-                        💾 Guardar Orçamento
-                    </button>
+                <div class="btn-row" style="margin-top:8px;">
+                    <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
+                    <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
                 </div>
             </div>
-
-            <div class="footer-info">
-                <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
-            </div>
-
         </div>
 
-        <div id="tabHistorico" class="tab-content hidden">
-            <div class="card">
-                <div class="section-title">📋 Histórico de Orçamentos</div>
-
-                <div class="flex" style="margin-bottom:10px;">
-                    <div class="field flex-grow" style="margin-bottom:0;">
-                        <label>Pesquisar:</label>
-                        <input type="text" id="pesquisaHistorico" placeholder="Nome, nº ou data..." oninput="renderHistorico()">
-                    </div>
+        <div class="card">
+            <div class="section-title">📐 Dimensões da Estampa</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Altura (cm):</label>
+                    <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
                 </div>
-
-                <div id="listaHistorico">
-                    <div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">
-                        Nenhum orçamento guardado
-                    </div>
+                <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
+                    <label style="color:#64748b;">Largura (da técnica):</label>
+                    <div style="font-size:1.1rem;font-weight:bold;color:#2563eb;padding:6px 0;" id="larguraExibida">28 cm</div>
                 </div>
             </div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Quantidade:</label>
+                    <input type="number" id="quantidade" value="1" min="1" oninput="calcular()" onchange="calcular()">
+                </div>
+                <div class="field">
+                    <label>Cor / Variante:</label>
+                    <select id="selVariante" onchange="onChangeVariante()">
+                        <option value="">Selecione uma cor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field campo-euro">
+                    <label>Custo Peça (s/IVA) €:</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                </div>
+                <div class="field campo-euro">
+                    <label>Portes Lote (s/IVA) €:</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field campo-euro">
+                    <label>Margem Lucro:</label>
+                    <span class="simbolo-euro-topo">€</span>
+                    <input type="number" id="valMargem" value="5.00" step="0.50" oninput="guardarMargem()" onchange="guardarMargem()">
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                    <label>Tipo de Margem:</label>
+                    <select id="tipoMargem" onchange="calcular()">
+                        <option value="valor">Valor Fixo (€)</option>
+                        <option value="percentagem">Percentagem (%)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-resultados">
+            <div class="result-row result-destaque">
+                <span>💰 Preço Venda / Un (c/IVA):</span>
+                <strong id="resPrecoUn">0,00 €</strong>
+            </div>
+            <div class="result-row result-total">
+                <span>📊 Total Comercial (c/IVA):</span>
+                <strong id="resTotalComercial">0,00 €</strong>
+            </div>
+            <hr>
+            <div class="result-row"><span>🧾 Material (c/IVA):</span><span id="resCustoMaterial">0,00 €</span></div>
+            <div class="result-row"><span>🖨️ Impressão (c/IVA):</span><span id="resCustoImpr">0,00 €</span></div>
+            <div class="result-row"><span>📦 Portes Lote (c/IVA):</span><span id="resPortes">0,00 €</span></div>
+            <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo:</span><span id="resConsumo">0,00 m</span></div>
+            <div class="result-row"><span>📋 Custo Total Lote (c/IVA):</span><span id="resCustoTotal">0,00 €</span></div>
+            <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
+            <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
+            <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
+            <div style="margin-top:10px;">
+                <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;font-weight:600;">📊 Tabela Comparativa por Quantidade</div>
+                <div class="grid-escaloes" id="tabelaComparativa"></div>
+            </div>
+            <div style="margin-top:12px;">
+                <button class="btn btn-primary" style="width:100%;padding:12px;font-size:0.95rem;" onclick="guardarOrcamento()">
+                    💾 Guardar Orçamento
+                </button>
+            </div>
+        </div>
+
+        <div class="footer-info">
+            <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
         </div>
 
     </div>
 
-    <script> 
-        "use strict";
+    <div id="tabHistorico" class="tab-content hidden">
+        <div class="card">
+            <div class="section-title">📋 Histórico de Orçamentos</div>
 
-        // ============================================================
-        //  CONFIGURAÇÃO FIREBASE
-        // ============================================================
+            <div class="flex" style="margin-bottom:10px;">
+                <div class="field flex-grow" style="margin-bottom:0;">
+                    <label>Pesquisar:</label>
+                    <input type="text" id="pesquisaHistorico" placeholder="Nome, nº ou data..." oninput="renderHistorico()">
+                </div>
+            </div>
 
-        var firebaseConfig = {
-            apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
-            authDomain: "grafisantos-orcamentos.firebaseapp.com",
-            projectId: "grafisantos-orcamentos",
-            storageBucket: "grafisantos-orcamentos.firebasestorage.app",
-            messagingSenderId: "769855753160",
-            appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
-        };
+            <div id="listaHistorico">
+                <div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">
+                    Nenhum orçamento guardado
+                </div>
+            </div>
+        </div>
+    </div>
 
-        var app = firebase.initializeApp(firebaseConfig);
-        var auth = firebase.auth();
-        var db = firebase.firestore();
-        var provider = new firebase.auth.GoogleAuthProvider();
+</div>
 
-        var utilizadorAtual = null;
-        var sincronizacaoEmCurso = false;
+<script>
+"use strict";
 
-        // ============================================================
-        //  CONFIGURAÇÕES
-        // ============================================================
+// ============================================================
+//  CONFIGURAÇÃO FIREBASE
+// ============================================================
 
-        var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v8";
-        var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
-        var STORAGE_CONTADOR = "grafisantos_contador";
-        var STORAGE_CLIENTES = "grafisantos_clientes";
-        var MARGEM_KEY = "grafisantos_margem";
-        var GITHUB_TOKEN_KEY = "grafisantos_github_token";
+var firebaseConfig = {
+    apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
+    authDomain: "grafisantos-orcamentos.firebaseapp.com",
+    projectId: "grafisantos-orcamentos",
+    storageBucket: "grafisantos-orcamentos.firebasestorage.app",
+    messagingSenderId: "769855753160",
+    appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
+};
 
-        var GITHUB_OWNER = "nmgsantos27";
-        var GITHUB_REPO = "Calculo-estampagem-";
-        var GITHUB_BRANCH = "main";
+var app = firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+var provider = new firebase.auth.GoogleAuthProvider();
 
-        function parseNum(v) {
-            if (typeof v === "number") return isFinite(v) ? v : 0;
-            if (!v && v !== 0) return 0;
-            var n = parseFloat(String(v).replace(",", "."));
-            return isFinite(n) ? n : 0;
+var utilizadorAtual = null;
+var sincronizacaoEmCurso = false;
+
+// ============================================================
+//  CONFIGURAÇÕES
+// ============================================================
+
+var TAXA_IVA = 1.23;
+var STORAGE_KEY = "grafisantos_v8";
+var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
+var STORAGE_CONTADOR = "grafisantos_contador";
+var STORAGE_CLIENTES = "grafisantos_clientes";
+var MARGEM_KEY = "grafisantos_margem";
+var GITHUB_TOKEN_KEY = "grafisantos_github_token";
+
+var GITHUB_OWNER = "nmgsantos27";
+var GITHUB_REPO = "Calculo-estampagem-";
+var GITHUB_BRANCH = "main";
+
+function parseNum(v) {
+    if (typeof v === "number") return isFinite(v) ? v : 0;
+    if (!v && v !== 0) return 0;
+    var n = parseFloat(String(v).replace(",", "."));
+    return isFinite(n) ? n : 0;
+}
+
+function moeda(v) {
+    return parseNum(v).toFixed(2).replace(".", ",") + " €";
+}
+
+function formatarNumero(v, casas) {
+    casas = casas || 2;
+    return parseNum(v).toFixed(casas);
+}
+
+function gerarId() {
+    return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+}
+
+function guardarMargem() {
+    var val = document.getElementById("valMargem").value;
+    try { localStorage.setItem(MARGEM_KEY, val); } catch (e) {}
+    calcular();
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+function carregarMargem() {
+    try {
+        var val = localStorage.getItem(MARGEM_KEY);
+        if (val !== null && val !== undefined && val !== "") {
+            document.getElementById("valMargem").value = val;
         }
+    } catch (e) {}
+}
 
-        function moeda(v) {
-            return parseNum(v).toFixed(2).replace(".", ",") + " €";
+// ============================================================
+//  CONTADOR - CÁLCULO E SINCRONIZAÇÃO
+// ============================================================
+
+function obterAnoAtual() {
+    return new Date().getFullYear();
+}
+
+function obterContador() {
+    try {
+        var raw = localStorage.getItem(STORAGE_CONTADOR);
+        if (raw) {
+            var obj = JSON.parse(raw);
+            if (obj.ano === obterAnoAtual()) return obj.numero;
         }
+    } catch (e) {}
+    return 0;
+}
 
-        function formatarNumero(v, casas) {
-            casas = casas || 2;
-            return parseNum(v).toFixed(casas);
-        }
+function incrementarContador() {
+    var num = obterContador() + 1;
+    try {
+        localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+            ano: obterAnoAtual(),
+            numero: num
+        }));
+    } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+    return num;
+}
 
-        function gerarId() {
-            return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-        }
+function formatarNumeroOrcamento(num) {
+    var ano = obterAnoAtual();
+    var str = String(num).padStart(4, "0");
+    return "#" + ano + "-" + str;
+}
 
-        function guardarMargem() {
-            var val = document.getElementById("valMargem").value;
-            try { localStorage.setItem(MARGEM_KEY, val); } catch (e) {}
-            calcular();
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
+function gerarNumeroOrcamento() {
+    var proximo = obterContador() + 1;
+    return formatarNumeroOrcamento(proximo);
+}
 
-        function carregarMargem() {
-            try {
-                var val = localStorage.getItem(MARGEM_KEY);
-                if (val !== null && val !== undefined && val !== "") {
-                    document.getElementById("valMargem").value = val;
+function recalcularContadorDoHistorico() {
+    try {
+        var lista = carregarOrcamentos();
+        var anoAtual = obterAnoAtual();
+        var maiorNumero = 0;
+
+        lista.forEach(function(o) {
+            if (!o.numero) return;
+            var match = o.numero.match(/#(\d{4})-(\d{4})/);
+            if (match) {
+                var ano = parseInt(match[1]);
+                var num = parseInt(match[2]);
+                if (ano === anoAtual && num > maiorNumero) {
+                    maiorNumero = num;
                 }
-            } catch (e) {}
-        }
-
-        // ============================================================
-        //  CONTADOR - CÁLCULO E SINCRONIZAÇÃO
-        // ============================================================
-
-        function obterAnoAtual() {
-            return new Date().getFullYear();
-        }
-
-        function obterContador() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CONTADOR);
-                if (raw) {
-                    var obj = JSON.parse(raw);
-                    if (obj.ano === obterAnoAtual()) return obj.numero;
-                }
-            } catch (e) {}
-            return 0;
-        }
-
-        function incrementarContador() {
-            var num = obterContador() + 1;
-            try {
-                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                    ano: obterAnoAtual(),
-                    numero: num
-                }));
-            } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-            return num;
-        }
-
-        function formatarNumeroOrcamento(num) {
-            var ano = obterAnoAtual();
-            var str = String(num).padStart(4, "0");
-            return "#" + ano + "-" + str;
-        }
-
-        function gerarNumeroOrcamento() {
-            var proximo = obterContador() + 1;
-            return formatarNumeroOrcamento(proximo);
-        }
-
-        function recalcularContadorDoHistorico() {
-            try {
-                var lista = carregarOrcamentos();
-                var anoAtual = obterAnoAtual();
-                var maiorNumero = 0;
-
-                lista.forEach(function(o) {
-                    if (!o.numero) return;
-                    var match = o.numero.match(/#(\d{4})-(\d{4})/);
-                    if (match) {
-                        var ano = parseInt(match[1]);
-                        var num = parseInt(match[2]);
-                        if (ano === anoAtual && num > maiorNumero) {
-                            maiorNumero = num;
-                        }
-                    }
-                });
-
-                var contadorAtual = obterContador();
-                if (maiorNumero > contadorAtual) {
-                    localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                        ano: anoAtual,
-                        numero: maiorNumero
-                    }));
-                    console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
-                }
-            } catch (e) {
-                console.error("Erro ao recalcular contador:", e);
             }
-        }
+        });
 
-        function obterDataHoje() {
-            var d = new Date();
-            var dia = String(d.getDate()).padStart(2, "0");
-            var mes = String(d.getMonth() + 1).padStart(2, "0");
-            var ano = d.getFullYear();
-            return dia + "/" + mes + "/" + ano;
+        var contadorAtual = obterContador();
+        if (maiorNumero > contadorAtual) {
+            localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                ano: anoAtual,
+                numero: maiorNumero
+            }));
+            console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
         }
+    } catch (e) {
+        console.error("Erro ao recalcular contador:", e);
+    }
+}
 
-        function atualizarNumeroEData() {
-    // SEGUNDA LINHA DE DEFESA: recalcular sempre antes de gerar
+function obterDataHoje() {
+    var d = new Date();
+    var dia = String(d.getDate()).padStart(2, "0");
+    var mes = String(d.getMonth() + 1).padStart(2, "0");
+    var ano = d.getFullYear();
+    return dia + "/" + mes + "/" + ano;
+}
+
+// ✅ CORREÇÃO 1 — Recalcular sempre antes de gerar
+function atualizarNumeroEData() {
     recalcularContadorDoHistorico();
     document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
     document.getElementById("dataOrcamento").value = obterDataHoje();
 }
 
-        // ============================================================
-        //  BACKUP GITHUB
-        // ============================================================
+// ============================================================
+//  BACKUP GITHUB
+// ============================================================
 
-        async function backupGitHub() {
-            var token = obterTokenGitHub();
-            if (!token) {
-                alert("⚠️ Precisas de configurar o token do GitHub primeiro.");
-                return;
-            }
+async function backupGitHub() {
+    var token = obterTokenGitHub();
+    if (!token) {
+        alert("⚠️ Precisas de configurar o token do GitHub primeiro.");
+        return;
+    }
 
-            if (!confirm("☁️ Enviar backup para o GitHub?\n\nVai criar um ficheiro em 'backups/' com a data de hoje.")) return;
+    if (!confirm("☁️ Enviar backup para o GitHub?\n\nVai criar um ficheiro em 'backups/' com a data de hoje.")) return;
 
-            try {
-                var dataHoje = new Date().toISOString().slice(0, 10);
-                var nomeFicheiro = "backups/backup_" + dataHoje + ".json";
-                var caminhoCompleto = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + nomeFicheiro;
+    try {
+        var dataHoje = new Date().toISOString().slice(0, 10);
+        var nomeFicheiro = "backups/backup_" + dataHoje + ".json";
+        var caminhoCompleto = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + nomeFicheiro;
 
-                var backup = {
-                    versao: "1.0",
-                    dataBackup: new Date().toLocaleString("pt-PT"),
-                    dados: dados,
-                    orcamentos: carregarOrcamentos(),
-                    clientes: carregarClientes(),
-                    contador: localStorage.getItem(STORAGE_CONTADOR),
-                    margem: localStorage.getItem(MARGEM_KEY)
-                };
-
-                var conteudo = JSON.stringify(backup, null, 2);
-                var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
-
-                var sha = null;
-                try {
-                    var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
-                        headers: {
-                            "Authorization": "token " + token,
-                            "Accept": "application/vnd.github.v3+json"
-                        }
-                    });
-                    if (respGet.ok) {
-                        var dadosGet = await respGet.json();
-                        sha = dadosGet.sha;
-                    }
-                } catch (e) {}
-
-                var payload = {
-                    message: "☁️ Backup " + dataHoje + " - " + new Date().toLocaleTimeString("pt-PT"),
-                    content: conteudoBase64,
-                    branch: GITHUB_BRANCH
-                };
-                if (sha) payload.sha = sha;
-
-                var respPut = await fetch(caminhoCompleto, {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": "token " + token,
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (respPut.ok) {
-                    alert("✅ Backup enviado para o GitHub!\n\n📁 Ficheiro: " + nomeFicheiro + "\n📅 Data: " + dataHoje);
-                } else {
-                    var erro = await respPut.json();
-                    alert("❌ Erro ao enviar: " + (erro.message || "desconhecido"));
-                }
-            } catch (e) {
-                alert("❌ Erro: " + e.message);
-            }
-        }
-
-        function obterTokenGitHub() {
-            try {
-                var token = localStorage.getItem(GITHUB_TOKEN_KEY);
-                if (token) return token;
-            } catch (e) {}
-
-            var novo = prompt(
-                "🔐 Configurar Token do GitHub\n\n" +
-                "Cola aqui o token que criaste (github_pat_...):\n\n" +
-                "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
-                "O token fica guardado no teu dispositivo."
-            );
-
-            if (!novo || novo.trim().length < 20) {
-                return null;
-            }
-
-            novo = novo.trim();
-            try { localStorage.setItem(GITHUB_TOKEN_KEY, novo); } catch (e) {}
-            alert("✅ Token guardado! Agora podes fazer backup com 1 clique.");
-            return novo;
-        }
-
-        // ============================================================
-        //  FIREBASE - AUTENTICAÇÃO
-        // ============================================================
-
-        function fazerLogin() {
-            auth.signInWithPopup(provider)
-                .then(function(result) {
-                    console.log("Login OK:", result.user.email);
-                })
-                .catch(function(error) {
-                    console.error("Erro login:", error);
-                    alert("❌ Erro ao entrar: " + error.message);
-                });
-        }
-
-        function fazerLogout() {
-            if (!confirm("Sair da conta?\n\nOs dados locais mantêm-se no dispositivo.")) return;
-            auth.signOut();
-        }
-
-        auth.onAuthStateChanged(function(user) {
-            var areaLogin = document.getElementById("areaLogin");
-            var areaLogado = document.getElementById("areaUserLogado");
-
-            if (user) {
-                utilizadorAtual = user;
-                areaLogin.classList.add("hidden");
-                areaLogado.classList.remove("hidden");
-                document.getElementById("userNome").textContent = user.displayName || "Utilizador";
-                document.getElementById("userEmail").textContent = user.email || "";
-                if (user.photoURL) document.getElementById("userAvatar").src = user.photoURL;
-
-                carregarDadosDaNuvem();
-            } else {
-                utilizadorAtual = null;
-                areaLogin.classList.remove("hidden");
-                areaLogado.classList.add("hidden");
-            }
-        });
-
-        // ============================================================
-        //  FIREBASE - GUARDAR / CARREGAR
-        // ============================================================
-
-        function guardarDadosNaNuvem() {
-            if (!utilizadorAtual || sincronizacaoEmCurso) return;
-            sincronizacaoEmCurso = true;
-
-            var payload = {
-                dados: dados,
-                orcamentos: carregarOrcamentos(),
-                clientes: carregarClientes(),
-                contador: localStorage.getItem(STORAGE_CONTADOR) || "",
-                margem: localStorage.getItem(MARGEM_KEY),
-                ultimaModificacao: Date.now()
-            };
-
-            db.collection("userData").doc(utilizadorAtual.uid).set(payload)
-                .then(function() {
-                    sincronizacaoEmCurso = false;
-                    console.log("✅ Dados guardados na nuvem");
-                })
-                .catch(function(error) {
-                    sincronizacaoEmCurso = false;
-                    console.error("Erro ao guardar na nuvem:", error);
-                });
-        }
-
-        function carregarDadosDaNuvem() {
-            if (!utilizadorAtual) return;
-            sincronizacaoEmCurso = true;
-
-            db.collection("userData").doc(utilizadorAtual.uid).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        var payload = doc.data();
-                        console.log("📥 Dados recebidos da nuvem");
-
-                        if (payload.dados) {
-                            dados = payload.dados;
-                            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-                        }
-                        if (payload.orcamentos) {
-                            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(payload.orcamentos)); } catch (e) {}
-                        }
-                        if (payload.clientes) {
-                            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(payload.clientes)); } catch (e) {}
-                        }
-                        if (payload.contador) {
-                            localStorage.setItem(STORAGE_CONTADOR, payload.contador);
-                        }
-                        if (payload.margem) {
-                            localStorage.setItem(MARGEM_KEY, payload.margem);
-                            var elM = document.getElementById("valMargem");
-                            if (elM) elM.value = payload.margem;
-                        }
-                    } else {
-                        console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
-                    }
-                    sincronizacaoEmCurso = false;
-
-                    recalcularContadorDoHistorico();
-
-                    renderTipos();
-                    renderFornecedores();
-                    renderTecnicas();
-                    renderSelectClientes();
-                    atualizarNumeroEData();
-                    atualizarContadorTab();
-                    calcular();
-                    atualizarInfoTecnica();
-
-                    if (!doc.exists) {
-                        guardarDadosNaNuvem();
-                    }
-                })
-                .catch(function(error) {
-                    sincronizacaoEmCurso = false;
-                    console.error("Erro ao carregar da nuvem:", error);
-                });
-        }
-
-        // ============================================================
-        //  TABS
-        // ============================================================
-
-        function mudarTab(tab) {
-            var tabNovo = document.getElementById("tabNovo");
-            var tabHist = document.getElementById("tabHistorico");
-            var btnNovo = document.getElementById("tabBtnNovo");
-            var btnHist = document.getElementById("tabBtnHistorico");
-
-            if (tab === "novo") {
-                tabNovo.classList.remove("hidden");
-                tabHist.classList.add("hidden");
-                btnNovo.classList.add("active");
-                btnHist.classList.remove("active");
-            } else {
-                tabNovo.classList.add("hidden");
-                tabHist.classList.remove("hidden");
-                btnNovo.classList.remove("active");
-                btnHist.classList.add("active");
-                renderHistorico();
-            }
-        }
-
-        // ============================================================
-        //  DADOS PADRÃO
-        // ============================================================
-
-        var DADOS_PADRAO = {
-            tipos: [
-                { id: "tp1", nome: "T-Shirt" },
-                { id: "tp2", nome: "Polo" },
-                { id: "tp3", nome: "Sweats" }
-            ],
-            fornecedores: [{
-                id: "f1", nome: "Roly", portes: 4.50,
-                materiais: [{
-                    id: "m1", nome: "T-Shirt Beagle 150g", referencia: "BEAGLE-150", tipoId: "tp1",
-                    variantes: [
-                        { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
-                        { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 }
-                    ]
-                }]
-            }],
-            tecnicas: [
-                { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
-                { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 }
-            ]
+        var backup = {
+            versao: "1.0",
+            dataBackup: new Date().toLocaleString("pt-PT"),
+            dados: dados,
+            orcamentos: carregarOrcamentos(),
+            clientes: carregarClientes(),
+            contador: localStorage.getItem(STORAGE_CONTADOR),
+            margem: localStorage.getItem(MARGEM_KEY)
         };
 
-        var dados = null;
-        var fornecedorId = null;
-        var tipoSelecionadoId = "todos";
-        var materialId = null;
-        var varianteId = null;
-        var tecnicaId = null;
-        var clienteSelecionadoId = null;
+        var conteudo = JSON.stringify(backup, null, 2);
+        var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
 
-        // ============================================================
-        //  PERSISTÊNCIA
-        // ============================================================
-
-        function carregarDados() {
-            try {
-                var raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (parsed && parsed.fornecedores && parsed.tecnicas) {
-                        if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
-                        dados = parsed;
-                        return;
-                    }
+        var sha = null;
+        try {
+            var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
+                headers: {
+                    "Authorization": "token " + token,
+                    "Accept": "application/vnd.github.v3+json"
                 }
-            } catch (e) {}
-            dados = JSON.parse(JSON.stringify(DADOS_PADRAO));
-            guardarDados();
+            });
+            if (respGet.ok) {
+                var dadosGet = await respGet.json();
+                sha = dadosGet.sha;
+            }
+        } catch (e) {}
+
+        var payload = {
+            message: "☁️ Backup " + dataHoje + " - " + new Date().toLocaleTimeString("pt-PT"),
+            content: conteudoBase64,
+            branch: GITHUB_BRANCH
+        };
+        if (sha) payload.sha = sha;
+
+        var respPut = await fetch(caminhoCompleto, {
+            method: "PUT",
+            headers: {
+                "Authorization": "token " + token,
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (respPut.ok) {
+            alert("✅ Backup enviado para o GitHub!\n\n📁 Ficheiro: " + nomeFicheiro + "\n📅 Data: " + dataHoje);
+        } else {
+            var erro = await respPut.json();
+            alert("❌ Erro ao enviar: " + (erro.message || "desconhecido"));
         }
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
+    }
+}
 
-        function guardarDados() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
+function obterTokenGitHub() {
+    try {
+        var token = localStorage.getItem(GITHUB_TOKEN_KEY);
+        if (token) return token;
+    } catch (e) {}
 
-        function obterFornecedor(id) {
-            return dados.fornecedores.find(function(f) { return f.id === id; });
-        }
+    var novo = prompt(
+        "🔐 Configurar Token do GitHub\n\n" +
+        "Cola aqui o token que criaste (github_pat_...):\n\n" +
+        "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
+        "O token fica guardado no teu dispositivo."
+    );
 
-        function obterTipo(id) {
-            if (!dados.tipos || id === "todos") return null;
-            return dados.tipos.find(function(t) { return t.id === id; });
-        }
+    if (!novo || novo.trim().length < 20) {
+        return null;
+    }
 
-        function obterMaterial(id) {
-            var f = obterFornecedor(fornecedorId);
-            if (!f) return null;
-            return f.materiais.find(function(m) { return m.id === id; });
-        }
+    novo = novo.trim();
+    try { localStorage.setItem(GITHUB_TOKEN_KEY, novo); } catch (e) {}
+    alert("✅ Token guardado! Agora podes fazer backup com 1 clique.");
+    return novo;
+}
 
-        function obterVariante(id) {
-            var m = obterMaterial(materialId);
-            if (!m) return null;
-            return m.variantes.find(function(v) { return v.id === id; });
-        }
+// ============================================================
+//  FIREBASE - AUTENTICAÇÃO
+// ============================================================
 
-        function obterTecnica(id) {
-            return dados.tecnicas.find(function(t) { return t.id === id; });
-        }
+function fazerLogin() {
+    auth.signInWithPopup(provider)
+        .then(function(result) {
+            console.log("Login OK:", result.user.email);
+        })
+        .catch(function(error) {
+            console.error("Erro login:", error);
+            alert("❌ Erro ao entrar: " + error.message);
+        });
+}
 
-        // ============================================================
-        //  CLIENTES
-        // ============================================================
+function fazerLogout() {
+    if (!confirm("Sair da conta?\n\nOs dados locais mantêm-se no dispositivo.")) return;
+    auth.signOut();
+}
 
-        function carregarClientes() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CLIENTES);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) return parsed;
+auth.onAuthStateChanged(function(user) {
+    var areaLogin = document.getElementById("areaLogin");
+    var areaLogado = document.getElementById("areaUserLogado");
+
+    if (user) {
+        utilizadorAtual = user;
+        areaLogin.classList.add("hidden");
+        areaLogado.classList.remove("hidden");
+        document.getElementById("userNome").textContent = user.displayName || "Utilizador";
+        document.getElementById("userEmail").textContent = user.email || "";
+        if (user.photoURL) document.getElementById("userAvatar").src = user.photoURL;
+
+        carregarDadosDaNuvem();
+    } else {
+        utilizadorAtual = null;
+        areaLogin.classList.remove("hidden");
+        areaLogado.classList.add("hidden");
+    }
+});
+
+// ============================================================
+//  FIREBASE - GUARDAR / CARREGAR
+// ============================================================
+
+function guardarDadosNaNuvem() {
+    if (!utilizadorAtual || sincronizacaoEmCurso) return;
+    sincronizacaoEmCurso = true;
+
+    var payload = {
+        dados: dados,
+        orcamentos: carregarOrcamentos(),
+        clientes: carregarClientes(),
+        contador: localStorage.getItem(STORAGE_CONTADOR) || "",
+        margem: localStorage.getItem(MARGEM_KEY),
+        ultimaModificacao: Date.now()
+    };
+
+    db.collection("userData").doc(utilizadorAtual.uid).set(payload)
+        .then(function() {
+            sincronizacaoEmCurso = false;
+            console.log("✅ Dados guardados na nuvem");
+        })
+        .catch(function(error) {
+            sincronizacaoEmCurso = false;
+            console.error("Erro ao guardar na nuvem:", error);
+        });
+}
+
+function carregarDadosDaNuvem() {
+    if (!utilizadorAtual) return;
+    sincronizacaoEmCurso = true;
+
+    db.collection("userData").doc(utilizadorAtual.uid).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                var payload = doc.data();
+                console.log("📥 Dados recebidos da nuvem");
+
+                if (payload.dados) {
+                    dados = payload.dados;
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
                 }
-            } catch (e) {}
-            return [];
-        }
-
-        function guardarClientesLista(lista) {
-            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
-
-        function obterCliente(id) {
-            var lista = carregarClientes();
-            return lista.find(function(c) { return c.id === id; });
-        }
-
-        function renderSelectClientes() {
-            var sel = document.getElementById("selCliente");
-            if (!sel) return;
-
-            var clientes = carregarClientes();
-            sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
-
-            clientes.sort(function(a, b) {
-                return (a.nome || "").localeCompare(b.nome || "");
-            });
-
-            clientes.forEach(function(c) {
-                var opt = document.createElement("option");
-                opt.value = c.id;
-                var label = c.nome;
-                if (c.contacto) label += " (" + c.contacto + ")";
-                opt.textContent = label;
-                sel.appendChild(opt);
-            });
-
-            if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
-                sel.value = clienteSelecionadoId;
+                if (payload.orcamentos) {
+                    try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(payload.orcamentos)); } catch (e) {}
+                }
+                if (payload.clientes) {
+                    try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(payload.clientes)); } catch (e) {}
+                }
+                if (payload.contador) {
+                    localStorage.setItem(STORAGE_CONTADOR, payload.contador);
+                }
+                if (payload.margem) {
+                    localStorage.setItem(MARGEM_KEY, payload.margem);
+                    var elM = document.getElementById("valMargem");
+                    if (elM) elM.value = payload.margem;
+                }
             } else {
-                clienteSelecionadoId = null;
-                sel.value = "";
+                console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
             }
-        }
+            sincronizacaoEmCurso = false;
 
-        function onChangeCliente() {
-            var sel = document.getElementById("selCliente");
-            if (!sel) return;
-            clienteSelecionadoId = sel.value || null;
+            recalcularContadorDoHistorico();
 
-            if (!clienteSelecionadoId) {
-                return;
-            }
-
-            var c = obterCliente(clienteSelecionadoId);
-            if (!c) return;
-
-            document.getElementById("inputClienteNome").value = c.nome || "";
-            document.getElementById("inputClienteContacto").value = c.contacto || "";
-            document.getElementById("inputClienteEmail").value = c.email || "";
-        }
-
-        function abrirFormCliente(editar) {
-            var c = editar && clienteSelecionadoId ? obterCliente(clienteSelecionadoId) : null;
-            if (editar && !c) {
-                alert("⚠️ Selecione um cliente da lista para editar.");
-                return;
-            }
-            document.getElementById("formCliente").classList.remove("hidden");
-            document.getElementById("tituloFormCliente").textContent = editar ? "✏️ Editar cliente" : "➕ Novo cliente";
-            document.getElementById("editClienteId").value = editar && c ? c.id : "";
-            document.getElementById("novoNomeCliente").value = editar && c ? (c.nome || "") : "";
-            document.getElementById("novoContactoCliente").value = editar && c ? (c.contacto || "") : "";
-            document.getElementById("novoEmailCliente").value = editar && c ? (c.email || "") : "";
-        }
-
-        function fecharFormCliente() {
-            document.getElementById("formCliente").classList.add("hidden");
-        }
-
-        function guardarClienteForm() {
-            var nome = document.getElementById("novoNomeCliente").value.trim();
-            if (!nome) { alert("⚠️ Indica o nome do cliente."); return; }
-            var contacto = document.getElementById("novoContactoCliente").value.trim();
-            var email = document.getElementById("novoEmailCliente").value.trim();
-            var eid = document.getElementById("editClienteId").value;
-
-            var lista = carregarClientes();
-
-            if (eid) {
-                var duplicado = lista.find(function(c) {
-                    return c.id !== eid && c.nome.toLowerCase() === nome.toLowerCase();
-                });
-                if (duplicado && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
-
-                var c = lista.find(function(x) { return x.id === eid; });
-                if (c) {
-                    c.nome = nome;
-                    c.contacto = contacto;
-                    c.email = email;
-                }
-                clienteSelecionadoId = eid;
-            } else {
-                var duplicado2 = lista.find(function(c) {
-                    return c.nome.toLowerCase() === nome.toLowerCase();
-                });
-                if (duplicado2 && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
-
-                var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
-                lista.push(novo);
-                clienteSelecionadoId = novo.id;
-            }
-
-            guardarClientesLista(lista);
-            fecharFormCliente();
+            renderTipos();
+            renderFornecedores();
+            renderTecnicas();
             renderSelectClientes();
+            atualizarNumeroEData();
+            atualizarContadorTab();
+            calcular();
+            atualizarInfoTecnica();
 
-            var c2 = obterCliente(clienteSelecionadoId);
-            if (c2) {
-                document.getElementById("inputClienteNome").value = c2.nome || "";
-                document.getElementById("inputClienteContacto").value = c2.contacto || "";
-                document.getElementById("inputClienteEmail").value = c2.email || "";
+            if (!doc.exists) {
+                guardarDadosNaNuvem();
             }
+        })
+        .catch(function(error) {
+            sincronizacaoEmCurso = false;
+            console.error("Erro ao carregar da nuvem:", error);
+        });
+}
 
-            alert("✅ Cliente guardado!");
-        }
+// ============================================================
+//  TABS
+// ============================================================
 
-        function eliminarCliente() {
-            if (!clienteSelecionadoId) {
-                alert("⚠️ Selecione um cliente primeiro.");
+function mudarTab(tab) {
+    var tabNovo = document.getElementById("tabNovo");
+    var tabHist = document.getElementById("tabHistorico");
+    var btnNovo = document.getElementById("tabBtnNovo");
+    var btnHist = document.getElementById("tabBtnHistorico");
+
+    if (tab === "novo") {
+        tabNovo.classList.remove("hidden");
+        tabHist.classList.add("hidden");
+        btnNovo.classList.add("active");
+        btnHist.classList.remove("active");
+    } else {
+        tabNovo.classList.add("hidden");
+        tabHist.classList.remove("hidden");
+        btnNovo.classList.remove("active");
+        btnHist.classList.add("active");
+        renderHistorico();
+    }
+}
+
+// ============================================================
+//  DADOS PADRÃO
+// ============================================================
+
+var DADOS_PADRAO = {
+    tipos: [
+        { id: "tp1", nome: "T-Shirt" },
+        { id: "tp2", nome: "Polo" },
+        { id: "tp3", nome: "Sweats" }
+    ],
+    fornecedores: [{
+        id: "f1", nome: "Roly", portes: 4.50,
+        materiais: [{
+            id: "m1", nome: "T-Shirt Beagle 150g", referencia: "BEAGLE-150", tipoId: "tp1",
+            variantes: [
+                { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
+                { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 }
+            ]
+        }]
+    }],
+    tecnicas: [
+        { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
+        { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 }
+    ]
+};
+
+var dados = null;
+var fornecedorId = null;
+var tipoSelecionadoId = "todos";
+var materialId = null;
+var varianteId = null;
+var tecnicaId = null;
+var clienteSelecionadoId = null;
+
+// ============================================================
+//  PERSISTÊNCIA
+// ============================================================
+
+function carregarDados() {
+    try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.fornecedores && parsed.tecnicas) {
+                if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
+                dados = parsed;
                 return;
             }
-            var c = obterCliente(clienteSelecionadoId);
-            if (!c) return;
-            if (!confirm("🗑️ Eliminar o cliente \"" + c.nome + "\"?\n\nOs orçamentos no histórico mantêm-se.")) return;
+        }
+    } catch (e) {}
+    dados = JSON.parse(JSON.stringify(DADOS_PADRAO));
+    guardarDados();
+}
 
-            var lista = carregarClientes();
-            lista = lista.filter(function(x) { return x.id !== clienteSelecionadoId; });
+function guardarDados() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+function obterFornecedor(id) {
+    return dados.fornecedores.find(function(f) { return f.id === id; });
+}
+
+function obterTipo(id) {
+    if (!dados.tipos || id === "todos") return null;
+    return dados.tipos.find(function(t) { return t.id === id; });
+}
+
+function obterMaterial(id) {
+    var f = obterFornecedor(fornecedorId);
+    if (!f) return null;
+    return f.materiais.find(function(m) { return m.id === id; });
+}
+
+function obterVariante(id) {
+    var m = obterMaterial(materialId);
+    if (!m) return null;
+    return m.variantes.find(function(v) { return v.id === id; });
+}
+
+function obterTecnica(id) {
+    return dados.tecnicas.find(function(t) { return t.id === id; });
+}
+
+// ============================================================
+//  CLIENTES
+// ============================================================
+
+function carregarClientes() {
+    try {
+        var raw = localStorage.getItem(STORAGE_CLIENTES);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) {}
+    return [];
+}
+
+function guardarClientesLista(lista) {
+    try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+function obterCliente(id) {
+    var lista = carregarClientes();
+    return lista.find(function(c) { return c.id === id; });
+}
+
+function renderSelectClientes() {
+    var sel = document.getElementById("selCliente");
+    if (!sel) return;
+
+    var clientes = carregarClientes();
+    sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
+
+    clientes.sort(function(a, b) {
+        return (a.nome || "").localeCompare(b.nome || "");
+    });
+
+    clientes.forEach(function(c) {
+        var opt = document.createElement("option");
+        opt.value = c.id;
+        var label = c.nome;
+        if (c.contacto) label += " (" + c.contacto + ")";
+        opt.textContent = label;
+        sel.appendChild(opt);
+    });
+
+    if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
+        sel.value = clienteSelecionadoId;
+    } else {
+        clienteSelecionadoId = null;
+        sel.value = "";
+    }
+}
+
+function onChangeCliente() {
+    var sel = document.getElementById("selCliente");
+    if (!sel) return;
+    clienteSelecionadoId = sel.value || null;
+
+    if (!clienteSelecionadoId) {
+        return;
+    }
+
+    var c = obterCliente(clienteSelecionadoId);
+    if (!c) return;
+
+    document.getElementById("inputClienteNome").value = c.nome || "";
+    document.getElementById("inputClienteContacto").value = c.contacto || "";
+    document.getElementById("inputClienteEmail").value = c.email || "";
+}
+
+function abrirFormCliente(editar) {
+    var c = editar && clienteSelecionadoId ? obterCliente(clienteSelecionadoId) : null;
+    if (editar && !c) {
+        alert("⚠️ Selecione um cliente da lista para editar.");
+        return;
+    }
+    document.getElementById("formCliente").classList.remove("hidden");
+    document.getElementById("tituloFormCliente").textContent = editar ? "✏️ Editar cliente" : "➕ Novo cliente";
+    document.getElementById("editClienteId").value = editar && c ? c.id : "";
+    document.getElementById("novoNomeCliente").value = editar && c ? (c.nome || "") : "";
+    document.getElementById("novoContactoCliente").value = editar && c ? (c.contacto || "") : "";
+    document.getElementById("novoEmailCliente").value = editar && c ? (c.email || "") : "";
+}
+
+function fecharFormCliente() {
+    document.getElementById("formCliente").classList.add("hidden");
+}
+
+function guardarClienteForm() {
+    var nome = document.getElementById("novoNomeCliente").value.trim();
+    if (!nome) { alert("⚠️ Indica o nome do cliente."); return; }
+    var contacto = document.getElementById("novoContactoCliente").value.trim();
+    var email = document.getElementById("novoEmailCliente").value.trim();
+    var eid = document.getElementById("editClienteId").value;
+
+    var lista = carregarClientes();
+
+    if (eid) {
+        var duplicado = lista.find(function(c) {
+            return c.id !== eid && c.nome.toLowerCase() === nome.toLowerCase();
+        });
+        if (duplicado && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
+
+        var c = lista.find(function(x) { return x.id === eid; });
+        if (c) {
+            c.nome = nome;
+            c.contacto = contacto;
+            c.email = email;
+        }
+        clienteSelecionadoId = eid;
+    } else {
+        var duplicado2 = lista.find(function(c) {
+            return c.nome.toLowerCase() === nome.toLowerCase();
+        });
+        if (duplicado2 && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
+
+        var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
+        lista.push(novo);
+        clienteSelecionadoId = novo.id;
+    }
+
+    guardarClientesLista(lista);
+    fecharFormCliente();
+    renderSelectClientes();
+
+    var c2 = obterCliente(clienteSelecionadoId);
+    if (c2) {
+        document.getElementById("inputClienteNome").value = c2.nome || "";
+        document.getElementById("inputClienteContacto").value = c2.contacto || "";
+        document.getElementById("inputClienteEmail").value = c2.email || "";
+    }
+
+    alert("✅ Cliente guardado!");
+}
+
+function eliminarCliente() {
+    if (!clienteSelecionadoId) {
+        alert("⚠️ Selecione um cliente primeiro.");
+        return;
+    }
+    var c = obterCliente(clienteSelecionadoId);
+    if (!c) return;
+    if (!confirm("🗑️ Eliminar o cliente \"" + c.nome + "\"?\n\nOs orçamentos no histórico mantêm-se.")) return;
+
+    var lista = carregarClientes();
+    lista = lista.filter(function(x) { return x.id !== clienteSelecionadoId; });
+    guardarClientesLista(lista);
+
+    clienteSelecionadoId = null;
+    renderSelectClientes();
+
+    document.getElementById("inputClienteNome").value = "";
+    document.getElementById("inputClienteContacto").value = "";
+    document.getElementById("inputClienteEmail").value = "";
+
+    alert("🗑️ Cliente eliminado!");
+}
+
+function guardarClienteAtual() {
+    var nome = document.getElementById("inputClienteNome").value.trim();
+    if (!nome) {
+        alert("⚠️ Preenche o nome do cliente primeiro.");
+        return;
+    }
+
+    var contacto = document.getElementById("inputClienteContacto").value.trim();
+    var email = document.getElementById("inputClienteEmail").value.trim();
+
+    var lista = carregarClientes();
+
+    if (clienteSelecionadoId) {
+        var c = lista.find(function(x) { return x.id === clienteSelecionadoId; });
+        if (c) {
+            c.nome = nome;
+            c.contacto = contacto;
+            c.email = email;
             guardarClientesLista(lista);
-
-            clienteSelecionadoId = null;
             renderSelectClientes();
-
-            document.getElementById("inputClienteNome").value = "";
-            document.getElementById("inputClienteContacto").value = "";
-            document.getElementById("inputClienteEmail").value = "";
-
-            alert("🗑️ Cliente eliminado!");
+            alert("✅ Cliente atualizado!");
+            return;
         }
+    }
 
-        function guardarClienteAtual() {
-            var nome = document.getElementById("inputClienteNome").value.trim();
-            if (!nome) {
-                alert("⚠️ Preenche o nome do cliente primeiro.");
-                return;
-            }
+    var existente = lista.find(function(c) {
+        return c.nome.toLowerCase() === nome.toLowerCase();
+    });
 
-            var contacto = document.getElementById("inputClienteContacto").value.trim();
-            var email = document.getElementById("inputClienteEmail").value.trim();
-
-            var lista = carregarClientes();
-
-            if (clienteSelecionadoId) {
-                var c = lista.find(function(x) { return x.id === clienteSelecionadoId; });
-                if (c) {
-                    c.nome = nome;
-                    c.contacto = contacto;
-                    c.email = email;
-                    guardarClientesLista(lista);
-                    renderSelectClientes();
-                    alert("✅ Cliente atualizado!");
-                    return;
-                }
-            }
-
-            var existente = lista.find(function(c) {
-                return c.nome.toLowerCase() === nome.toLowerCase();
-            });
-
-            if (existente) {
-                if (confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nAtualizar os dados desse cliente?")) {
-                    existente.contacto = contacto;
-                    existente.email = email;
-                    guardarClientesLista(lista);
-                    clienteSelecionadoId = existente.id;
-                    renderSelectClientes();
-                    alert("✅ Cliente atualizado!");
-                }
-                return;
-            }
-
-            var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
-            lista.push(novo);
+    if (existente) {
+        if (confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nAtualizar os dados desse cliente?")) {
+            existente.contacto = contacto;
+            existente.email = email;
             guardarClientesLista(lista);
-            clienteSelecionadoId = novo.id;
+            clienteSelecionadoId = existente.id;
             renderSelectClientes();
-            alert("✅ Cliente guardado!");
-        }    
-
-        // ============================================================
-        //  ORÇAMENTOS
-        // ============================================================
-
-        function carregarOrcamentos() {
-            try {
-                var raw = localStorage.getItem(STORAGE_ORCAMENTOS);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) return parsed;
-                }
-            } catch (e) {}
-            return [];
+            alert("✅ Cliente atualizado!");
         }
+        return;
+    }
 
-        function guardarOrcamentosLista(lista) {
-            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
+    var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
+    lista.push(novo);
+    guardarClientesLista(lista);
+    clienteSelecionadoId = novo.id;
+    renderSelectClientes();
+    alert("✅ Cliente guardado!");
+}
+
+// ============================================================
+//  ORÇAMENTOS
+// ============================================================
+
+function carregarOrcamentos() {
+    try {
+        var raw = localStorage.getItem(STORAGE_ORCAMENTOS);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
         }
+    } catch (e) {}
+    return [];
+}
 
-        function guardarOrcamento() {
+function guardarOrcamentosLista(lista) {
+    try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+// ✅ CORREÇÃO 3 — garantir número único (com limite anti-ciclo)
+function guardarOrcamento() {
     var nome = document.getElementById("inputClienteNome").value.trim();
     if (!nome) {
         alert("⚠️ Preenche o nome do cliente antes de guardar.");
@@ -1631,586 +1632,596 @@
         return;
     }
 
-    // 🔒 GARANTIR NÚMERO ÚNICO: recalcular contra o histórico antes de gravar
     recalcularContadorDoHistorico();
     var listaExistente = carregarOrcamentos();
     var numeroAtual = document.getElementById("numeroOrcamento").value;
+    var tentativas = 0;
 
-    // Se o número já existe no histórico, avançar até ser único
-    while (listaExistente.some(function(x) { return x.numero === numeroAtual; })) {
+    while (listaExistente.some(function(x) { return x.numero === numeroAtual; }) && tentativas < 1000) {
         incrementarContador();
         numeroAtual = gerarNumeroOrcamento();
+        tentativas++;
     }
+
+    if (listaExistente.some(function(x) { return x.numero === numeroAtual; })) {
+        alert("❌ Não foi possível gerar um número único.\n\nVerifica os orçamentos no histórico.");
+        return;
+    }
+
     document.getElementById("numeroOrcamento").value = numeroAtual;
 
     var tecnica = obterTecnica(tecnicaId);
-            var precoUnStr = document.getElementById("resPrecoUn").textContent;
-            var totalStr = document.getElementById("resTotalComercial").textContent;
-            var lucroUnStr = document.getElementById("resLucroUn").textContent;
-            var lucroTotalStr = document.getElementById("resLucroTotal").textContent;
+    var variante = obterVariante(varianteId);
+    var fornecedor = obterFornecedor(fornecedorId);
+    var tipo = obterTipo(material.tipoId);
 
-            var orcamento = {
-                id: gerarId(),
-                numero: document.getElementById("numeroOrcamento").value,
-                data: document.getElementById("dataOrcamento").value,
-                cliente: {
-                    id: clienteSelecionadoId || null,
-                    nome: nome,
-                    contacto: document.getElementById("inputClienteContacto").value.trim(),
-                    email: document.getElementById("inputClienteEmail").value.trim()
-                },
-                fornecedor: fornecedor ? fornecedor.nome : "",
-                material: material.nome,
-                referencia: material.referencia || "",
-                tipo: tipo ? tipo.nome : "",
-                cor: variante ? variante.nome : "",
-                tecnica: tecnica ? tecnica.nome : "",
-                quantidade: parseNum(document.getElementById("quantidade").value),
-                altura: parseNum(document.getElementById("alturaEstampa").value),
-                precoUn: precoUnStr,
-                total: totalStr,
-                lucroUn: lucroUnStr,
-                lucroTotal: lucroTotalStr,
-                dataGuardado: new Date().toLocaleString("pt-PT")
-            };
+    var precoUnStr = document.getElementById("resPrecoUn").textContent;
+    var totalStr = document.getElementById("resTotalComercial").textContent;
+    var lucroUnStr = document.getElementById("resLucroUn").textContent;
+    var lucroTotalStr = document.getElementById("resLucroTotal").textContent;
 
-            var lista = carregarOrcamentos();
-            lista.push(orcamento);
-            guardarOrcamentosLista(lista);
+    var orcamento = {
+        id: gerarId(),
+        numero: numeroAtual,
+        data: document.getElementById("dataOrcamento").value,
+        cliente: {
+            id: clienteSelecionadoId || null,
+            nome: nome,
+            contacto: document.getElementById("inputClienteContacto").value.trim(),
+            email: document.getElementById("inputClienteEmail").value.trim()
+        },
+        fornecedor: fornecedor ? fornecedor.nome : "",
+        material: material.nome,
+        referencia: material.referencia || "",
+        tipo: tipo ? tipo.nome : "",
+        cor: variante ? variante.nome : "",
+        tecnica: tecnica ? tecnica.nome : "",
+        quantidade: parseNum(document.getElementById("quantidade").value),
+        altura: parseNum(document.getElementById("alturaEstampa").value),
+        precoUn: precoUnStr,
+        total: totalStr,
+        lucroUn: lucroUnStr,
+        lucroTotal: lucroTotalStr,
+        dataGuardado: new Date().toLocaleString("pt-PT")
+    };
 
-            incrementarContador();
+    var lista = carregarOrcamentos();
+    lista.push(orcamento);
+    guardarOrcamentosLista(lista);
 
-            alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
+    incrementarContador();
 
-            limparFormularioNovo();
+    alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
+
+    limparFormularioNovo();
+}
+
+function limparFormularioNovo() {
+    document.getElementById("inputClienteNome").value = "";
+    document.getElementById("inputClienteContacto").value = "";
+    document.getElementById("inputClienteEmail").value = "";
+    document.getElementById("quantidade").value = "1";
+    document.getElementById("alturaEstampa").value = "10";
+
+    clienteSelecionadoId = null;
+    var selCli = document.getElementById("selCliente");
+    if (selCli) selCli.value = "";
+
+    atualizarNumeroEData();
+    calcular();
+    atualizarContadorTab();
+}
+
+function renderHistorico() {
+    var lista = carregarOrcamentos();
+    var pesquisa = (document.getElementById("pesquisaHistorico").value || "").toLowerCase().trim();
+
+    if (pesquisa) {
+        lista = lista.filter(function(o) {
+            return (o.cliente.nome || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.numero || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.data || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.material || "").toLowerCase().indexOf(pesquisa) !== -1;
+        });
+    }
+
+    lista = lista.slice().reverse();
+
+    var container = document.getElementById("listaHistorico");
+
+    if (!lista.length) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">' +
+            (pesquisa ? "Nenhum orçamento encontrado" : "Nenhum orçamento guardado") +
+            '</div>';
+        return;
+    }
+
+    var html = "";
+    lista.forEach(function(o) {
+        html += '<div class="historico-item">';
+        html += '<div class="topo">';
+        html += '<span class="numero">' + o.numero + '</span>';
+        html += '<span class="data">📅 ' + o.data + '</span>';
+        html += '</div>';
+        html += '<div class="cliente">👤 ' + o.cliente.nome + '</div>';
+        if (o.cliente.contacto || o.cliente.email) {
+            html += '<div class="detalhes">';
+            if (o.cliente.contacto) html += '📞 ' + o.cliente.contacto;
+            if (o.cliente.email) html += (o.cliente.contacto ? ' | ' : '') + '📧 ' + o.cliente.email;
+            html += '</div>';
         }
+        html += '<div class="detalhes">📦 ' + o.material + (o.tipo ? ' [' + o.tipo + ']' : '') + ' · 🎨 ' + o.cor + '</div>';
+        html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
+        html += '<div class="total">💰 ' + o.total + '</div>';
+        html += '<div class="acoes">';
+        html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
+        html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
+        html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
+        html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
+        html += '</div>';
+        html += '</div>';
+    });
 
-        function limparFormularioNovo() {
-            document.getElementById("inputClienteNome").value = "";
-            document.getElementById("inputClienteContacto").value = "";
-            document.getElementById("inputClienteEmail").value = "";
-            document.getElementById("quantidade").value = "1";
-            document.getElementById("alturaEstampa").value = "10";
+    container.innerHTML = html;
+}
 
-            clienteSelecionadoId = null;
-            var selCli = document.getElementById("selCliente");
-            if (selCli) selCli.value = "";
+function obterOrcamentoPorId(id) {
+    var lista = carregarOrcamentos();
+    return lista.find(function(o) { return o.id === id; });
+}
 
-            atualizarNumeroEData();
-            calcular();
-            atualizarContadorTab();
+function duplicarOrcamento(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) {
+        alert("⚠️ Orçamento não encontrado.");
+        return;
+    }
+
+    if (!confirm("📝 Duplicar o orçamento " + o.numero + "?\n\n" +
+                 "Vai ser criado um NOVO orçamento com:\n" +
+                 "• Novo número\n" +
+                 "• Data de hoje\n" +
+                 "• Os mesmos dados para poder editar\n\n" +
+                 "O orçamento original mantém-se no histórico.\n\n" +
+                 "Continuar?")) {
+        return;
+    }
+
+    mudarTab('novo');
+
+    clienteSelecionadoId = o.cliente.id || null;
+
+    document.getElementById("inputClienteNome").value = o.cliente.nome || "";
+    document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
+    document.getElementById("inputClienteEmail").value = o.cliente.email || "";
+
+    renderSelectClientes();
+
+    var fornecedorEncontrado = dados.fornecedores.find(function(f) {
+        return f.nome === o.fornecedor;
+    });
+    if (fornecedorEncontrado) {
+        fornecedorId = fornecedorEncontrado.id;
+        document.getElementById("selFornecedor").value = fornecedorId;
+        atualizarPortesFornecedor();
+    }
+
+    tipoSelecionadoId = "todos";
+    var selTipo = document.getElementById("selTipoMaterial");
+    if (selTipo) selTipo.value = "todos";
+
+    var fAtual = obterFornecedor(fornecedorId);
+    var materialEncontrado = null;
+    if (fAtual) {
+        materialEncontrado = fAtual.materiais.find(function(m) {
+            return m.nome === o.material && (m.referencia || "") === (o.referencia || "");
+        });
+    }
+
+    renderMateriais();
+
+    if (materialEncontrado) {
+        materialId = materialEncontrado.id;
+        document.getElementById("selMaterial").value = materialId;
+
+        var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
+            return v.nome === o.cor;
+        });
+        if (varianteEncontrada) {
+            varianteId = varianteEncontrada.id;
+            document.getElementById("selVariante").value = varianteId;
+            onChangeVariante();
         }
+    }
 
-        function renderHistorico() {
-            var lista = carregarOrcamentos();
-            var pesquisa = (document.getElementById("pesquisaHistorico").value || "").toLowerCase().trim();
+    var tecnicaEncontrada = dados.tecnicas.find(function(t) {
+        return t.nome === o.tecnica;
+    });
+    if (tecnicaEncontrada) {
+        tecnicaId = tecnicaEncontrada.id;
+        document.getElementById("selTecnica").value = tecnicaId;
+        atualizarInfoTecnica();
+    }
 
-            if (pesquisa) {
-                lista = lista.filter(function(o) {
-                    return (o.cliente.nome || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.numero || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.data || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.material || "").toLowerCase().indexOf(pesquisa) !== -1;
-                });
-            }
+    document.getElementById("quantidade").value = o.quantidade || 1;
+    document.getElementById("alturaEstampa").value = o.altura || 10;
 
-            lista = lista.slice().reverse();
+    atualizarNumeroEData();
+    calcular();
 
-            var container = document.getElementById("listaHistorico");
+    setTimeout(function() {
+        alert("✅ Orçamento duplicado!\n\n" +
+              "• Novo Nº: " + document.getElementById("numeroOrcamento").value + "\n" +
+              "• Data: " + document.getElementById("dataOrcamento").value + "\n\n" +
+              "Altere o que quiser e clique em 💾 Guardar Orçamento.");
+    }, 300);
+}
 
-            if (!lista.length) {
-                container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">' +
-                    (pesquisa ? "Nenhum orçamento encontrado" : "Nenhum orçamento guardado") +
-                    '</div>';
+function verOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+
+    var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📄 Nº: " + o.numero + "\n";
+    txt += "📅 Data: " + o.data + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "👤 Cliente: " + o.cliente.nome + "\n";
+    if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+    if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+    txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+    if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+    txt += "🎨 Cor: " + o.cor + "\n";
+    txt += "🖨️ Técnica: " + o.tecnica + "\n";
+    txt += "🔢 Quantidade: " + o.quantidade + "\n";
+    txt += "📏 Altura: " + o.altura + " cm\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "💰 Preço/un.: " + o.precoUn + "\n";
+    txt += "📊 Total: " + o.total + "\n";
+    txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "Guardado em: " + o.dataGuardado;
+
+    alert(txt);
+}
+
+function copiarOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+
+    var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📄 Nº: " + o.numero + "\n";
+    txt += "📅 Data: " + o.data + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "👤 Cliente: " + o.cliente.nome + "\n";
+    if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+    if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+    txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+    if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+    txt += "🎨 Cor: " + o.cor + "\n";
+    txt += "🖨️ Técnica: " + o.tecnica + "\n";
+    txt += "🔢 Quantidade: " + o.quantidade + "\n";
+    txt += "📏 Altura: " + o.altura + " cm\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "💰 Preço/un.: " + o.precoUn + "\n";
+    txt += "📊 Total: " + o.total + "\n";
+    txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━";
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function() {
+            alert("✅ Orçamento copiado!");
+        }).catch(function() {
+            prompt("📋 Copia o orçamento:", txt);
+        });
+    } else {
+        prompt("📋 Copia o orçamento:", txt);
+    }
+}
+
+function eliminarOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+    if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
+
+    var lista = carregarOrcamentos();
+    lista = lista.filter(function(x) { return x.id !== id; });
+    guardarOrcamentosLista(lista);
+    renderHistorico();
+    atualizarContadorTab();
+    alert("🗑️ Orçamento eliminado!");
+}
+
+function atualizarContadorTab() {
+    var lista = carregarOrcamentos();
+    var contador = document.getElementById("contadorHistorico");
+    if (contador) contador.textContent = lista.length;
+}
+
+// ============================================================
+//  TIPOS DE MATERIAL
+// ============================================================
+
+function renderTipos() {
+    var sel = document.getElementById("selTipoMaterial");
+    var selForm = document.getElementById("selTipoMaterialForm");
+    if (!sel || !selForm) return;
+
+    sel.innerHTML = "";
+    selForm.innerHTML = "";
+
+    var optTodos = document.createElement("option");
+    optTodos.value = "todos";
+    optTodos.textContent = "🔍 Todos os tipos";
+    sel.appendChild(optTodos);
+
+    if (!dados.tipos || !dados.tipos.length) {
+        selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
+        tipoSelecionadoId = "todos";
+        sel.value = "todos";
+        return;
+    }
+
+    dados.tipos.forEach(function(t) {
+        var opt1 = document.createElement("option");
+        opt1.value = t.id;
+        opt1.textContent = t.nome;
+        sel.appendChild(opt1);
+
+        var opt2 = document.createElement("option");
+        opt2.value = t.id;
+        opt2.textContent = t.nome;
+        selForm.appendChild(opt2);
+    });
+
+    if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
+        tipoSelecionadoId = "todos";
+    }
+    sel.value = tipoSelecionadoId;
+}
+
+function onChangeTipo() {
+    var sel = document.getElementById("selTipoMaterial");
+    if (!sel) return;
+    tipoSelecionadoId = sel.value;
+    materialId = null;
+    varianteId = null;
+    renderMateriais();
+    calcular();
+}
+
+function abrirFormTipo(editar) {
+    if (editar && tipoSelecionadoId === "todos") {
+        alert("⚠️ Selecione um tipo específico para editar.\n\n\"Todos\" é apenas um filtro.");
+        return;
+    }
+    var t = obterTipo(tipoSelecionadoId);
+    document.getElementById("formTipo").classList.remove("hidden");
+    document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
+    document.getElementById("editTipoId").value = editar && t ? t.id : "";
+    document.getElementById("inputNomeTipo").value = editar && t ? t.nome : "";
+}
+
+function fecharFormTipo() {
+    document.getElementById("formTipo").classList.add("hidden");
+}
+
+function guardarTipo() {
+    var nome = document.getElementById("inputNomeTipo").value.trim();
+    if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
+    var eid = document.getElementById("editTipoId").value;
+    if (eid) {
+        var t = obterTipo(eid);
+        if (t) t.nome = nome;
+    } else {
+        var novo = { id: gerarId(), nome: nome };
+        dados.tipos.push(novo);
+        tipoSelecionadoId = novo.id;
+    }
+    guardarDados();
+    fecharFormTipo();
+    renderTipos();
+    renderMateriais();
+}
+
+function eliminarTipo() {
+    if (tipoSelecionadoId === "todos") {
+        alert("⚠️ \"Todos\" é apenas um filtro, não pode ser eliminado.");
+        return;
+    }
+    if (!tipoSelecionadoId) return;
+    if (dados.tipos.length <= 1) { alert("⚠️ Manter pelo menos um tipo."); return; }
+    var t = obterTipo(tipoSelecionadoId);
+    if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?")) return;
+    dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
+    dados.fornecedores.forEach(function(f) {
+        (f.materiais || []).forEach(function(m) {
+            if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
+        });
+    });
+    tipoSelecionadoId = "todos";
+    guardarDados();
+    renderTipos();
+    renderMateriais();
+}
+
+// ============================================================
+//  EXPORTAR / IMPORTAR (backup local)
+// ============================================================
+
+function exportarDados() {
+    try {
+        var backup = {
+            versao: "6.0",
+            dataBackup: new Date().toLocaleString("pt-PT"),
+            dados: dados,
+            orcamentos: carregarOrcamentos(),
+            clientes: carregarClientes(),
+            contador: localStorage.getItem(STORAGE_CONTADOR),
+            margem: localStorage.getItem(MARGEM_KEY)
+        };
+        var json = JSON.stringify(backup, null, 2);
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var data = new Date().toISOString().slice(0, 10);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "grafisantos_backup_" + data + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert("✅ Backup local criado!");
+    } catch (e) {
+        alert("❌ Erro ao exportar: " + e.message);
+    }
+}
+
+function importarDados() {
+    var input = document.getElementById("inputImportar");
+    if (input) input.click();
+}
+
+function processarImportacao(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var conteudo = JSON.parse(e.target.result);
+            var dadosImportados = conteudo.dados || conteudo;
+            if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
+                alert("❌ Ficheiro inválido!");
+                event.target.value = "";
                 return;
             }
-
-            var html = "";
-            lista.forEach(function(o) {
-                html += '<div class="historico-item">';
-                html += '<div class="topo">';
-                html += '<span class="numero">' + o.numero + '</span>';
-                html += '<span class="data">📅 ' + o.data + '</span>';
-                html += '</div>';
-                html += '<div class="cliente">👤 ' + o.cliente.nome + '</div>';
-                if (o.cliente.contacto || o.cliente.email) {
-                    html += '<div class="detalhes">';
-                    if (o.cliente.contacto) html += '📞 ' + o.cliente.contacto;
-                    if (o.cliente.email) html += (o.cliente.contacto ? ' | ' : '') + '📧 ' + o.cliente.email;
-                    html += '</div>';
-                }
-                html += '<div class="detalhes">📦 ' + o.material + (o.tipo ? ' [' + o.tipo + ']' : '') + ' · 🎨 ' + o.cor + '</div>';
-                html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
-                html += '<div class="total">💰 ' + o.total + '</div>';
-                html += '<div class="acoes">';
-                html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
-                html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
-                html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
-                html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
-                html += '</div>';
-                html += '</div>';
-            });
-
-            container.innerHTML = html;
-        }
-
-        function obterOrcamentoPorId(id) {
-            var lista = carregarOrcamentos();
-            return lista.find(function(o) { return o.id === id; });
-        }
-
-        function duplicarOrcamento(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) {
-                alert("⚠️ Orçamento não encontrado.");
+            if (!dadosImportados.tipos) {
+                dadosImportados.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
+            }
+            if (!confirm("⚠️ Vai substituir TODOS os dados atuais.\n\nContinuar?")) {
+                event.target.value = "";
                 return;
             }
+            dados = dadosImportados;
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
 
-            if (!confirm("📝 Duplicar o orçamento " + o.numero + "?\n\n" +
-                         "Vai ser criado um NOVO orçamento com:\n" +
-                         "• Novo número\n" +
-                         "• Data de hoje\n" +
-                         "• Os mesmos dados para poder editar\n\n" +
-                         "O orçamento original mantém-se no histórico.\n\n" +
-                         "Continuar?")) {
-                return;
+            if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
+                try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(conteudo.orcamentos)); } catch (e) {}
+            }
+            if (conteudo.clientes && Array.isArray(conteudo.clientes)) {
+                try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(conteudo.clientes)); } catch (e) {}
+            }
+            if (conteudo.contador) {
+                localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
+            }
+            if (conteudo.margem) {
+                localStorage.setItem(MARGEM_KEY, conteudo.margem);
+                var em = document.getElementById("valMargem");
+                if (em) em.value = conteudo.margem;
             }
 
-            mudarTab('novo');
-
-            clienteSelecionadoId = o.cliente.id || null;
-
-            document.getElementById("inputClienteNome").value = o.cliente.nome || "";
-            document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
-            document.getElementById("inputClienteEmail").value = o.cliente.email || "";
-
-            renderSelectClientes();
-
-            var fornecedorEncontrado = dados.fornecedores.find(function(f) {
-                return f.nome === o.fornecedor;
-            });
-            if (fornecedorEncontrado) {
-                fornecedorId = fornecedorEncontrado.id;
-                document.getElementById("selFornecedor").value = fornecedorId;
-                atualizarPortesFornecedor();
-            }
-
+            fornecedorId = null;
             tipoSelecionadoId = "todos";
-            var selTipo = document.getElementById("selTipoMaterial");
-            if (selTipo) selTipo.value = "todos";
-
-            var fAtual = obterFornecedor(fornecedorId);
-            var materialEncontrado = null;
-            if (fAtual) {
-                materialEncontrado = fAtual.materiais.find(function(m) {
-                    return m.nome === o.material && (m.referencia || "") === (o.referencia || "");
-                });
-            }
-
-            renderMateriais();
-
-            if (materialEncontrado) {
-                materialId = materialEncontrado.id;
-                document.getElementById("selMaterial").value = materialId;
-
-                var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
-                    return v.nome === o.cor;
-                });
-                if (varianteEncontrada) {
-                    varianteId = varianteEncontrada.id;
-                    document.getElementById("selVariante").value = varianteId;
-                    onChangeVariante();
-                }
-            }
-
-            var tecnicaEncontrada = dados.tecnicas.find(function(t) {
-                return t.nome === o.tecnica;
-            });
-            if (tecnicaEncontrada) {
-                tecnicaId = tecnicaEncontrada.id;
-                document.getElementById("selTecnica").value = tecnicaId;
-                atualizarInfoTecnica();
-            }
-
-            document.getElementById("quantidade").value = o.quantidade || 1;
-            document.getElementById("alturaEstampa").value = o.altura || 10;
-
-            atualizarNumeroEData();
-            calcular();
-
-            setTimeout(function() {
-                alert("✅ Orçamento duplicado!\n\n" +
-                      "• Novo Nº: " + document.getElementById("numeroOrcamento").value + "\n" +
-                      "• Data: " + document.getElementById("dataOrcamento").value + "\n\n" +
-                      "Altere o que quiser e clique em 💾 Guardar Orçamento.");
-            }, 300);
-        }
-
-        function verOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-
-            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📄 Nº: " + o.numero + "\n";
-            txt += "📅 Data: " + o.data + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "👤 Cliente: " + o.cliente.nome + "\n";
-            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
-            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
-            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
-            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
-            txt += "🎨 Cor: " + o.cor + "\n";
-            txt += "🖨️ Técnica: " + o.tecnica + "\n";
-            txt += "🔢 Quantidade: " + o.quantidade + "\n";
-            txt += "📏 Altura: " + o.altura + " cm\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "💰 Preço/un.: " + o.precoUn + "\n";
-            txt += "📊 Total: " + o.total + "\n";
-            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "Guardado em: " + o.dataGuardado;
-
-            alert(txt);
-        }
-
-        function copiarOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-
-            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📄 Nº: " + o.numero + "\n";
-            txt += "📅 Data: " + o.data + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "👤 Cliente: " + o.cliente.nome + "\n";
-            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
-            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
-            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
-            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
-            txt += "🎨 Cor: " + o.cor + "\n";
-            txt += "🖨️ Técnica: " + o.tecnica + "\n";
-            txt += "🔢 Quantidade: " + o.quantidade + "\n";
-            txt += "📏 Altura: " + o.altura + " cm\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "💰 Preço/un.: " + o.precoUn + "\n";
-            txt += "📊 Total: " + o.total + "\n";
-            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━";
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(txt).then(function() {
-                    alert("✅ Orçamento copiado!");
-                }).catch(function() {
-                    prompt("📋 Copia o orçamento:", txt);
-                });
-            } else {
-                prompt("📋 Copia o orçamento:", txt);
-            }
-        }
-
-        function eliminarOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-            if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
-
-            var lista = carregarOrcamentos();
-            lista = lista.filter(function(x) { return x.id !== id; });
-            guardarOrcamentosLista(lista);
-            renderHistorico();
-            atualizarContadorTab();
-            alert("🗑️ Orçamento eliminado!");
-        }
-
-        function atualizarContadorTab() {
-            var lista = carregarOrcamentos();
-            var contador = document.getElementById("contadorHistorico");
-            if (contador) contador.textContent = lista.length;
-        }
-
-        // ============================================================
-        //  TIPOS DE MATERIAL
-        // ============================================================
-
-        function renderTipos() {
-            var sel = document.getElementById("selTipoMaterial");
-            var selForm = document.getElementById("selTipoMaterialForm");
-            if (!sel || !selForm) return;
-
-            sel.innerHTML = "";
-            selForm.innerHTML = "";
-
-            var optTodos = document.createElement("option");
-            optTodos.value = "todos";
-            optTodos.textContent = "🔍 Todos os tipos";
-            sel.appendChild(optTodos);
-
-            if (!dados.tipos || !dados.tipos.length) {
-                selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
-                tipoSelecionadoId = "todos";
-                sel.value = "todos";
-                return;
-            }
-
-            dados.tipos.forEach(function(t) {
-                var opt1 = document.createElement("option");
-                opt1.value = t.id;
-                opt1.textContent = t.nome;
-                sel.appendChild(opt1);
-
-                var opt2 = document.createElement("option");
-                opt2.value = t.id;
-                opt2.textContent = t.nome;
-                selForm.appendChild(opt2);
-            });
-
-            if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
-                tipoSelecionadoId = "todos";
-            }
-            sel.value = tipoSelecionadoId;
-        }
-
-        function onChangeTipo() {
-            var sel = document.getElementById("selTipoMaterial");
-            if (!sel) return;
-            tipoSelecionadoId = sel.value;
             materialId = null;
             varianteId = null;
-            renderMateriais();
+            tecnicaId = null;
+            clienteSelecionadoId = null;
+
+            recalcularContadorDoHistorico();
+            renderTipos();
+            renderFornecedores();
+            renderTecnicas();
+            renderSelectClientes();
             calcular();
-        }
+            atualizarInfoTecnica();
+            atualizarNumeroEData();
+            atualizarContadorTab();
 
-        function abrirFormTipo(editar) {
-            if (editar && tipoSelecionadoId === "todos") {
-                alert("⚠️ Selecione um tipo específico para editar.\n\n\"Todos\" é apenas um filtro.");
-                return;
-            }
-            var t = obterTipo(tipoSelecionadoId);
-            document.getElementById("formTipo").classList.remove("hidden");
-            document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
-            document.getElementById("editTipoId").value = editar && t ? t.id : "";
-            document.getElementById("inputNomeTipo").value = editar && t ? t.nome : "";
-        }
+            if (utilizadorAtual) guardarDadosNaNuvem();
 
-        function fecharFormTipo() {
-            document.getElementById("formTipo").classList.add("hidden");
+            alert("✅ Backup restaurado!");
+        } catch (err) {
+            alert("❌ Erro ao ler o ficheiro: " + err.message);
         }
+        event.target.value = "";
+    };
+    reader.readAsText(file);
+}
 
-        function guardarTipo() {
-            var nome = document.getElementById("inputNomeTipo").value.trim();
-            if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
-            var eid = document.getElementById("editTipoId").value;
-            if (eid) {
-                var t = obterTipo(eid);
-                if (t) t.nome = nome;
-            } else {
-                var novo = { id: gerarId(), nome: nome };
-                dados.tipos.push(novo);
-                tipoSelecionadoId = novo.id;
-            }
-            guardarDados();
-            fecharFormTipo();
-            renderTipos();
-            renderMateriais();
-        }
+// ============================================================
+//  VARIANTES
+// ============================================================
 
-        function eliminarTipo() {
-            if (tipoSelecionadoId === "todos") {
-                alert("⚠️ \"Todos\" é apenas um filtro, não pode ser eliminado.");
-                return;
-            }
-            if (!tipoSelecionadoId) return;
-            if (dados.tipos.length <= 1) { alert("⚠️ Manter pelo menos um tipo."); return; }
-            var t = obterTipo(tipoSelecionadoId);
-            if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?")) return;
-            dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
-            dados.fornecedores.forEach(function(f) {
-                (f.materiais || []).forEach(function(m) {
-                    if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
-                });
+function criarCampoVariante(variante) {
+    variante = variante || { id: "", nome: "", cor: "#ffffff", preco: 0 };
+    var div = document.createElement("div");
+    div.className = "variante-form";
+    var html = '<input type="color" class="inputCor" value="' + (variante.cor || '#ffffff') + '" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">';
+    html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
+    html += '<div class="campo-euro" style="flex:1;">';
+    html += '<span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>';
+    html += '<input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
+    html += '</div>';
+    html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
+    html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
+    div.innerHTML = html;
+    return div;
+}
+
+function adicionarVarianteForm() {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    container.appendChild(criarCampoVariante(null));
+}
+
+function removerVarianteForm(btn) {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    if (container.children.length <= 1) {
+        alert("⚠️ É necessário manter pelo menos uma cor.");
+        return;
+    }
+    container.removeChild(btn.parentNode);
+}
+
+function carregarVariantesForm(material) {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    if (material && material.variantes && material.variantes.length) {
+        material.variantes.forEach(function(v) {
+            container.appendChild(criarCampoVariante(v));
+        });
+    } else {
+        container.appendChild(criarCampoVariante(null));
+    }
+}
+
+function obterVariantesDoForm() {
+    var variantes = [];
+    var items = document.querySelectorAll("#variantesFormContainer .variante-form");
+    items.forEach(function(item) {
+        var nome = item.querySelector(".inputVarianteNome").value.trim();
+        var preco = parseNum(item.querySelector(".inputVariantePreco").value);
+        var cor = item.querySelector(".inputCor").value;
+        var idEl = item.querySelector(".inputVarianteId");
+        if (nome) {
+            variantes.push({
+                id: idEl && idEl.value ? idEl.value : gerarId(),
+                nome: nome,
+                cor: cor || "#ffffff",
+                preco: preco
             });
-            tipoSelecionadoId = "todos";
-            guardarDados();
-            renderTipos();
-            renderMateriais();
         }
+    });
+    return variantes;
+}
 
-        // ============================================================
-        //  EXPORTAR / IMPORTAR (backup local)
-        // ============================================================
-
-        function exportarDados() {
-            try {
-                var backup = {
-                    versao: "6.0",
-                    dataBackup: new Date().toLocaleString("pt-PT"),
-                    dados: dados,
-                    orcamentos: carregarOrcamentos(),
-                    clientes: carregarClientes(),
-                    contador: localStorage.getItem(STORAGE_CONTADOR),
-                    margem: localStorage.getItem(MARGEM_KEY)
-                };
-                var json = JSON.stringify(backup, null, 2);
-                var blob = new Blob([json], { type: "application/json" });
-                var url = URL.createObjectURL(blob);
-                var data = new Date().toISOString().slice(0, 10);
-                var a = document.createElement("a");
-                a.href = url;
-                a.download = "grafisantos_backup_" + data + ".json";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                alert("✅ Backup local criado!");
-            } catch (e) {
-                alert("❌ Erro ao exportar: " + e.message);
-            }
-        }
-
-        function importarDados() {
-            var input = document.getElementById("inputImportar");
-            if (input) input.click();
-        }
-
-        function processarImportacao(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var conteudo = JSON.parse(e.target.result);
-                    var dadosImportados = conteudo.dados || conteudo;
-                    if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
-                        alert("❌ Ficheiro inválido!");
-                        event.target.value = "";
-                        return;
-                    }
-                    if (!dadosImportados.tipos) {
-                        dadosImportados.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
-                    }
-                    if (!confirm("⚠️ Vai substituir TODOS os dados atuais.\n\nContinuar?")) {
-                        event.target.value = "";
-                        return;
-                    }
-                    dados = dadosImportados;
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-
-                    if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
-                        try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(conteudo.orcamentos)); } catch (e) {}
-                    }
-                    if (conteudo.clientes && Array.isArray(conteudo.clientes)) {
-                        try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(conteudo.clientes)); } catch (e) {}
-                    }
-                    if (conteudo.contador) {
-                        localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
-                    }
-                    if (conteudo.margem) {
-                        localStorage.setItem(MARGEM_KEY, conteudo.margem);
-                        var em = document.getElementById("valMargem");
-                        if (em) em.value = conteudo.margem;
-                    }
-
-                    fornecedorId = null;
-                    tipoSelecionadoId = "todos";
-                    materialId = null;
-                    varianteId = null;
-                    tecnicaId = null;
-                    clienteSelecionadoId = null;
-
-                    recalcularContadorDoHistorico();
-                    renderTipos();
-                    renderFornecedores();
-                    renderTecnicas();
-                    renderSelectClientes();
-                    calcular();
-                    atualizarInfoTecnica();
-                    atualizarNumeroEData();
-                    atualizarContadorTab();
-
-                    if (utilizadorAtual) guardarDadosNaNuvem();
-
-                    alert("✅ Backup restaurado!");
-                } catch (err) {
-                    alert("❌ Erro ao ler o ficheiro: " + err.message);
-                }
-                event.target.value = "";
-            };
-            reader.readAsText(file);
-        }
-
-        // ============================================================
-        //  VARIANTES
-        // ============================================================
-
-        function criarCampoVariante(variante) {
-            variante = variante || { id: "", nome: "", cor: "#ffffff", preco: 0 };
-            var div = document.createElement("div");
-            div.className = "variante-form";
-            var html = '<input type="color" class="inputCor" value="' + (variante.cor || '#ffffff') + '" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">';
-            html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
-            html += '<div class="campo-euro" style="flex:1;">';
-            html += '<span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>';
-            html += '<input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
-            html += '</div>';
-            html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
-            html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
-            div.innerHTML = html;
-            return div;
-        }
-
-        function adicionarVarianteForm() {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            container.appendChild(criarCampoVariante(null));
-        }
-
-        function removerVarianteForm(btn) {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            if (container.children.length <= 1) {
-                alert("⚠️ É necessário manter pelo menos uma cor.");
-                return;
-            }
-            container.removeChild(btn.parentNode);
-        }
-
-        function carregarVariantesForm(material) {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            container.innerHTML = "";
-            if (material && material.variantes && material.variantes.length) {
-                material.variantes.forEach(function(v) {
-                    container.appendChild(criarCampoVariante(v));
-                });
-            } else {
-                container.appendChild(criarCampoVariante(null));
-            }
-        }
-
-        function obterVariantesDoForm() {
-            var variantes = [];
-            var items = document.querySelectorAll("#variantesFormContainer .variante-form");
-            items.forEach(function(item) {
-                var nome = item.querySelector(".inputVarianteNome").value.trim();
-                var preco = parseNum(item.querySelector(".inputVariantePreco").value);
-                var cor = item.querySelector(".inputCor").value;
-                var idEl = item.querySelector(".inputVarianteId");
-                if (nome) {
-                    variantes.push({
-                        id: idEl && idEl.value ? idEl.value : gerarId(),
-                        nome: nome,
-                        cor: cor || "#ffffff",
-                        preco: preco
-                    });
-                }
-            });
-            return variantes;
-        } 
-        
         // ============================================================
         //  FORNECEDORES
         // ============================================================
