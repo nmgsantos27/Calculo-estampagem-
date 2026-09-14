@@ -2,7 +2,7 @@ name: Limpar Backups Antigos
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # Todos os dias às 4h da manhã
+    - cron: '0 4 * * *'
   workflow_dispatch:
 
 jobs:
