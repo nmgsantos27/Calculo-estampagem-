@@ -532,6 +532,10 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -556,6 +560,41 @@
             </div>
         </div>
 
+        <!-- CARD DE UTILIZADOR / LOGIN -->
+        <div class="card no-print" id="cardUser" style="background:#f0fdf4;border-color:#bbf7d0;padding:10px 14px;">
+            <!-- Quando NÃO autenticado -->
+            <div id="areaLogin" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div style="font-size:0.85rem;color:#166534;font-weight:600;">
+                    🔐 Sincroniza entre dispositivos
+                </div>
+                <button onclick="fazerLogin()" style="background:#fff;color:#1e293b;border:1px solid #cbd5e1;padding:8px 14px;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 48 48">
+                        <path fill="#FFC107" d="M43.6 20.5H42V20.5H24v7h11.3C33.7 31.4 29.3 34 24 34c-5.5 0-10.1-3.7-11.8-8.7-0.5-1.4-0.7-2.8-0.7-4.3s0.3-3 0.7-4.3c1.6-5 6.3-8.7 11.8-8.7 3 0 5.7 1.1 7.7 2.9l5.3-5.3C33.6 3.1 29 1.5 24 1.5 14.4 1.5 6.2 7 2.4 15c-1.3 2.7-2 5.7-2 8.9s0.7 6.2 2 8.9c3.8 8 12 13.5 21.6 13.5 10.9 0 19.8-7.8 19.8-22.4 0-1.5-0.2-3-0.5-4.4z"/>
+                        <path fill="#4CAF50" d="M24 46.5c5.5 0 10.5-2 14.3-5.3l-5.5-4.6C30.7 38.3 27.5 39.5 24 39.5c-5.3 0-9.7-2.6-11.3-7.5l-5.8 4.4C10.6 42.3 16.6 46.5 24 46.5z"/>
+                        <path fill="#1976D2" d="M43.6 20.5H42V20.5H24v7h11.3c-0.7 2-2 3.7-3.7 4.9l5.5 4.6C40.9 34.2 44 29.7 44 24.5c0-1.4-0.1-2.7-0.4-4z"/>
+                    </svg>
+                    Entrar com Google
+                </button>
+            </div>
+
+            <!-- Quando autenticado -->
+            <div id="areaUserLogado" class="hidden">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;">
+                        <img id="userAvatar" src="" alt="" style="width:28px;height:28px;border-radius:50%;">
+                        <div>
+                            <div style="font-weight:600;color:#1e293b;" id="userNome">—</div>
+                            <div style="font-size:0.7rem;color:#64748b;" id="userEmail">—</div>
+                        </div>
+                    </div>
+                    <button onclick="fazerLogout()" class="btn btn-secondary">Sair</button>
+                </div>
+                <div style="margin-top:8px;font-size:0.75rem;color:#065f46;">
+                    ✅ Dados sincronizados automaticamente entre dispositivos
+                </div>
+            </div>
+        </div>
+
         <!-- TABS -->
         <div class="tabs no-print">
             <button class="tab-btn active" id="tabBtnNovo" onclick="mudarTab('novo')">
@@ -566,12 +605,9 @@
             </button>
         </div>
 
-        <!-- ============================================ -->
         <!-- TAB NOVO ORÇAMENTO -->
-        <!-- ============================================ -->
         <div id="tabNovo" class="tab-content">
 
-            <!-- ORÇAMENTO + CLIENTE -->
             <div class="card card-orcamento">
                 <div class="section-title">📄 Orçamento</div>
                 <div class="grid-2">
@@ -585,7 +621,6 @@
                     </div>
                 </div>
 
-                <!-- SELETOR DE CLIENTE -->
                 <div class="section-title" style="margin-top:12px;">👤 Cliente</div>
                 <div class="flex">
                     <div class="field flex-grow" style="margin-bottom:0;">
@@ -599,7 +634,6 @@
                     </div>
                 </div>
 
-                <!-- DADOS DO CLIENTE (preenchidos ao selecionar) -->
                 <div class="field">
                     <label>Nome:</label>
                     <input type="text" id="inputClienteNome" placeholder="Nome do Cliente">
@@ -619,7 +653,6 @@
                     💾 Guardar Cliente
                 </button>
 
-                <!-- FORM NOVO/EDITAR CLIENTE -->
                 <div class="form-panel hidden" id="formCliente">
                     <h4 id="tituloFormCliente">Novo cliente</h4>
                     <input type="hidden" id="editClienteId">
@@ -633,7 +666,6 @@
                 </div>
             </div>
 
-            <!-- FORNECEDORES -->
             <div class="card no-print">
                 <div class="section-title">📦 Fornecedor</div>
                 <div class="flex">
@@ -662,7 +694,6 @@
                 </div>
             </div>
 
-            <!-- TIPOS DE MATERIAL -->
             <div class="card no-print">
                 <div class="section-title">🏷️ Tipo de Material</div>
                 <div class="flex">
@@ -687,7 +718,6 @@
                 </div>
             </div>
 
-            <!-- MATERIAIS -->
             <div class="card no-print">
                 <div class="section-title">👕 Material / Peça</div>
                 <div class="flex">
@@ -724,7 +754,6 @@
                 </div>
             </div>
 
-            <!-- TÉCNICAS -->
             <div class="card no-print">
                 <div class="section-title">🖨️ Técnica de Estampagem</div>
                 <div class="flex">
@@ -766,7 +795,6 @@
                 </div>
             </div>
 
-            <!-- CÁLCULO -->
             <div class="card">
                 <div class="section-title">📐 Dimensões da Estampa</div>
                 <div class="grid-2">
@@ -819,7 +847,6 @@
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
             <div class="card card-resultados">
                 <div class="result-row result-destaque">
                     <span>💰 Preço Venda / Un (c/IVA):</span>
@@ -849,17 +876,13 @@
                 </div>
             </div>
 
-            <!-- FOOTER -->
             <div class="footer-info">
                 <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
             </div>
 
         </div>
-        <!-- FIM TAB NOVO -->
 
-        <!-- ============================================ -->
         <!-- TAB HISTÓRICO -->
-        <!-- ============================================ -->
         <div id="tabHistorico" class="tab-content hidden">
             <div class="card">
                 <div class="section-title">📋 Histórico de Orçamentos</div>
@@ -878,12 +901,38 @@
                 </div>
             </div>
         </div>
-        <!-- FIM TAB HISTÓRICO -->
 
     </div>
 
     <script>
         "use strict";
+
+        // ============================================================
+        //  CONFIGURAÇÃO FIREBASE
+        //  ⚠️ SUBSTITUI ESTES VALORES PELOS QUE COPIASTE
+        // ============================================================
+
+        var firebaseConfig = {
+            apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
+            authDomain: "grafisantos-orcamentos.firebaseapp.com",
+            projectId: "grafisantos-orcamentos",
+            storageBucket: "grafisantos-orcamentos.appspot.com",
+            messagingSenderId: "769855753160",
+            appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
+        };
+
+        // Inicializar Firebase
+        var app = firebase.initializeApp(firebaseConfig);
+        var auth = firebase.auth();
+        var db = firebase.firestore();
+        var provider = new firebase.auth.GoogleAuthProvider();
+
+        var utilizadorAtual = null;
+        var sincronizacaoEmCurso = false;
+
+        // ============================================================
+        //  CONFIGURAÇÕES
+        // ============================================================
 
         var TAXA_IVA = 1.23;
         var STORAGE_KEY = "grafisantos_v8";
@@ -916,6 +965,7 @@
             var val = document.getElementById("valMargem").value;
             try { localStorage.setItem(MARGEM_KEY, val); } catch (e) {}
             calcular();
+            if (utilizadorAtual) guardarDadosNaNuvem();
         }
 
         function carregarMargem() {
@@ -925,6 +975,126 @@
                     document.getElementById("valMargem").value = val;
                 }
             } catch (e) {}
+        }
+
+        // ============================================================
+        //  FIREBASE - AUTENTICAÇÃO
+        // ============================================================
+
+        function fazerLogin() {
+            auth.signInWithPopup(provider)
+                .then(function(result) {
+                    console.log("Login OK:", result.user.email);
+                })
+                .catch(function(error) {
+                    console.error("Erro login:", error);
+                    alert("❌ Erro ao entrar: " + error.message);
+                });
+        }
+
+        function fazerLogout() {
+            if (!confirm("Sair da conta?\n\nOs dados locais mantêm-se no dispositivo.")) return;
+            auth.signOut();
+        }
+
+        auth.onAuthStateChanged(function(user) {
+            var areaLogin = document.getElementById("areaLogin");
+            var areaLogado = document.getElementById("areaUserLogado");
+
+            if (user) {
+                utilizadorAtual = user;
+                areaLogin.classList.add("hidden");
+                areaLogado.classList.remove("hidden");
+                document.getElementById("userNome").textContent = user.displayName || "Utilizador";
+                document.getElementById("userEmail").textContent = user.email || "";
+                if (user.photoURL) document.getElementById("userAvatar").src = user.photoURL;
+
+                carregarDadosDaNuvem();
+            } else {
+                utilizadorAtual = null;
+                areaLogin.classList.remove("hidden");
+                areaLogado.classList.add("hidden");
+            }
+        });
+
+        // ============================================================
+        //  FIREBASE - GUARDAR / CARREGAR
+        // ============================================================
+
+        function guardarDadosNaNuvem() {
+            if (!utilizadorAtual || sincronizacaoEmCurso) return;
+            sincronizacaoEmCurso = true;
+
+            var payload = {
+                dados: dados,
+                orcamentos: carregarOrcamentos(),
+                clientes: carregarClientes(),
+                contador: localStorage.getItem(STORAGE_CONTADOR),
+                margem: localStorage.getItem(MARGEM_KEY),
+                ultimaModificacao: Date.now()
+            };
+
+            db.collection("userData").doc(utilizadorAtual.uid).set(payload)
+                .then(function() {
+                    sincronizacaoEmCurso = false;
+                    console.log("✅ Dados guardados na nuvem");
+                })
+                .catch(function(error) {
+                    sincronizacaoEmCurso = false;
+                    console.error("Erro ao guardar na nuvem:", error);
+                });
+        }
+
+        function carregarDadosDaNuvem() {
+            if (!utilizadorAtual) return;
+            sincronizacaoEmCurso = true;
+
+            db.collection("userData").doc(utilizadorAtual.uid).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        var payload = doc.data();
+                        console.log("📥 Dados recebidos da nuvem");
+
+                        if (payload.dados) {
+                            dados = payload.dados;
+                            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
+                        }
+                        if (payload.orcamentos) {
+                            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(payload.orcamentos)); } catch (e) {}
+                        }
+                        if (payload.clientes) {
+                            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(payload.clientes)); } catch (e) {}
+                        }
+                        if (payload.contador) {
+                            localStorage.setItem(STORAGE_CONTADOR, payload.contador);
+                        }
+                        if (payload.margem) {
+                            localStorage.setItem(MARGEM_KEY, payload.margem);
+                            var elM = document.getElementById("valMargem");
+                            if (elM) elM.value = payload.margem;
+                        }
+                    } else {
+                        console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
+                    }
+                    sincronizacaoEmCurso = false;
+
+                    renderTipos();
+                    renderFornecedores();
+                    renderTecnicas();
+                    renderSelectClientes();
+                    atualizarNumeroEData();
+                    atualizarContadorTab();
+                    calcular();
+                    atualizarInfoTecnica();
+
+                    if (!doc.exists) {
+                        guardarDadosNaNuvem();
+                    }
+                })
+                .catch(function(error) {
+                    sincronizacaoEmCurso = false;
+                    console.error("Erro ao carregar da nuvem:", error);
+                });
         }
 
         // ============================================================
@@ -1026,6 +1196,7 @@
 
         function guardarDados() {
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
+            if (utilizadorAtual) guardarDadosNaNuvem();
         }
 
         function obterFornecedor(id) {
@@ -1070,6 +1241,7 @@
 
         function guardarClientesLista(lista) {
             try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
+            if (utilizadorAtual) guardarDadosNaNuvem();
         }
 
         function obterCliente(id) {
@@ -1330,6 +1502,7 @@
 
         function guardarOrcamentosLista(lista) {
             try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
+            if (utilizadorAtual) guardarDadosNaNuvem();
         }
 
         function guardarOrcamento() {
@@ -1752,12 +1925,13 @@
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "5.0",
+                    versao: "6.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados,
                     orcamentos: carregarOrcamentos(),
                     clientes: carregarClientes(),
-                    contador: localStorage.getItem(STORAGE_CONTADOR)
+                    contador: localStorage.getItem(STORAGE_CONTADOR),
+                    margem: localStorage.getItem(MARGEM_KEY)
                 };
                 var json = JSON.stringify(backup, null, 2);
                 var blob = new Blob([json], { type: "application/json" });
@@ -1802,16 +1976,21 @@
                         return;
                     }
                     dados = dadosImportados;
-                    guardarDados();
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
 
                     if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
-                        guardarOrcamentosLista(conteudo.orcamentos);
+                        try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(conteudo.orcamentos)); } catch (e) {}
                     }
                     if (conteudo.clientes && Array.isArray(conteudo.clientes)) {
-                        guardarClientesLista(conteudo.clientes);
+                        try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(conteudo.clientes)); } catch (e) {}
                     }
                     if (conteudo.contador) {
                         localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
+                    }
+                    if (conteudo.margem) {
+                        localStorage.setItem(MARGEM_KEY, conteudo.margem);
+                        var em = document.getElementById("valMargem");
+                        if (em) em.value = conteudo.margem;
                     }
 
                     fornecedorId = null;
@@ -1829,6 +2008,9 @@
                     atualizarInfoTecnica();
                     atualizarNumeroEData();
                     atualizarContadorTab();
+
+                    if (utilizadorAtual) guardarDadosNaNuvem();
+
                     alert("✅ Backup restaurado!");
                 } catch (err) {
                     alert("❌ Erro ao ler o ficheiro: " + err.message);
