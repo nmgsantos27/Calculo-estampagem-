@@ -1,24 +1,25 @@
 {
-    "name": "GrafiSantos Print",
+    "name": "GrafiSantos Print & Stock",
     "short_name": "GrafiSantos",
-    "description": "Calculadora de orçamentos para estampagem",
+    "description": "Orçamentos e Stock da GrafiSantos",
     "start_url": "./index.html",
     "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
-    "background_color": "#f1f5f9",
-    "theme_color": "#2563eb",
-    "categories": ["business", "productivity"],
+    "background_color": "#1e293b",
+    "theme_color": "#1e293b",
     "icons": [
         {
             "src": "icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "icon-512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         }
     ]
 }
