@@ -1,4 +1,4 @@
-var CACHE_NAME = "grafisantos-v11";
+var CACHE_NAME = "grafisantos-v12";
 
 var urlsToCache = [
     "./",
