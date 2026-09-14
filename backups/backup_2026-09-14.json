@@ -1,7 +1,45 @@
 {
   "versao": "1.0",
-  "dataBackup": "14/09/2026, 15:07:37",
+  "dataBackup": "14/09/2026, 15:14:48",
   "dados": {
+    "tipos": [
+      {
+        "id": "tp1",
+        "nome": "T-Shirt"
+      },
+      {
+        "id": "tp2",
+        "nome": "Polo"
+      },
+      {
+        "id": "tp3",
+        "nome": "Sweats"
+      },
+      {
+        "id": "1789392572565_5pnt",
+        "nome": "canecas"
+      }
+    ],
+    "tecnicas": [
+      {
+        "id": "t1",
+        "nome": "DTF",
+        "custoMetro": 5.5,
+        "largura": 28
+      },
+      {
+        "id": "t2",
+        "custoMetro": 9,
+        "largura": 50,
+        "nome": "Vinil Flex"
+      },
+      {
+        "largura": 56,
+        "custoMetro": 17.5,
+        "id": "t3",
+        "nome": "Sublimação"
+      }
+    ],
     "fornecedores": [
       {
         "nome": "Tejobrinde",
@@ -17,214 +55,176 @@
                 "preco": 2
               },
               {
-                "nome": "Cores",
+                "id": "1789036087105_9lp1",
                 "cor": "#000000",
-                "preco": 2.1,
-                "id": "1789036087105_9lp1"
+                "nome": "Cores",
+                "preco": 2.1
               }
             ]
           },
           {
+            "id": "1789037547154_spl8",
             "variantes": [
               {
                 "nome": "Branco",
                 "preco": 2.51,
-                "id": "1789036087105_kcn7",
-                "cor": "#ffffff"
+                "cor": "#ffffff",
+                "id": "1789036087105_kcn7"
               },
               {
+                "preco": 2.61,
                 "id": "1789036087105_9lp1",
                 "cor": "#000000",
-                "preco": 2.61,
                 "nome": "Cores"
               }
             ],
-            "nome": "190g T-shirt Unissexo",
-            "id": "1789037547154_spl8"
+            "nome": "190g T-shirt Unissexo"
           },
           {
+            "tipoId": "tp1",
             "nome": "T-shirt Unissexo",
             "variantes": [
               {
-                "nome": "Branco",
-                "preco": 2,
                 "cor": "#ffffff",
+                "preco": 2,
+                "nome": "Branco",
                 "id": "1789392533213_aaer"
               }
             ],
             "referencia": "150g",
-            "tipoId": "tp1",
             "id": "1789392533213_11qp"
           },
           {
+            "id": "1789392591900_dd3z",
+            "tipoId": "1789392572565_5pnt",
             "nome": "Cenecas",
             "variantes": [
               {
-                "id": "1789392591900_tv5k",
-                "cor": "#ffffff",
                 "nome": "branco",
-                "preco": 8
+                "preco": 8,
+                "id": "1789392591900_tv5k",
+                "cor": "#ffffff"
               }
             ],
-            "tipoId": "1789392572565_5pnt",
-            "referencia": "",
-            "id": "1789392591900_dd3z"
+            "referencia": ""
           }
         ],
         "portes": 3,
         "id": "1789036056090_k6ur"
       },
       {
-        "nome": "Material do cliente",
         "portes": 0,
         "id": "1789036898471_121o",
         "materiais": [
           {
+            "id": "1789036926273_9i0g",
+            "nome": "Material do cliente",
             "variantes": [
               {
-                "preco": 0,
-                "id": "1789036926273_gzlu",
                 "nome": "Sem cor",
+                "id": "1789036926273_gzlu",
+                "preco": 0,
                 "cor": "#ffffff"
               }
-            ],
-            "nome": "Material do cliente",
-            "id": "1789036926273_9i0g"
+            ]
           }
-        ]
-      }
-    ],
-    "tecnicas": [
-      {
-        "nome": "DTF",
-        "largura": 28,
-        "custoMetro": 5.5,
-        "id": "t1"
-      },
-      {
-        "largura": 50,
-        "id": "t2",
-        "nome": "Vinil Flex",
-        "custoMetro": 9
-      },
-      {
-        "largura": 56,
-        "nome": "Sublimação",
-        "id": "t3",
-        "custoMetro": 17.5
-      }
-    ],
-    "tipos": [
-      {
-        "id": "tp1",
-        "nome": "T-Shirt"
-      },
-      {
-        "id": "tp2",
-        "nome": "Polo"
-      },
-      {
-        "nome": "Sweats",
-        "id": "tp3"
-      },
-      {
-        "nome": "canecas",
-        "id": "1789392572565_5pnt"
+        ],
+        "nome": "Material do cliente"
       }
     ]
   },
   "orcamentos": [
     {
-      "tipo": "",
-      "lucroTotal": "7,00 €",
-      "material": "150g T-shirt Unissexo",
-      "cor": "Branco",
       "data": "10/09/2026",
-      "dataGuardado": "10/09/2026, 16:30:29",
-      "lucroUn": "7,00 €",
-      "fornecedor": "Tejobrinde",
       "total": "13,86 €",
-      "numero": "#2026-0001",
-      "cliente": {
-        "contacto": "",
-        "email": "nmgsantos27@gmail.com",
-        "id": "1789053574049_l7qv",
-        "nome": "Nelson Santos"
-      },
-      "precoUn": "13,86 €",
-      "tecnica": "DTF",
-      "altura": 10,
       "quantidade": 1,
+      "lucroUn": "7,00 €",
+      "altura": 10,
+      "dataGuardado": "10/09/2026, 16:30:29",
+      "cor": "Branco",
+      "numero": "#2026-0001",
+      "tipo": "",
+      "fornecedor": "Tejobrinde",
+      "tecnica": "DTF",
+      "material": "150g T-shirt Unissexo",
+      "lucroTotal": "7,00 €",
+      "precoUn": "13,86 €",
       "referencia": "",
+      "cliente": {
+        "id": "1789053574049_l7qv",
+        "nome": "Nelson Santos",
+        "contacto": "",
+        "email": "nmgsantos27@gmail.com"
+      },
       "id": "1789054229473_di30"
     },
     {
-      "numero": "#2026-0002",
-      "dataGuardado": "10/09/2026, 16:31:15",
-      "altura": 10,
-      "lucroTotal": "65,00 €",
-      "tipo": "",
-      "total": "106,67 €",
-      "id": "1789054275232_a9ts",
       "data": "10/09/2026",
       "lucroUn": "6,50 €",
-      "fornecedor": "Tejobrinde",
-      "material": "190g T-shirt Unissexo",
-      "cor": "Branco",
-      "cliente": {
-        "nome": "Ana Santos",
-        "email": "grafisantos@sapo.pt",
-        "id": "1789053602464_y4a6",
-        "contacto": ""
-      },
+      "lucroTotal": "65,00 €",
+      "tipo": "",
       "tecnica": "DTF",
+      "referencia": "",
+      "cor": "Branco",
+      "numero": "#2026-0002",
+      "material": "190g T-shirt Unissexo",
       "quantidade": 10,
-      "precoUn": "10,67 €",
-      "referencia": ""
+      "dataGuardado": "10/09/2026, 16:31:15",
+      "id": "1789054275232_a9ts",
+      "cliente": {
+        "contacto": "",
+        "nome": "Ana Santos",
+        "id": "1789053602464_y4a6",
+        "email": "grafisantos@sapo.pt"
+      },
+      "altura": 10,
+      "total": "106,67 €",
+      "fornecedor": "Tejobrinde",
+      "precoUn": "10,67 €"
     },
     {
+      "material": "150g T-shirt Unissexo",
+      "lucroUn": "4,50 €",
+      "quantidade": 10,
+      "altura": 10,
+      "id": "1789392433654_dtgo",
+      "dataGuardado": "14/09/2026, 14:27:13",
+      "numero": "#2026-0003",
+      "tecnica": "DTF",
+      "fornecedor": "Tejobrinde",
+      "cor": "Branco",
       "data": "14/09/2026",
+      "lucroTotal": "45,00 €",
+      "precoUn": "8,04 €",
+      "total": "80,39 €",
+      "referencia": "",
       "cliente": {
         "id": "1789392332357_3vv9",
-        "nome": "Ana Santos",
         "contacto": "",
-        "email": "anasacotes32@gmail.com"
+        "email": "anasacotes32@gmail.com",
+        "nome": "Ana Santos"
       },
-      "tipo": "",
-      "id": "1789392433654_dtgo",
-      "referencia": "",
-      "precoUn": "8,04 €",
-      "quantidade": 10,
-      "tecnica": "DTF",
-      "dataGuardado": "14/09/2026, 14:27:13",
-      "altura": 10,
-      "numero": "#2026-0003",
-      "cor": "Branco",
-      "fornecedor": "Tejobrinde",
-      "lucroUn": "4,50 €",
-      "total": "80,39 €",
-      "material": "150g T-shirt Unissexo",
-      "lucroTotal": "45,00 €"
+      "tipo": ""
     }
   ],
   "clientes": [
     {
+      "nome": "Nelson Santos",
       "id": "1789053574049_l7qv",
       "contacto": "",
-      "email": "nmgsantos27@gmail.com",
-      "nome": "Nelson Santos"
+      "email": "nmgsantos27@gmail.com"
     },
     {
-      "nome": "Rui Espírito Santo",
       "email": "",
+      "nome": "Rui Espírito Santo",
       "contacto": "",
       "id": "1789053602464_y4a6"
     },
     {
-      "contacto": "",
-      "nome": "Ana Santos",
+      "email": "anasacotes32@gmail.com",
       "id": "1789392332357_3vv9",
-      "email": "anasacotes32@gmail.com"
+      "nome": "Ana Santos",
+      "contacto": ""
     }
   ],
   "contador": "{\"ano\":2026,\"numero\":3}",
