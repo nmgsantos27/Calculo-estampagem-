@@ -484,6 +484,21 @@
         .tab-content.hidden {
             display: none;
         }
+        .btn-menu-voltar {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-menu-voltar:active {
+            transform: scale(0.95);
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -528,7 +543,10 @@
 
         <!-- HEADER -->
         <div class="header no-print">
-            <h1>🖨️ Grafi<span>Santos</span></h1>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <a href="index.html" class="btn-menu-voltar">🏠 Menu</a>
+                <h1>🖨️ Grafi<span>Santos</span></h1>
+            </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 <button class="btn btn-secondary" onclick="copiarResumo()" title="Copiar resumo">📋</button>
                 <button class="btn btn-secondary" onclick="gerarPDF()" title="Gerar PDF">📄</button>
@@ -1066,7 +1084,6 @@
             var clientes = carregarClientes();
             sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
 
-            // Ordenar alfabeticamente
             clientes.sort(function(a, b) {
                 return (a.nome || "").localeCompare(b.nome || "");
             });
@@ -1080,7 +1097,6 @@
                 sel.appendChild(opt);
             });
 
-            // Manter seleção se ainda existir
             if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
                 sel.value = clienteSelecionadoId;
             } else {
@@ -1095,7 +1111,6 @@
             clienteSelecionadoId = sel.value || null;
 
             if (!clienteSelecionadoId) {
-                // Cliente sem registo - não limpar campos (o utilizador pode querer preencher manualmente)
                 return;
             }
 
@@ -1135,7 +1150,6 @@
             var lista = carregarClientes();
 
             if (eid) {
-                // Verificar se existe outro cliente com o mesmo nome
                 var duplicado = lista.find(function(c) {
                     return c.id !== eid && c.nome.toLowerCase() === nome.toLowerCase();
                 });
@@ -1149,7 +1163,6 @@
                 }
                 clienteSelecionadoId = eid;
             } else {
-                // Verificar duplicado
                 var duplicado2 = lista.find(function(c) {
                     return c.nome.toLowerCase() === nome.toLowerCase();
                 });
@@ -1164,7 +1177,6 @@
             fecharFormCliente();
             renderSelectClientes();
 
-            // Preencher os campos do orçamento com os dados do cliente atual
             var c2 = obterCliente(clienteSelecionadoId);
             if (c2) {
                 document.getElementById("inputClienteNome").value = c2.nome || "";
@@ -1198,7 +1210,6 @@
             alert("🗑️ Cliente eliminado!");
         }
 
-        // Botão "Guardar Cliente" - guarda os dados atuais do formulário
         function guardarClienteAtual() {
             var nome = document.getElementById("inputClienteNome").value.trim();
             if (!nome) {
@@ -1211,7 +1222,6 @@
 
             var lista = carregarClientes();
 
-            // Se já temos um cliente selecionado, atualizar esse
             if (clienteSelecionadoId) {
                 var c = lista.find(function(x) { return x.id === clienteSelecionadoId; });
                 if (c) {
@@ -1225,7 +1235,6 @@
                 }
             }
 
-            // Verificar se existe cliente com o mesmo nome
             var existente = lista.find(function(c) {
                 return c.nome.toLowerCase() === nome.toLowerCase();
             });
@@ -1242,7 +1251,6 @@
                 return;
             }
 
-            // Criar novo cliente
             var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
             lista.push(novo);
             guardarClientesLista(lista);
@@ -1390,7 +1398,6 @@
             document.getElementById("quantidade").value = "1";
             document.getElementById("alturaEstampa").value = "10";
 
-            // Reset do cliente selecionado
             clienteSelecionadoId = null;
             var selCli = document.getElementById("selCliente");
             if (selCli) selCli.value = "";
@@ -1477,7 +1484,6 @@
 
             mudarTab('novo');
 
-            // Restaurar cliente selecionado se existir
             clienteSelecionadoId = o.cliente.id || null;
 
             document.getElementById("inputClienteNome").value = o.cliente.nome || "";
