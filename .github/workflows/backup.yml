@@ -1,0 +1,26 @@
+name: Limpar Backups Antigos
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Todos os dias às 4h da manhã
+  workflow_dispatch:
+
+jobs:
+  limpar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Remover backups com mais de 30 dias
+        run: |
+          mkdir -p backups
+          find backups/ -name "backup_*.json" -mtime +30 -delete 2>/dev/null || true
+          
+      - name: Commit alterações
+        run: |
+          git config user.name "GrafiSantos Backup"
+          git config user.email "backup@grafisantos.local"
+          git add backups/ 2>/dev/null || true
+          git diff --quiet && git diff --staged --quiet || git commit -m "🧹 Limpeza de backups antigos"
+          git push
