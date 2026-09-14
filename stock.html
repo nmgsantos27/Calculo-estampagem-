@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Stock GrafiSantos</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --success: #16a34a;
+      --text: #0f172a;
+      --subtext: #475569;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 30px; }
+    header { background: #ffffffcc; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; padding: 16px; border-bottom: 1px solid var(--border); }
+    .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .kpi-card { background: #f1f5f9; border: 1px solid var(--border); border-radius: 12px; padding: 10px; text-align: center; }
+    .kpi-val { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
+    .kpi-val.alert { color: var(--danger); }
+
+    main { padding: 16px; max-width: 650px; margin: auto; }
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; }
+    input, select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; width: 100%; font-size: 16px; }
+    button { background: var(--accent); color: white; border: none; padding: 12px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    button:active { transform: scale(0.97); }
+    .btn-danger { background: var(--danger); }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+
+    .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .tag { font-size: 11px; padding: 4px 8px; border-radius: 20px; font-weight: bold; }
+    .tag-roupa { background: #dbeafe; color: #1d4ed8; }
+    .tag-caneca { background: #fef3c7; color: #b45309; }
+    
+    .grid-sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0; }
+    .size-box { background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; padding: 6px; text-align: center; }
+    .qty-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .btn-sm { padding: 4px 10px; border-radius: 6px; font-size: 14px; background: #cbd5e1; color: #0f172a; }
+
+    .modal { position: fixed; inset: 0; background: #00000066; display: flex; align-items: flex-end; z-index: 50; }
+    .modal-content { background: var(--card); width: 100%; border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>📦 Stock GrafiSantos</h2>
+    <div class="kpis">
+      <div class="kpi-card"><div class="kpi-val" id="totalItems">0</div>Total Peças</div>
+      <div class="kpi-card"><div class="kpi-val alert" id="criticalItems">0</div>Stock Baixo</div>
+    </div>
+    <a href="index.html" class="btn btn-secondary" style="text-decoration:none;padding:8px 14px;border-radius:6px;background:#e2e8f0;color:#334155;font-weight:600;font-size:0.8rem;">
+    🏠 Menu
+</a>
+  </header>
+
+  <main>
+    <div class="controls">
+      <input type="text" id="search" placeholder="🔍 Pesquisar..." oninput="render()">
+      <button onclick="openModal()">+ Criar</button>
+    </div>
+
+    <div id="app"></div>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modalTitle" style="margin-bottom: 15px;">Novo Artigo</h3>
+      
+      <label>Tipo</label>
+      <select id="tipo" onchange="toggleForm()">
+        <option value="roupa">👕 Roupa</option>
+        <option value="caneca">☕ Caneca</option>
+      </select>
+
+      <label style="margin-top:10px; display:block;">Nome</label>
+      <input id="nome" placeholder="Ex: T-Shirt Premium">
+
+      <label style="margin-top:10px; display:block;">Cor / Variante</label>
+      <input id="cor" placeholder="Ex: Preto">
+
+      <div id="formRoupa">
+        <label style="margin-top:10px; display:block;">Mínimo por Tamanho</label>
+        <input id="min" type="number" value="2">
+      </div>
+
+      <div id="formCaneca" class="hidden">
+        <label style="margin-top:10px; display:block;">Quantidade em Stock</label>
+        <input id="qtdCaneca" type="number" value="0">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn-secondary" style="flex:1" onclick="closeModal()">Cancelar</button>
+        <button style="flex:1" id="btnSave" onclick="saveItem()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxDdwDrPliOO3ebMz8od9y8t-hoCZ9PV4",
+      authDomain: "stock-de-roupa.firebaseapp.com",
+      databaseURL: "https://stock-de-roupa-default-rtdb.firebaseio.com",
+      projectId: "stock-de-roupa",
+      storageBucket: "stock-de-roupa.firebasestorage.app",
+      messagingSenderId: "215119876616",
+      appId: "1:215119876616:web:c4bd0a975cd746bf68b7bd",
+      measurementId: "G-7TY9Q1VW59"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const dbRef = database.ref('stock');
+
+    const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    let items = [];
+    let editKey = null;
+
+    dbRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      items = [];
+      if (data) {
+        Object.keys(data).forEach(key => {
+          items.push({ key, ...data[key] });
+        });
+      }
+      render();
+    }, (error) => {
+      alert("Erro ao ligar à base de dados: " + error.message);
+    });
+
+    function render() {
+      const searchEl = document.getElementById('search');
+      const q = searchEl ? searchEl.value.toLowerCase() : '';
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+
+      let totalCount = 0;
+      let criticalCount = 0;
+
+      items.filter(i => (i.nome || '').toLowerCase().includes(q) || (i.cor || '').toLowerCase().includes(q))
+           .forEach((item) => {
+        let isLow = false;
+        let sum = 0;
+
+        if(item.tipo === 'roupa') {
+          Object.values(item.sizes || {}).forEach(v => { 
+            sum += v; 
+            if(v < (item.min || 2)) isLow = true; 
+          });
+        } else {
+          sum = item.qtd || 0;
+          if(sum < 2) isLow = true;
+        }
+
+        totalCount += sum;
+        if(isLow) criticalCount++;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <h3>${item.nome || 'Sem nome'}</h3>
+              <div style="font-size: 1.05rem; font-weight: 600; color: var(--subtext); margin-top: 2px;">${item.cor || ''}</div>
+            </div>
+            <span class="tag ${item.tipo === 'roupa' ? 'tag-roupa' : 'tag-caneca'}">${(item.tipo || 'roupa').toUpperCase()}</span>
+          </div>
+
+          ${item.tipo === 'roupa' ? `
+            <div class="grid-sizes">
+              ${SIZES.map(s => `
+                <div class="size-box">
+                  <small style="color:var(--subtext)">${s}</small>
+                  <div class="qty-controls">
+                    <button class="btn-sm" onclick="updateQty('${item.key}', '${s}', -1)">-</button>
+                    <b style="color:${((item.sizes && item.sizes[s]) || 0) < (item.min || 2) ? 'var(--danger)' : 'var(--text)'}">${(item.sizes && item.sizes[s]) || 0}</b>
+                    <button class="btn-sm" onclick="updateQty('${item.key}', '${s}', 1)">+</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0;">
+              <span>Quantidade em Stock:</span>
+              <div class="qty-controls" style="gap:15px">
+                <button class="btn-sm" onclick="updateQty('${item.key}', null, -1)">-</button>
+                <b style="font-size:1.2rem">${item.qtd || 0}</b>
+                <button class="btn-sm" onclick="updateQty('${item.key}', null, 1)">+</button>
+              </div>
+            </div>
+          `}
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <small style="color:var(--subtext)">Total: ${sum} un.</small>
+            <div style="display:flex; gap:6px">
+              <button class="btn-secondary" style="padding: 6px 12px; font-size:12px" onclick="editItem('${item.key}')">✏️ Editar</button>
+              <button class="btn-danger" style="padding: 6px 12px; font-size:12px" onclick="deleteItem('${item.key}')">🗑️ Apagar</button>
+            </div>
+          </div>
+        `;
+        app.appendChild(card);
+      });
+
+      document.getElementById('totalItems').textContent = totalCount;
+      document.getElementById('criticalItems').textContent = criticalCount;
+    }
+
+    function updateQty(key, size, delta) {
+      const item = items.find(i => i.key === key);
+      if (!item) return;
+
+      if(item.tipo === 'roupa') {
+        const currentQty = (item.sizes && item.sizes[size]) || 0;
+        const newQty = Math.max(0, currentQty + delta);
+        database.ref('stock/' + key + '/sizes/' + size).set(newQty);
+      } else {
+        const currentQty = item.qtd || 0;
+        const newQty = Math.max(0, currentQty + delta);
+        database.ref('stock/' + key + '/qtd').set(newQty);
+      }
+    }
+
+    function openModal(key = null) {
+      editKey = key;
+      const modalTitle = document.getElementById('modalTitle');
+      const tipoSelect = document.getElementById('tipo');
+
+      if (key !== null) {
+        const item = items.find(i => i.key === key);
+        modalTitle.textContent = "Editar Artigo";
+        document.getElementById('nome').value = item.nome || '';
+        document.getElementById('cor').value = item.cor || '';
+        tipoSelect.value = item.tipo || 'roupa';
+        tipoSelect.disabled = true;
+
+        if (item.tipo === 'roupa') {
+          document.getElementById('min').value = item.min || 2;
+        } else {
+          document.getElementById('qtdCaneca').value = item.qtd || 0;
+        }
+      } else {
+        modalTitle.textContent = "Novo Artigo";
+        document.getElementById('nome').value = '';
+        document.getElementById('cor').value = '';
+        tipoSelect.disabled = false;
+        document.getElementById('min').value = 2;
+        document.getElementById('qtdCaneca').value = 0;
+      }
+
+      toggleForm();
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() { 
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('nome').value = '';
+      document.getElementById('cor').value = '';
+      editKey = null;
+    }
+
+    function toggleForm() {
+      const isRoupa = document.getElementById('tipo').value === 'roupa';
+      document.getElementById('formRoupa').classList.toggle('hidden', !isRoupa);
+      document.getElementById('formCaneca').classList.toggle('hidden', isRoupa);
+    }
+
+    function saveItem() {
+      const nome = document.getElementById('nome').value.trim();
+      const cor = document.getElementById('cor').value.trim();
+      const tipo = document.getElementById('tipo').value;
+
+      if(!nome) return alert('Por favor, insere um nome para o artigo');
+
+      if (editKey !== null) {
+        let updates = { nome, cor };
+        if (tipo === 'roupa') {
+          updates.min = parseInt(document.getElementById('min').value) || 2;
+        } else {
+          updates.qtd = parseInt(document.getElementById('qtdCaneca').value) || 0;
+        }
+        database.ref('stock/' + editKey).update(updates)
+          .then(() => {
+            closeModal();
+          })
+          .catch((err) => {
+            alert("Erro ao atualizar: " + err.message);
+          });
+      } else {
+        let newItem = { nome, cor, tipo };
+        if(tipo === 'roupa') {
+          newItem.min = parseInt(document.getElementById('min').value) || 2;
+          newItem.sizes = {};
+          SIZES.forEach(s => newItem.sizes[s] = 0);
+        } else {
+          newItem.qtd = parseInt(document.getElementById('qtdCaneca').value) || 0;
+        }
+        database.ref('stock').push(newItem)
+          .then(() => {
+            closeModal();
+          })
+          .catch((err) => {
+            alert("Erro ao guardar: " + err.message);
+          });
+      }
+    }
+
+    function editItem(key) {
+      openModal(key);
+    }
+
+    function deleteItem(key) {
+      if(confirm('Tem a certeza que deseja apagar este artigo?')) {
+        database.ref('stock/' + key).remove();
+      }
+    }
+  </script>
+</body>
+</html>
