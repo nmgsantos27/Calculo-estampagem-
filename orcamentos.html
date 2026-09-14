@@ -906,19 +906,17 @@
 
         // ============================================================
         //  CONFIGURAÇÃO FIREBASE
-        //  ⚠️ SUBSTITUI ESTES VALORES PELOS QUE COPIASTE
         // ============================================================
 
         var firebaseConfig = {
             apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
             authDomain: "grafisantos-orcamentos.firebaseapp.com",
             projectId: "grafisantos-orcamentos",
-            storageBucket: "grafisantos-orcamentos.appspot.com",
+            storageBucket: "grafisantos-orcamentos.firebasestorage.app",
             messagingSenderId: "769855753160",
             appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
         };
 
-        // Inicializar Firebase
         var app = firebase.initializeApp(firebaseConfig);
         var auth = firebase.auth();
         var db = firebase.firestore();
@@ -939,7 +937,6 @@
         var MARGEM_KEY = "grafisantos_margem";
         var GITHUB_TOKEN_KEY = "grafisantos_github_token";
 
-        // Configuração do repositório GitHub
         var GITHUB_OWNER = "nmgsantos27";
         var GITHUB_REPO = "Calculo-estampagem-";
         var GITHUB_BRANCH = "main";
@@ -981,6 +978,94 @@
         }
 
         // ============================================================
+        //  CONTADOR - CÁLCULO E SINCRONIZAÇÃO
+        // ============================================================
+
+        function obterAnoAtual() {
+            return new Date().getFullYear();
+        }
+
+        function obterContador() {
+            try {
+                var raw = localStorage.getItem(STORAGE_CONTADOR);
+                if (raw) {
+                    var obj = JSON.parse(raw);
+                    if (obj.ano === obterAnoAtual()) return obj.numero;
+                }
+            } catch (e) {}
+            return 0;
+        }
+
+        function incrementarContador() {
+            var num = obterContador() + 1;
+            try {
+                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                    ano: obterAnoAtual(),
+                    numero: num
+                }));
+            } catch (e) {}
+            // Sincronizar com Firebase imediatamente
+            if (utilizadorAtual) guardarDadosNaNuvem();
+            return num;
+        }
+
+        function formatarNumeroOrcamento(num) {
+            var ano = obterAnoAtual();
+            var str = String(num).padStart(4, "0");
+            return "#" + ano + "-" + str;
+        }
+
+        function gerarNumeroOrcamento() {
+            var proximo = obterContador() + 1;
+            return formatarNumeroOrcamento(proximo);
+        }
+
+        function recalcularContadorDoHistorico() {
+            // Recalcula o contador baseado no maior número existente no histórico
+            try {
+                var lista = carregarOrcamentos();
+                var anoAtual = obterAnoAtual();
+                var maiorNumero = 0;
+
+                lista.forEach(function(o) {
+                    if (!o.numero) return;
+                    var match = o.numero.match(/#(\d{4})-(\d{4})/);
+                    if (match) {
+                        var ano = parseInt(match[1]);
+                        var num = parseInt(match[2]);
+                        if (ano === anoAtual && num > maiorNumero) {
+                            maiorNumero = num;
+                        }
+                    }
+                });
+
+                var contadorAtual = obterContador();
+                if (maiorNumero > contadorAtual) {
+                    localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                        ano: anoAtual,
+                        numero: maiorNumero
+                    }));
+                    console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
+                }
+            } catch (e) {
+                console.error("Erro ao recalcular contador:", e);
+            }
+        }
+
+        function obterDataHoje() {
+            var d = new Date();
+            var dia = String(d.getDate()).padStart(2, "0");
+            var mes = String(d.getMonth() + 1).padStart(2, "0");
+            var ano = d.getFullYear();
+            return dia + "/" + mes + "/" + ano;
+        }
+
+        function atualizarNumeroEData() {
+            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
+            document.getElementById("dataOrcamento").value = obterDataHoje();
+        }
+
+        // ============================================================
         //  BACKUP GITHUB
         // ============================================================
 
@@ -1011,7 +1096,6 @@
                 var conteudo = JSON.stringify(backup, null, 2);
                 var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
 
-                // Verificar se já existe ficheiro de hoje
                 var sha = null;
                 try {
                     var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
@@ -1063,7 +1147,7 @@
             var novo = prompt(
                 "🔐 Configurar Token do GitHub\n\n" +
                 "Cola aqui o token que criaste (github_pat_...):\n\n" +
-                "⚠️ Só precisas fazer isto UMA VEZ.\n" +
+                "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
                 "O token fica guardado no teu dispositivo."
             );
 
@@ -1129,7 +1213,7 @@
                 dados: dados,
                 orcamentos: carregarOrcamentos(),
                 clientes: carregarClientes(),
-                contador: localStorage.getItem(STORAGE_CONTADOR),
+                contador: localStorage.getItem(STORAGE_CONTADOR) || "",
                 margem: localStorage.getItem(MARGEM_KEY),
                 ultimaModificacao: Date.now()
             };
@@ -1177,6 +1261,9 @@
                         console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
                     }
                     sincronizacaoEmCurso = false;
+
+                    // Recalcular contador pelo histórico (segunda linha de defesa)
+                    recalcularContadorDoHistorico();
 
                     renderTipos();
                     renderFornecedores();
@@ -1510,60 +1597,6 @@
             clienteSelecionadoId = novo.id;
             renderSelectClientes();
             alert("✅ Cliente guardado!");
-        }
-
-        // ============================================================
-        //  ORÇAMENTO - Nº E DATA
-        // ============================================================
-
-        function obterAnoAtual() {
-            return new Date().getFullYear();
-        }
-
-        function obterContador() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CONTADOR);
-                if (raw) {
-                    var obj = JSON.parse(raw);
-                    if (obj.ano === obterAnoAtual()) return obj.numero;
-                }
-            } catch (e) {}
-            return 0;
-        }
-
-        function incrementarContador() {
-            var num = obterContador() + 1;
-            try {
-                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                    ano: obterAnoAtual(),
-                    numero: num
-                }));
-            } catch (e) {}
-            return num;
-        }
-
-        function formatarNumeroOrcamento(num) {
-            var ano = obterAnoAtual();
-            var str = String(num).padStart(4, "0");
-            return "#" + ano + "-" + str;
-        }
-
-        function gerarNumeroOrcamento() {
-            var proximo = obterContador() + 1;
-            return formatarNumeroOrcamento(proximo);
-        }
-
-        function obterDataHoje() {
-            var d = new Date();
-            var dia = String(d.getDate()).padStart(2, "0");
-            var mes = String(d.getMonth() + 1).padStart(2, "0");
-            var ano = d.getFullYear();
-            return dia + "/" + mes + "/" + ano;
-        }
-
-        function atualizarNumeroEData() {
-            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
-            document.getElementById("dataOrcamento").value = obterDataHoje();
         }
 
         // ============================================================
@@ -2081,6 +2114,7 @@
                     tecnicaId = null;
                     clienteSelecionadoId = null;
 
+                    recalcularContadorDoHistorico();
                     renderTipos();
                     renderFornecedores();
                     renderTecnicas();
@@ -2427,363 +2461,4 @@
             }
             var eid = document.getElementById("editMaterialId").value;
             if (eid) {
-                var m = f.materiais.find(function(x) { return x.id === eid; });
-                if (m) {
-                    m.nome = nome;
-                    m.referencia = referencia;
-                    m.tipoId = tipoId;
-                    m.variantes = variantes;
-                }
-                materialId = eid;
-            } else {
-                var novo = { id: gerarId(), nome: nome, referencia: referencia, tipoId: tipoId, variantes: variantes };
-                f.materiais.push(novo);
-                materialId = novo.id;
-            }
-            guardarDados();
-            fecharFormMaterial();
-            renderMateriais();
-        }
-
-        function eliminarMaterial() {
-            var f = obterFornecedor(fornecedorId);
-            if (!f) return;
-            if (!materialId) return;
-            var m = f.materiais.find(function(x) { return x.id === materialId; });
-            if (!confirm("🗑️ Eliminar \"" + (m ? m.nome : "") + "\"?")) return;
-            f.materiais = f.materiais.filter(function(x) { return x.id !== materialId; });
-            materialId = null;
-            varianteId = null;
-            guardarDados();
-            renderMateriais();
-        }
-
-        // ============================================================
-        //  TÉCNICAS
-        // ============================================================
-
-        function renderTecnicas() {
-            var sel = document.getElementById("selTecnica");
-            if (!sel) return;
-            sel.innerHTML = "";
-            dados.tecnicas.forEach(function(t) {
-                var opt = document.createElement("option");
-                opt.value = t.id;
-                var label = t.nome;
-                if (t.largura > 0) label += " (" + formatarNumero(t.largura, 0) + "cm)";
-                opt.textContent = label;
-                sel.appendChild(opt);
-            });
-            if (!tecnicaId || !obterTecnica(tecnicaId)) {
-                tecnicaId = dados.tecnicas[0] ? dados.tecnicas[0].id : null;
-            }
-            if (tecnicaId) sel.value = tecnicaId;
-            atualizarInfoTecnica();
-            calcular();
-        }
-
-        function onChangeTecnica() {
-            var sel = document.getElementById("selTecnica");
-            if (!sel) return;
-            tecnicaId = sel.value;
-            atualizarInfoTecnica();
-            calcular();
-        }
-
-        function atualizarInfoTecnica() {
-            var t = obterTecnica(tecnicaId);
-            document.getElementById("footerTecnica").textContent = t ? t.nome : "Nenhuma";
-            document.getElementById("infoTecNome").textContent = t ? "📌 " + t.nome : "Nenhuma técnica selecionada";
-            var detalhes = [];
-            if (t) {
-                if (t.custoMetro > 0) detalhes.push("💰 " + formatarNumero(t.custoMetro, 2) + "€/m");
-                if (t.largura > 0) {
-                    detalhes.push("📏 Larg: " + formatarNumero(t.largura, 0) + "cm");
-                    document.getElementById("larguraExibida").textContent = formatarNumero(t.largura, 0) + " cm";
-                } else {
-                    document.getElementById("larguraExibida").textContent = "—";
-                }
-            } else {
-                document.getElementById("larguraExibida").textContent = "—";
-            }
-            document.getElementById("infoTecDetalhes").textContent = detalhes.length ? " (" + detalhes.join(" | ") + ")" : "";
-        }
-
-        function abrirFormTecnica(editar) {
-            var t = obterTecnica(tecnicaId);
-            document.getElementById("formTecnica").classList.remove("hidden");
-            document.getElementById("tituloTecnica").textContent = editar ? "✏️ Editar técnica" : "➕ Nova técnica";
-            document.getElementById("editTecnicaId").value = editar && t ? t.id : "";
-            document.getElementById("inputNomeTecnica").value = editar && t ? t.nome : "";
-            document.getElementById("inputCustoMetro").value = editar && t ? formatarNumero(t.custoMetro, 2) : "";
-            document.getElementById("inputLarguraTecnica").value = editar && t ? formatarNumero(t.largura, 0) : "";
-        }
-
-        function fecharFormTecnica() {
-            document.getElementById("formTecnica").classList.add("hidden");
-        }
-
-        function guardarTecnica() {
-            var nome = document.getElementById("inputNomeTecnica").value.trim();
-            if (!nome) { alert("⚠️ Indica o nome da técnica."); return; }
-            var custoMetro = parseNum(document.getElementById("inputCustoMetro").value);
-            var largura = parseNum(document.getElementById("inputLarguraTecnica").value);
-            var eid = document.getElementById("editTecnicaId").value;
-            if (eid) {
-                var t = obterTecnica(eid);
-                if (t) { t.nome = nome; t.custoMetro = custoMetro; t.largura = largura; }
-            } else {
-                var novo = { id: gerarId(), nome: nome, custoMetro: custoMetro, largura: largura };
-                dados.tecnicas.push(novo);
-                tecnicaId = novo.id;
-            }
-            guardarDados();
-            fecharFormTecnica();
-            renderTecnicas();
-        }
-
-        function eliminarTecnica() {
-            if (!tecnicaId) return;
-            if (dados.tecnicas.length <= 1) { alert("⚠️ Manter pelo menos uma técnica."); return; }
-            var t = obterTecnica(tecnicaId);
-            if (!confirm("🗑️ Eliminar \"" + (t ? t.nome : "") + "\"?")) return;
-            dados.tecnicas = dados.tecnicas.filter(function(x) { return x.id !== tecnicaId; });
-            tecnicaId = null;
-            guardarDados();
-            renderTecnicas();
-        }
-
-        // ============================================================
-        //  CÁLCULOS
-        // ============================================================
-
-        function calcularConsumo(qtd, metro, alt, larg, bobina) {
-            qtd = Math.max(1, parseInt(qtd) || 1);
-            var area = (Math.max(0, parseNum(alt)) / 100) * (Math.max(0, parseNum(larg)) / 100) * qtd * 1.05;
-            var metros = area / (bobina / 100);
-            return { custoUn: (metros * Math.max(0, parseNum(metro)) * TAXA_IVA) / qtd, metrosTotais: metros, escala: 1 };
-        }
-
-        function obterCustoImpressao(qtd, tecId) {
-            var t = obterTecnica(tecId);
-            if (!t) return { custoUn: 0, metros: 0, escala: 1 };
-            var alt = parseNum(document.getElementById("alturaEstampa").value) || 10;
-            var larg = t.largura || 0;
-            var cores = 1;
-            var nome = (t.nome || "").toLowerCase();
-            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
-                var bobina = 28;
-                if (nome.indexOf("vinil") !== -1) bobina = 50;
-                else if (nome.indexOf("sublimação") !== -1 || nome.indexOf("sublimacao") !== -1) bobina = 58;
-                var res = calcularConsumo(qtd, t.custoMetro, alt, larg, bobina);
-                return { custoUn: res.custoUn, metros: res.metrosTotais, escala: res.escala };
-            }
-            if (nome.indexOf("serigrafia") !== -1) {
-                var escSerigrafia = [
-                    { min: 1, max: 9, precos: [8, 10, 12] },
-                    { min: 10, max: 24, precos: [3.5, 4.5, 5.5] },
-                    { min: 25, max: 49, precos: [2.2, 2.8, 3.4] },
-                    { min: 50, max: 99, precos: [1.5, 1.9, 2.3] },
-                    { min: 100, max: Infinity, precos: [1, 1.3, 1.6] }
-                ];
-                var e = escSerigrafia.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escSerigrafia[0];
-                var idx = Math.max(0, Math.min(2, cores - 1));
-                return { custoUn: e.precos[idx] * TAXA_IVA, metros: 0, escala: e.min };
-            }
-            if (nome.indexOf("bordado") !== -1) {
-                var escBordado = [
-                    { min: 1, max: 9, precos: [6, 8] },
-                    { min: 10, max: 24, precos: [3.8, 5] },
-                    { min: 25, max: 49, precos: [2.5, 3.5] },
-                    { min: 50, max: Infinity, precos: [1.8, 2.5] }
-                ];
-                var e2 = escBordado.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escBordado[0];
-                var idx2 = cores > 1 ? 1 : 0;
-                return { custoUn: e2.precos[idx2] * TAXA_IVA, metros: 0, escala: e2.min };
-            }
-            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
-                var res2 = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
-                return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
-            }
-            return { custoUn: 0, metros: 0, escala: 1 };
-        }
-
-        function calcularMargem(qtd, valor, tipo, custo) {
-            var v = parseNum(valor);
-            if (tipo === "percentagem") return Math.max(0, custo * (v / 100));
-            var m = v;
-            if (qtd >= 100) m -= 3.50;
-            else if (qtd >= 50) m -= 2.50;
-            else if (qtd >= 25) m -= 1.50;
-            else if (qtd >= 10) m -= 0.50;
-            else if (qtd >= 5) m -= 0.20;
-            return Math.max(0, m);
-        }
-
-        function calcular() {
-            try {
-                var qtd = Math.max(1, parseInt(document.getElementById("quantidade").value) || 1);
-                var custoPeca = parseNum(document.getElementById("custoPeca").value);
-                var portes = parseNum(document.getElementById("portesFornecedor").value);
-                var tecId = document.getElementById("selTecnica").value;
-                var tipoMargem = document.getElementById("tipoMargem").value;
-                var margem = parseNum(document.getElementById("valMargem").value);
-                if (!tecId || !obterTecnica(tecId)) {
-                    document.getElementById("resPrecoUn").textContent = "0,00 €";
-                    document.getElementById("resTotalComercial").textContent = "0,00 €";
-                    return;
-                }
-                var imp = obterCustoImpressao(qtd, tecId);
-                var pIva = custoPeca * TAXA_IVA;
-                var portesIva = portes * TAXA_IVA;
-                var custoUn = pIva + imp.custoUn + (portesIva / qtd);
-                var lucro = calcularMargem(qtd, margem, tipoMargem, custoUn);
-                var venda = custoUn + lucro;
-                document.getElementById("resPrecoUn").textContent = moeda(venda);
-                document.getElementById("resTotalComercial").textContent = moeda(venda * qtd);
-                document.getElementById("resCustoMaterial").textContent = moeda(pIva);
-                document.getElementById("resCustoImpr").textContent = moeda(imp.custoUn);
-                document.getElementById("resPortes").textContent = moeda(portesIva);
-                document.getElementById("resCustoTotal").textContent = moeda(custoUn * qtd);
-                document.getElementById("resLucroUn").textContent = moeda(lucro);
-                document.getElementById("resLucroTotal").textContent = moeda(lucro * qtd);
-                document.getElementById("escalaoBadge").textContent = "🏷️ Escalão ≥ " + imp.escala + " un";
-                var t = obterTecnica(tecId);
-                var linha = document.getElementById("linhaConsumo");
-                if (linha) {
-                    if (t && t.custoMetro > 0 && t.largura > 0) {
-                        linha.style.display = "flex";
-                        document.getElementById("labelConsumo").textContent = "📏 Consumo " + t.nome + ":";
-                        document.getElementById("resConsumo").textContent = imp.metros.toFixed(2).replace(".", ",") + " m";
-                    } else {
-                        linha.style.display = "none";
-                    }
-                }
-                gerarComparativo(qtd, pIva, portesIva, tecId, tipoMargem, margem);
-            } catch (e) {
-                console.log("Erro calcular:", e);
-            }
-        }
-
-        function gerarComparativo(qAtual, pIva, portesIva, tecId, tipoMargem, margem) {
-            var el = document.getElementById("tabelaComparativa");
-            if (!el) return;
-            el.innerHTML = "";
-            [1, 10, 25, 50, 100].forEach(function(q) {
-                var imp = obterCustoImpressao(q, tecId);
-                var custo = pIva + imp.custoUn + (portesIva / q);
-                var lucro = calcularMargem(q, margem, tipoMargem, custo);
-                var div = document.createElement("div");
-                div.className = "escalao-item" + (q === qAtual ? " active" : "");
-                div.innerHTML = "<strong>" + q + "+</strong><br>" + moeda(custo + lucro);
-                el.appendChild(div);
-            });
-        }
-
-        // ============================================================
-        //  UTILITÁRIOS
-        // ============================================================
-
-        function copiarResumo() {
-            var q = document.getElementById("quantidade").value;
-            var selTec = document.getElementById("selTecnica");
-            var tec = selTec && selTec.selectedOptions && selTec.selectedOptions[0] ? selTec.selectedOptions[0].text : "";
-            var mat = document.getElementById("footerMaterial").textContent;
-            var selVar = document.getElementById("selVariante");
-            var varNome = selVar && selVar.selectedOptions && selVar.selectedOptions[0] ? selVar.selectedOptions[0].text : "";
-            var numero = document.getElementById("numeroOrcamento").value;
-            var data = document.getElementById("dataOrcamento").value;
-            var cliNome = document.getElementById("inputClienteNome").value.trim();
-            var cliContacto = document.getElementById("inputClienteContacto").value.trim();
-            var cliEmail = document.getElementById("inputClienteEmail").value.trim();
-
-            var txt = "🖨️ GrafiSantos Print - Orçamento\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "📄 Nº: " + numero + "\n" +
-                "📅 Data: " + data + "\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            if (cliNome) {
-                txt += "👤 Cliente: " + cliNome + "\n";
-                if (cliContacto) txt += "📞 Contacto: " + cliContacto + "\n";
-                if (cliEmail) txt += "📧 Email: " + cliEmail + "\n";
-                txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            }
-            txt += "📦 Material: " + mat + "\n" +
-                "🎨 Cor: " + varNome + "\n" +
-                "📐 Quantidade: " + q + "\n" +
-                "🖨️ Técnica: " + tec + "\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "💰 Preço/un.: " + document.getElementById("resPrecoUn").textContent + "\n" +
-                "📊 Total: " + document.getElementById("resTotalComercial").textContent + "\n" +
-                "📈 Lucro total: " + document.getElementById("resLucroTotal").textContent + "\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "📅 " + new Date().toLocaleDateString("pt-PT");
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(txt).then(function() { alert("✅ Resumo copiado!"); }).catch(function() { prompt("📋 Copia o resumo:", txt); });
-            } else {
-                prompt("📋 Copia o resumo:", txt);
-            }
-        }
-
-        function gerarPDF() {
-            if (typeof html2pdf === "undefined") { window.print(); return; }
-            var el = document.getElementById("areaParaPdf");
-            if (!el) return;
-            html2pdf().set({
-                margin: 8,
-                filename: "GrafiSantos-Orcamento.pdf",
-                image: { type: "jpeg", quality: 0.95 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-            }).from(el).save();
-        }
-
-        // ============================================================
-        //  INICIALIZAÇÃO
-        // ============================================================
-
-        document.addEventListener("DOMContentLoaded", function() {
-            try {
-                carregarDados();
-                carregarMargem();
-                renderTipos();
-                renderFornecedores();
-                renderTecnicas();
-                renderSelectClientes();
-                atualizarNumeroEData();
-                atualizarContadorTab();
-                calcular();
-                atualizarInfoTecnica();
-
-                document.getElementById("valMargem").addEventListener("blur", function() {
-                    guardarMargem();
-                });
-
-            } catch (e) {
-                var debug = document.getElementById("debugErro");
-                if (debug) {
-                    debug.style.display = "block";
-                    debug.textContent = "❌ Erro: " + e.message;
-                }
-                console.log("Erro:", e);
-            }
-        });
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('✅ Service Worker registado com sucesso!', registration);
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Erro ao registar Service Worker:', error);
-                    });
-            });
-        }
-    </script>
-
-</body>
-</html>
+                var m = f.materiais.find(function(x) { return x.id ===
