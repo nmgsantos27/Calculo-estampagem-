@@ -1,8 +1,10 @@
-var CACHE_NAME = "grafisantos-v6";
+var CACHE_NAME = "grafisantos-v11";
 
 var urlsToCache = [
     "./",
     "./index.html",
+    "./orcamentos.html",
+    "./stock.html",
     "./manifest.json",
     "./icon-192.png",
     "./icon-512.png"
