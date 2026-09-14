@@ -1059,9 +1059,11 @@
         }
 
         function atualizarNumeroEData() {
-            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
-            document.getElementById("dataOrcamento").value = obterDataHoje();
-        }
+    // SEGUNDA LINHA DE DEFESA: recalcular sempre antes de gerar
+    recalcularContadorDoHistorico();
+    document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
+    document.getElementById("dataOrcamento").value = obterDataHoje();
+}
 
         // ============================================================
         //  BACKUP GITHUB
@@ -1617,22 +1619,32 @@
         }
 
         function guardarOrcamento() {
-            var nome = document.getElementById("inputClienteNome").value.trim();
-            if (!nome) {
-                alert("⚠️ Preenche o nome do cliente antes de guardar.");
-                return;
-            }
+    var nome = document.getElementById("inputClienteNome").value.trim();
+    if (!nome) {
+        alert("⚠️ Preenche o nome do cliente antes de guardar.");
+        return;
+    }
 
-            var material = obterMaterial(materialId);
-            if (!material) {
-                alert("⚠️ Seleciona um material.");
-                return;
-            }
+    var material = obterMaterial(materialId);
+    if (!material) {
+        alert("⚠️ Seleciona um material.");
+        return;
+    }
 
-            var tecnica = obterTecnica(tecnicaId);
-            var variante = obterVariante(varianteId);
-            var fornecedor = obterFornecedor(fornecedorId);
-            var tipo = obterTipo(material.tipoId);
+    // 🔒 GARANTIR NÚMERO ÚNICO: recalcular contra o histórico antes de gravar
+    recalcularContadorDoHistorico();
+    var listaExistente = carregarOrcamentos();
+    var numeroAtual = document.getElementById("numeroOrcamento").value;
+
+    // Se o número já existe no histórico, avançar até ser único
+    while (listaExistente.some(function(x) { return x.numero === numeroAtual; })) {
+        incrementarContador();
+        numeroAtual = gerarNumeroOrcamento();
+    }
+    document.getElementById("numeroOrcamento").value = numeroAtual;
+
+    var tecnica = obterTecnica(tecnicaId);
+    // ... resto da função fica igual a partir daqui
 
             var precoUnStr = document.getElementById("resPrecoUn").textContent;
             var totalStr = document.getElementById("resTotalComercial").textContent;
