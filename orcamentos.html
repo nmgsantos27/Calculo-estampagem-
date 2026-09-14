@@ -287,6 +287,20 @@
         .footer-info strong {
             color: #1e293b;
         }
+        .nota-isencao {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 8px;
+            padding: 8px 10px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+        .nota-isencao strong {
+            color: #92400e;
+        }
         #debugErro {
             background: #fee2e2;
             color: #dc2626;
@@ -683,7 +697,7 @@
                 <input type="text" id="inputNomeFornecedor" placeholder="Nome do Fornecedor">
                 <div class="campo-euro">
                     <span class="simbolo-euro">€</span>
-                    <input type="number" id="inputPortesFornecedor" placeholder="Portes (€)" step="0.01">
+                    <input type="number" id="inputPortesFornecedor" placeholder="Portes s/IVA (€)" step="0.01">
                 </div>
                 <div class="btn-row">
                     <button class="btn btn-success" onclick="guardarFornecedor()">Guardar</button>
@@ -742,7 +756,7 @@
                     <label>Tipo de Material</label>
                     <select id="selTipoMaterialForm"></select>
                 </div>
-                <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços</div>
+                <div style="margin-top:8px;font-size:0.8rem;font-weight:600;color:#475569;">Cores e Preços (s/IVA)</div>
                 <div id="variantesFormContainer"></div>
                 <button class="btn-add-variante" onclick="adicionarVarianteForm()">+ Adicionar cor</button>
                 <div class="btn-row" style="margin-top:8px;">
@@ -786,6 +800,9 @@
                         <input type="number" id="inputLarguraTecnica" placeholder="28" step="0.1">
                     </div>
                 </div>
+                <div style="font-size:0.7rem;color:#64748b;margin-top:4px;">
+                    Introduz o custo real de compra por metro (como pagas ao fornecedor)
+                </div>
                 <div class="btn-row" style="margin-top:8px;">
                     <button class="btn btn-success" onclick="guardarTecnica()">Guardar</button>
                     <button class="btn btn-cancel" onclick="fecharFormTecnica()">Cancelar</button>
@@ -797,7 +814,7 @@
             <div class="section-title">📐 Dimensões da Estampa</div>
             <div class="grid-2">
                 <div class="field">
-                    <label>Altura (cm):</label>
+                    <label>Altura / Avanço (cm):</label>
                     <input type="number" id="alturaEstampa" value="10" step="0.1" oninput="calcular()" onchange="calcular()">
                 </div>
                 <div class="field" style="background:#f8fafc;border-radius:6px;padding:4px 10px;border:1px solid #e2e8f0;">
@@ -847,11 +864,11 @@
 
         <div class="card card-resultados">
             <div class="result-row result-destaque">
-                <span>💰 Preço Venda / Un (c/IVA):</span>
+                <span>💰 Preço Venda / Un:</span>
                 <strong id="resPrecoUn">0,00 €</strong>
             </div>
             <div class="result-row result-total">
-                <span>📊 Total Comercial (c/IVA):</span>
+                <span>📊 Total Comercial:</span>
                 <strong id="resTotalComercial">0,00 €</strong>
             </div>
             <hr>
@@ -859,7 +876,7 @@
             <div class="result-row"><span>🖨️ Impressão (c/IVA):</span><span id="resCustoImpr">0,00 €</span></div>
             <div class="result-row"><span>📦 Portes Lote (c/IVA):</span><span id="resPortes">0,00 €</span></div>
             <div class="result-row" id="linhaConsumo"><span id="labelConsumo">📏 Consumo:</span><span id="resConsumo">0,00 m</span></div>
-            <div class="result-row"><span>📋 Custo Total Lote (c/IVA):</span><span id="resCustoTotal">0,00 €</span></div>
+            <div class="result-row"><span>📋 Custo Total Lote:</span><span id="resCustoTotal">0,00 €</span></div>
             <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
             <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
             <div class="badge" id="escalaoBadge">🏷️ Escalão</div>
@@ -876,6 +893,10 @@
 
         <div class="footer-info">
             <span id="footerInfo">Técnica: <strong id="footerTecnica">Nenhuma</strong> | Material: <strong id="footerMaterial">Nenhum</strong> (<span id="footerPreco">0,00 €</span>)</span>
+        </div>
+
+        <div class="nota-isencao">
+            <strong>⚠️ Regime de Isenção</strong> — Artigo 53.º do CIVA. Valores sem IVA a acrescer.
         </div>
 
     </div>
@@ -1058,7 +1079,6 @@ function obterDataHoje() {
     return dia + "/" + mes + "/" + ano;
 }
 
-// ✅ CORREÇÃO 1 — Recalcular sempre antes de gerar
 function atualizarNumeroEData() {
     recalcularContadorDoHistorico();
     document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
@@ -1618,7 +1638,6 @@ function guardarOrcamentosLista(lista) {
     if (utilizadorAtual) guardarDadosNaNuvem();
 }
 
-// ✅ CORREÇÃO 3 — garantir número único (com limite anti-ciclo)
 function guardarOrcamento() {
     var nome = document.getElementById("inputClienteNome").value.trim();
     if (!nome) {
@@ -1882,6 +1901,8 @@ function verOrcamentoHistorico(id) {
     txt += "📊 Total: " + o.total + "\n";
     txt += "📈 Lucro total: " + o.lucroTotal + "\n";
     txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     txt += "Guardado em: " + o.dataGuardado;
 
     alert(txt);
@@ -1911,7 +1932,8 @@ function copiarOrcamentoHistorico(id) {
     txt += "💰 Preço/un.: " + o.precoUn + "\n";
     txt += "📊 Total: " + o.total + "\n";
     txt += "📈 Lucro total: " + o.lucroTotal + "\n";
-    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA";
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(txt).then(function() {
@@ -2057,7 +2079,7 @@ function eliminarTipo() {
 function exportarDados() {
     try {
         var backup = {
-            versao: "6.0",
+            versao: "7.0",
             dataBackup: new Date().toLocaleString("pt-PT"),
             dados: dados,
             orcamentos: carregarOrcamentos(),
@@ -2165,7 +2187,7 @@ function criarCampoVariante(variante) {
     html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
     html += '<div class="campo-euro" style="flex:1;">';
     html += '<span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>';
-    html += '<input type="number" class="inputVariantePreco" placeholder="Preço" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
+    html += '<input type="number" class="inputVariantePreco" placeholder="Preço s/IVA" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
     html += '</div>';
     html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
     html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
@@ -2242,7 +2264,7 @@ function obterVariantesDoForm() {
             m.variantes.forEach(function(v) {
                 var opt = document.createElement("option");
                 opt.value = v.id;
-                opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " €)";
+                opt.textContent = v.nome + " (" + formatarNumero(v.preco, 2) + " € s/IVA)";
                 if (v.cor) opt.style.color = v.cor;
                 sel.appendChild(opt);
             });
@@ -2275,7 +2297,7 @@ function obterVariantesDoForm() {
             dados.fornecedores.forEach(function(f) {
                 var opt = document.createElement("option");
                 opt.value = f.id;
-                opt.textContent = f.nome + " (Portes: " + formatarNumero(f.portes, 2) + " €)";
+                opt.textContent = f.nome + " (Portes s/IVA: " + formatarNumero(f.portes, 2) + " €)";
                 sel.appendChild(opt);
             });
             if (!fornecedorId || !obterFornecedor(fornecedorId)) {
@@ -2419,7 +2441,7 @@ function obterVariantesDoForm() {
                 var corStyle = v.cor ? 'background-color:' + v.cor + ';' : '';
                 html += '<div class="variante-item">';
                 html += '<span><span class="cor-bolinha" style="' + corStyle + '"></span>' + v.nome + '</span>';
-                html += '<span class="preco">' + moeda(v.preco) + '</span>';
+                html += '<span class="preco">' + moeda(v.preco) + ' s/IVA</span>';
                 html += '</div>';
             });
             container.innerHTML = html;
@@ -2523,6 +2545,7 @@ function obterVariantesDoForm() {
                 opt.value = t.id;
                 var label = t.nome;
                 if (t.largura > 0) label += " (" + formatarNumero(t.largura, 0) + "cm)";
+                if (t.custoMetro > 0) label += " - " + formatarNumero(t.custoMetro, 2) + "€/m";
                 opt.textContent = label;
                 sel.appendChild(opt);
             });
@@ -2580,6 +2603,8 @@ function obterVariantesDoForm() {
             if (!nome) { alert("⚠️ Indica o nome da técnica."); return; }
             var custoMetro = parseNum(document.getElementById("inputCustoMetro").value);
             var largura = parseNum(document.getElementById("inputLarguraTecnica").value);
+            if (custoMetro <= 0) { alert("⚠️ Indica o custo por metro."); return; }
+            if (largura <= 0) { alert("⚠️ Indica a largura da bobina."); return; }
             var eid = document.getElementById("editTecnicaId").value;
             if (eid) {
                 var t = obterTecnica(eid);
@@ -2606,57 +2631,38 @@ function obterVariantesDoForm() {
         }
 
         // ============================================================
-        //  CÁLCULOS
+        //  CÁLCULOS (NOVO: LINEAR em metros, sem IVA na técnica)
         // ============================================================
 
-        function calcularConsumo(qtd, metro, alt, larg, bobina) {
+        function calcularConsumo(qtd, custoMetro, altura, largura, bobina) {
             qtd = Math.max(1, parseInt(qtd) || 1);
-            var area = (Math.max(0, parseNum(alt)) / 100) * (Math.max(0, parseNum(larg)) / 100) * qtd * 1.05;
-            var metros = area / (bobina / 100);
-            return { custoUn: (metros * Math.max(0, parseNum(metro)) * TAXA_IVA) / qtd, metrosTotais: metros, escala: 1 };
+            altura = Math.max(0, parseNum(altura));
+            largura = Math.max(0, parseNum(largura));
+
+            // Metros lineares = avanço (altura) × quantidade + 5% de desperdício
+            var metrosTotais = (altura / 100) * qtd * 1.05;
+            var custoTotal = metrosTotais * Math.max(0, parseNum(custoMetro));
+            var custoUn = custoTotal / qtd;
+
+            return {
+                custoUn: custoUn,
+                metrosTotais: metrosTotais,
+                escala: 1
+            };
         }
 
         function obterCustoImpressao(qtd, tecId) {
             var t = obterTecnica(tecId);
             if (!t) return { custoUn: 0, metros: 0, escala: 1 };
+
             var alt = parseNum(document.getElementById("alturaEstampa").value) || 10;
             var larg = t.largura || 0;
-            var cores = 1;
-            var nome = (t.nome || "").toLowerCase();
-            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
-                var bobina = 28;
-                if (nome.indexOf("vinil") !== -1) bobina = 50;
-                else if (nome.indexOf("sublimação") !== -1 || nome.indexOf("sublimacao") !== -1) bobina = 58;
-                var res = calcularConsumo(qtd, t.custoMetro, alt, larg, bobina);
+
+            if (t.custoMetro > 0 && alt > 0) {
+                var res = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
                 return { custoUn: res.custoUn, metros: res.metrosTotais, escala: res.escala };
             }
-            if (nome.indexOf("serigrafia") !== -1) {
-                var escSerigrafia = [
-                    { min: 1, max: 9, precos: [8, 10, 12] },
-                    { min: 10, max: 24, precos: [3.5, 4.5, 5.5] },
-                    { min: 25, max: 49, precos: [2.2, 2.8, 3.4] },
-                    { min: 50, max: 99, precos: [1.5, 1.9, 2.3] },
-                    { min: 100, max: Infinity, precos: [1, 1.3, 1.6] }
-                ];
-                var e = escSerigrafia.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escSerigrafia[0];
-                var idx = Math.max(0, Math.min(2, cores - 1));
-                return { custoUn: e.precos[idx] * TAXA_IVA, metros: 0, escala: e.min };
-            }
-            if (nome.indexOf("bordado") !== -1) {
-                var escBordado = [
-                    { min: 1, max: 9, precos: [6, 8] },
-                    { min: 10, max: 24, precos: [3.8, 5] },
-                    { min: 25, max: 49, precos: [2.5, 3.5] },
-                    { min: 50, max: Infinity, precos: [1.8, 2.5] }
-                ];
-                var e2 = escBordado.find(function(x) { return qtd >= x.min && qtd <= x.max; }) || escBordado[0];
-                var idx2 = cores > 1 ? 1 : 0;
-                return { custoUn: e2.precos[idx2] * TAXA_IVA, metros: 0, escala: e2.min };
-            }
-            if (t.custoMetro > 0 && alt > 0 && larg > 0) {
-                var res2 = calcularConsumo(qtd, t.custoMetro, alt, larg, 28);
-                return { custoUn: res2.custoUn, metros: res2.metrosTotais, escala: res2.escala };
-            }
+
             return { custoUn: 0, metros: 0, escala: 1 };
         }
 
@@ -2680,26 +2686,36 @@ function obterVariantesDoForm() {
                 var tecId = document.getElementById("selTecnica").value;
                 var tipoMargem = document.getElementById("tipoMargem").value;
                 var margem = parseNum(document.getElementById("valMargem").value);
+
                 if (!tecId || !obterTecnica(tecId)) {
                     document.getElementById("resPrecoUn").textContent = "0,00 €";
                     document.getElementById("resTotalComercial").textContent = "0,00 €";
                     return;
                 }
+
                 var imp = obterCustoImpressao(qtd, tecId);
-                var pIva = custoPeca * TAXA_IVA;
-                var portesIva = portes * TAXA_IVA;
-                var custoUn = pIva + imp.custoUn + (portesIva / qtd);
+
+                // Peças e portes: fornecedor dá s/IVA → somar IVA (23%)
+                var pMaterial = custoPeca * TAXA_IVA;
+                var pPortes = portes * TAXA_IVA;
+
+                // Impressão: já inclui o IVA que pagaste (valor exato introduzido por ti)
+                var custoUn = pMaterial + imp.custoUn + (pPortes / qtd);
+
+                // Lucro e venda: regime de isenção → sem IVA a somar
                 var lucro = calcularMargem(qtd, margem, tipoMargem, custoUn);
                 var venda = custoUn + lucro;
+
                 document.getElementById("resPrecoUn").textContent = moeda(venda);
                 document.getElementById("resTotalComercial").textContent = moeda(venda * qtd);
-                document.getElementById("resCustoMaterial").textContent = moeda(pIva);
+                document.getElementById("resCustoMaterial").textContent = moeda(pMaterial);
                 document.getElementById("resCustoImpr").textContent = moeda(imp.custoUn);
-                document.getElementById("resPortes").textContent = moeda(portesIva);
+                document.getElementById("resPortes").textContent = moeda(pPortes);
                 document.getElementById("resCustoTotal").textContent = moeda(custoUn * qtd);
                 document.getElementById("resLucroUn").textContent = moeda(lucro);
                 document.getElementById("resLucroTotal").textContent = moeda(lucro * qtd);
                 document.getElementById("escalaoBadge").textContent = "🏷️ Escalão ≥ " + imp.escala + " un";
+
                 var t = obterTecnica(tecId);
                 var linha = document.getElementById("linhaConsumo");
                 if (linha) {
@@ -2711,19 +2727,20 @@ function obterVariantesDoForm() {
                         linha.style.display = "none";
                     }
                 }
-                gerarComparativo(qtd, pIva, portesIva, tecId, tipoMargem, margem);
+
+                gerarComparativo(qtd, pMaterial, pPortes, tecId, tipoMargem, margem);
             } catch (e) {
                 console.log("Erro calcular:", e);
             }
         }
 
-        function gerarComparativo(qAtual, pIva, portesIva, tecId, tipoMargem, margem) {
+        function gerarComparativo(qAtual, pMaterial, pPortes, tecId, tipoMargem, margem) {
             var el = document.getElementById("tabelaComparativa");
             if (!el) return;
             el.innerHTML = "";
             [1, 10, 25, 50, 100].forEach(function(q) {
                 var imp = obterCustoImpressao(q, tecId);
-                var custo = pIva + imp.custoUn + (portesIva / q);
+                var custo = pMaterial + imp.custoUn + (pPortes / q);
                 var lucro = calcularMargem(q, margem, tipoMargem, custo);
                 var div = document.createElement("div");
                 div.className = "escalao-item" + (q === qAtual ? " active" : "");
@@ -2769,6 +2786,8 @@ function obterVariantesDoForm() {
                 "📊 Total: " + document.getElementById("resTotalComercial").textContent + "\n" +
                 "📈 Lucro total: " + document.getElementById("resLucroTotal").textContent + "\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "⚠️ Regime de isenção — Artigo 53.º do CIVA\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                 "📅 " + new Date().toLocaleDateString("pt-PT");
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2782,9 +2801,10 @@ function obterVariantesDoForm() {
             if (typeof html2pdf === "undefined") { window.print(); return; }
             var el = document.getElementById("areaParaPdf");
             if (!el) return;
+            var data = new Date().toISOString().slice(0, 10);
             html2pdf().set({
                 margin: 8,
-                filename: "GrafiSantos-Orcamento.pdf",
+                filename: "GrafiSantos-Orcamento-" + data + ".pdf",
                 image: { type: "jpeg", quality: 0.95 },
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
