@@ -901,24 +901,22 @@
 
     </div>
 
-    <script>
+    <script> 
         "use strict";
 
         // ============================================================
         //  CONFIGURAÇÃO FIREBASE
-        //  ⚠️ SUBSTITUI ESTES VALORES PELOS QUE COPIASTE
         // ============================================================
 
         var firebaseConfig = {
-            apiKey: "COLA_AQUI_O_TEU_API_KEY",
+            apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
             authDomain: "grafisantos-orcamentos.firebaseapp.com",
             projectId: "grafisantos-orcamentos",
-            storageBucket: "grafisantos-orcamentos.appspot.com",
-            messagingSenderId: "COLA_AQUI",
-            appId: "COLA_AQUI"
+            storageBucket: "grafisantos-orcamentos.firebasestorage.app",
+            messagingSenderId: "769855753160",
+            appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
         };
 
-        // Inicializar Firebase
         var app = firebase.initializeApp(firebaseConfig);
         var auth = firebase.auth();
         var db = firebase.firestore();
@@ -939,7 +937,6 @@
         var MARGEM_KEY = "grafisantos_margem";
         var GITHUB_TOKEN_KEY = "grafisantos_github_token";
 
-        // Configuração do repositório GitHub
         var GITHUB_OWNER = "nmgsantos27";
         var GITHUB_REPO = "Calculo-estampagem-";
         var GITHUB_BRANCH = "main";
@@ -981,6 +978,92 @@
         }
 
         // ============================================================
+        //  CONTADOR - CÁLCULO E SINCRONIZAÇÃO
+        // ============================================================
+
+        function obterAnoAtual() {
+            return new Date().getFullYear();
+        }
+
+        function obterContador() {
+            try {
+                var raw = localStorage.getItem(STORAGE_CONTADOR);
+                if (raw) {
+                    var obj = JSON.parse(raw);
+                    if (obj.ano === obterAnoAtual()) return obj.numero;
+                }
+            } catch (e) {}
+            return 0;
+        }
+
+        function incrementarContador() {
+            var num = obterContador() + 1;
+            try {
+                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                    ano: obterAnoAtual(),
+                    numero: num
+                }));
+            } catch (e) {}
+            if (utilizadorAtual) guardarDadosNaNuvem();
+            return num;
+        }
+
+        function formatarNumeroOrcamento(num) {
+            var ano = obterAnoAtual();
+            var str = String(num).padStart(4, "0");
+            return "#" + ano + "-" + str;
+        }
+
+        function gerarNumeroOrcamento() {
+            var proximo = obterContador() + 1;
+            return formatarNumeroOrcamento(proximo);
+        }
+
+        function recalcularContadorDoHistorico() {
+            try {
+                var lista = carregarOrcamentos();
+                var anoAtual = obterAnoAtual();
+                var maiorNumero = 0;
+
+                lista.forEach(function(o) {
+                    if (!o.numero) return;
+                    var match = o.numero.match(/#(\d{4})-(\d{4})/);
+                    if (match) {
+                        var ano = parseInt(match[1]);
+                        var num = parseInt(match[2]);
+                        if (ano === anoAtual && num > maiorNumero) {
+                            maiorNumero = num;
+                        }
+                    }
+                });
+
+                var contadorAtual = obterContador();
+                if (maiorNumero > contadorAtual) {
+                    localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                        ano: anoAtual,
+                        numero: maiorNumero
+                    }));
+                    console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
+                }
+            } catch (e) {
+                console.error("Erro ao recalcular contador:", e);
+            }
+        }
+
+        function obterDataHoje() {
+            var d = new Date();
+            var dia = String(d.getDate()).padStart(2, "0");
+            var mes = String(d.getMonth() + 1).padStart(2, "0");
+            var ano = d.getFullYear();
+            return dia + "/" + mes + "/" + ano;
+        }
+
+        function atualizarNumeroEData() {
+            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
+            document.getElementById("dataOrcamento").value = obterDataHoje();
+        }
+
+        // ============================================================
         //  BACKUP GITHUB
         // ============================================================
 
@@ -1011,7 +1094,6 @@
                 var conteudo = JSON.stringify(backup, null, 2);
                 var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
 
-                // Verificar se já existe ficheiro de hoje
                 var sha = null;
                 try {
                     var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
@@ -1063,7 +1145,7 @@
             var novo = prompt(
                 "🔐 Configurar Token do GitHub\n\n" +
                 "Cola aqui o token que criaste (github_pat_...):\n\n" +
-                "⚠️ Só precisas fazer isto UMA VEZ.\n" +
+                "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
                 "O token fica guardado no teu dispositivo."
             );
 
@@ -1129,7 +1211,7 @@
                 dados: dados,
                 orcamentos: carregarOrcamentos(),
                 clientes: carregarClientes(),
-                contador: localStorage.getItem(STORAGE_CONTADOR),
+                contador: localStorage.getItem(STORAGE_CONTADOR) || "",
                 margem: localStorage.getItem(MARGEM_KEY),
                 ultimaModificacao: Date.now()
             };
@@ -1177,6 +1259,8 @@
                         console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
                     }
                     sincronizacaoEmCurso = false;
+
+                    recalcularContadorDoHistorico();
 
                     renderTipos();
                     renderFornecedores();
@@ -1510,61 +1594,7 @@
             clienteSelecionadoId = novo.id;
             renderSelectClientes();
             alert("✅ Cliente guardado!");
-        }
-
-        // ============================================================
-        //  ORÇAMENTO - Nº E DATA
-        // ============================================================
-
-        function obterAnoAtual() {
-            return new Date().getFullYear();
-        }
-
-        function obterContador() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CONTADOR);
-                if (raw) {
-                    var obj = JSON.parse(raw);
-                    if (obj.ano === obterAnoAtual()) return obj.numero;
-                }
-            } catch (e) {}
-            return 0;
-        }
-
-        function incrementarContador() {
-            var num = obterContador() + 1;
-            try {
-                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                    ano: obterAnoAtual(),
-                    numero: num
-                }));
-            } catch (e) {}
-            return num;
-        }
-
-        function formatarNumeroOrcamento(num) {
-            var ano = obterAnoAtual();
-            var str = String(num).padStart(4, "0");
-            return "#" + ano + "-" + str;
-        }
-
-        function gerarNumeroOrcamento() {
-            var proximo = obterContador() + 1;
-            return formatarNumeroOrcamento(proximo);
-        }
-
-        function obterDataHoje() {
-            var d = new Date();
-            var dia = String(d.getDate()).padStart(2, "0");
-            var mes = String(d.getMonth() + 1).padStart(2, "0");
-            var ano = d.getFullYear();
-            return dia + "/" + mes + "/" + ano;
-        }
-
-        function atualizarNumeroEData() {
-            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
-            document.getElementById("dataOrcamento").value = obterDataHoje();
-        }
+        }    
 
         // ============================================================
         //  ORÇAMENTOS
@@ -2081,6 +2111,7 @@
                     tecnicaId = null;
                     clienteSelecionadoId = null;
 
+                    recalcularContadorDoHistorico();
                     renderTipos();
                     renderFornecedores();
                     renderTecnicas();
@@ -2168,8 +2199,8 @@
                 }
             });
             return variantes;
-        }
-
+        } 
+        
         // ============================================================
         //  FORNECEDORES
         // ============================================================
