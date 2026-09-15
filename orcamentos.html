@@ -3138,16 +3138,22 @@
         });
     </script>
 
-    <script>
+        <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('✅ Service Worker registado com sucesso!', registration);
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Erro ao registar Service Worker:', error);
-                    });
+                navigator.serviceWorker.register('sw.js').then(function(reg) {
+                    console.log('✅ Service Worker registado');
+                    setInterval(function() { reg.update(); }, 60000);
+                }).catch(function(err) {
+                    console.log('❌ Erro SW:', err);
+                });
+
+                var refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                    if (refreshing) return;
+                    refreshing = true;
+                    window.location.reload();
+                });
             });
         }
     </script>
