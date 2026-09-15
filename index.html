@@ -119,6 +119,10 @@
             background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
             box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
         }
+        .botao-modulo.definicoes .icone {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
+        }
         .botao-modulo .texto {
             flex: 1;
             text-align: left;
@@ -205,6 +209,15 @@
                 <div class="seta">›</div>
             </a>
 
+            <a href="escaloes.html" class="botao-modulo definicoes">
+                <div class="icone">⚙️</div>
+                <div class="texto">
+                    <div class="nome">Definições</div>
+                    <div class="descricao">Escalões de margem e configurações</div>
+                </div>
+                <div class="seta">›</div>
+            </a>
+
         </div>
 
         <div class="footer">
@@ -219,12 +232,10 @@
                 navigator.serviceWorker.register('sw.js').then(function(reg) {
                     console.log('✅ Service Worker registado');
 
-                    // Verifica atualizações a cada 60 segundos
                     setInterval(function() {
                         reg.update();
                     }, 60000);
 
-                    // Deteta nova versão
                     reg.addEventListener('updatefound', function() {
                         console.log('🔍 Nova versão detetada');
                         var newWorker = reg.installing;
@@ -242,7 +253,6 @@
                     console.log('❌ Erro SW:', err);
                 });
 
-                // Recarrega quando o SW muda
                 var refreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', function() {
                     if (refreshing) return;
