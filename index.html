@@ -213,16 +213,36 @@
 
     </div>
 
-        <script>
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('sw.js').then(function(reg) {
                     console.log('✅ Service Worker registado');
-                    setInterval(function() { reg.update(); }, 60000);
+
+                    // Verifica atualizações a cada 60 segundos
+                    setInterval(function() {
+                        reg.update();
+                    }, 60000);
+
+                    // Deteta nova versão
+                    reg.addEventListener('updatefound', function() {
+                        console.log('🔍 Nova versão detetada');
+                        var newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('🔄 Nova versão instalada — a recarregar...');
+                                newWorker.postMessage('skipWaiting');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1000);
+                            }
+                        });
+                    });
                 }).catch(function(err) {
                     console.log('❌ Erro SW:', err);
                 });
 
+                // Recarrega quando o SW muda
                 var refreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', function() {
                     if (refreshing) return;
@@ -232,3 +252,6 @@
             });
         }
     </script>
+
+</body>
+</html>
