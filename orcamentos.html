@@ -87,6 +87,21 @@
             padding: 4px 10px;
             font-size: 0.7rem;
         }
+        .btn-definicoes {
+            background: #64748b;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-definicoes:active {
+            transform: scale(0.95);
+        }
         .btn-icon {
             width: 40px;
             height: 40px;
@@ -137,10 +152,6 @@
         .card-orcamento {
             background: #f0f9ff;
             border-color: #bae6fd;
-        }
-        .card-escaloes {
-            background: #fefce8;
-            border-color: #fde047;
         }
         .section-title {
             font-size: 0.8rem;
@@ -246,26 +257,21 @@
             border-top: 1px solid #bfdbfe;
             margin: 8px 0;
         }
-        .badge {
-            display: inline-block;
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-top: 6px;
-        }
         .badge-margem {
             display: inline-block;
             background: #fef3c7;
             color: #92400e;
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 12px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
-            margin-top: 6px;
+            margin-top: 8px;
             border: 1px solid #fde047;
+        }
+        .badge-margem a {
+            color: #92400e;
+            text-decoration: underline;
+            margin-left: 4px;
         }
         .grid-escaloes {
             display: grid;
@@ -427,87 +433,6 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        .escalao-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1.3fr auto;
-            gap: 6px;
-            align-items: center;
-            background: #fff;
-            padding: 8px 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            margin-top: 6px;
-        }
-        .escalao-form input {
-            padding: 6px 8px;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            width: 100%;
-        }
-        .escalao-form .input-margem {
-            position: relative;
-        }
-        .escalao-form .input-margem input {
-            padding-left: 20px;
-        }
-        .escalao-form .input-margem::before {
-            content: "€";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8rem;
-            color: #64748b;
-            font-weight: 600;
-            pointer-events: none;
-        }
-        .escalao-form .btn-remover {
-            background: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fca5a5;
-            border-radius: 4px;
-            padding: 6px 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-            line-height: 1;
-        }
-        .escalao-form .btn-remover:active {
-            background: #fecaca;
-        }
-        .escalao-form .btn-remover:disabled {
-            background: #f1f5f9;
-            color: #cbd5e1;
-            border-color: #e2e8f0;
-            cursor: not-allowed;
-        }
-        .escalao-header {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1.3fr auto;
-            gap: 6px;
-            margin-top: 8px;
-            padding: 0 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        .escalao-header span:nth-child(4) {
-            width: 34px;
-        }
-        .escalao-ultimo {
-            font-size: 0.7rem;
-            color: #92400e;
-            background: #fef3c7;
-            border: 1px solid #fde047;
-            border-radius: 4px;
-            padding: 3px 8px;
-            margin-top: 6px;
-            display: inline-block;
-            font-weight: 600;
-        }
         .historico-item {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -625,11 +550,6 @@
                 height: 38px;
                 font-size: 1rem;
             }
-            .escalao-form,
-            .escalao-header {
-                grid-template-columns: 1fr 1fr 1.2fr auto;
-                gap: 4px;
-            }
         }
         @media print {
             .no-print {
@@ -666,6 +586,7 @@
                 <h1>🖨️ Grafi<span>Santos</span></h1>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <a href="escaloes.html" class="btn-definicoes" title="Editar escalões de margem">⚙️ Definições</a>
                 <button class="btn btn-secondary" onclick="copiarResumo()" title="Copiar resumo">📋</button>
                 <button class="btn btn-secondary" onclick="gerarPDF()" title="Gerar PDF">📄</button>
                 <button class="btn btn-secondary" onclick="window.print()" title="Imprimir">🖨️</button>
@@ -949,39 +870,6 @@
                 </div>
             </div>
 
-            <!-- ESCALÕES DE MARGEM -->
-            <div class="card card-escaloes">
-                <div class="section-title">📊 Escalões de Margem</div>
-                <div style="font-size:0.75rem;color:#64748b;margin-bottom:6px;">
-                    Define a margem de lucro por quantidade. A app aplica automaticamente o escalão correspondente.
-                </div>
-
-                <div class="escalao-header">
-                    <span>De (un)</span>
-                    <span>Até (un)</span>
-                    <span>Margem</span>
-                    <span></span>
-                </div>
-
-                <div id="escaloesContainer"></div>
-
-                <button class="btn-add-variante" onclick="adicionarEscalaoForm()">+ Adicionar escalão</button>
-
-                <div class="escalao-ultimo" id="avisoUltimoEscalao">
-                    ⚠️ O último escalão aplica-se a todas as quantidades acima
-                </div>
-
-                <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:#475569;">
-                    <span>🧮 <strong>Escalão atual:</strong></span>
-                    <span id="escalaoAtualTexto" style="font-weight:600;color:#92400e;">—</span>
-                </div>
-
-                <div class="btn-row" style="margin-top:10px;">
-                    <button class="btn btn-success" onclick="guardarEscaloes()">💾 Guardar Escalões</button>
-                    <button class="btn btn-cancel" onclick="resetarEscaloes()">↻ Repor Padrão</button>
-                </div>
-            </div>
-
             <div class="card card-resultados">
                 <div class="result-row result-destaque">
                     <span>💰 Preço Venda / Un:</span>
@@ -999,7 +887,9 @@
                 <div class="result-row"><span>📋 Custo Total Lote:</span><span id="resCustoTotal">0,00 €</span></div>
                 <div class="result-row"><span>📈 Lucro Unitário:</span><span id="resLucroUn">0,00 €</span></div>
                 <div class="result-row"><span>📈 Lucro Total Estimado:</span><span id="resLucroTotal">0,00 €</span></div>
-                <div class="badge-margem" id="badgeMargem">🏷️ Margem: —</div>
+                <div class="badge-margem" id="badgeMargem">
+                    🏷️ Margem: — <a href="escaloes.html" title="Editar escalões">⚙️</a>
+                </div>
                 <div style="margin-top:10px;">
                     <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px;font-weight:600;">📊 Tabela Comparativa por Quantidade</div>
                     <div class="grid-escaloes" id="tabelaComparativa"></div>
@@ -1043,7 +933,7 @@
     </div>
 
     <script>
-        "use strict";
+                "use strict";
 
         // ============================================================
         //  CONFIGURAÇÃO FIREBASE
@@ -1082,7 +972,7 @@
         var GITHUB_REPO = "Calculo-estampagem-";
         var GITHUB_BRANCH = "main";
 
-        // Escalões de margem por defeito
+        // Escalões por defeito (só usados se nada estiver guardado)
         var ESCALOES_PADRAO = [
             { de: 1, ate: 4, margem: 5.00 },
             { de: 5, ate: 9, margem: 4.50 },
@@ -1115,7 +1005,7 @@
         }
 
         // ============================================================
-        //  ESCALÕES DE MARGEM
+        //  ESCALÕES (só leitura — edição é em escaloes.html)
         // ============================================================
 
         function carregarEscaloes() {
@@ -1132,126 +1022,6 @@
             escaloes = JSON.parse(JSON.stringify(ESCALOES_PADRAO));
         }
 
-        function guardarEscaloesLocal() {
-            try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
-        }
-
-        function guardarEscaloes() {
-            // Ler valores atuais do formulário
-            var linhas = document.querySelectorAll("#escaloesContainer .escalao-form");
-            var novos = [];
-            var erro = false;
-
-            linhas.forEach(function(linha) {
-                var de = parseNum(linha.querySelector(".input-de").value);
-                var ate = parseNum(linha.querySelector(".input-ate").value);
-                var margem = parseNum(linha.querySelector(".input-margem-valor").value);
-
-                if (de < 1) de = 1;
-                if (ate < de) ate = de;
-
-                novos.push({ de: de, ate: ate, margem: Math.max(0, margem) });
-            });
-
-            if (!novos.length) {
-                alert("⚠️ É necessário ter pelo menos um escalão.");
-                return;
-            }
-
-            // Ordenar por "de" ascendente
-            novos.sort(function(a, b) { return a.de - b.de; });
-
-            // Validar sobreposições
-            for (var i = 1; i < novos.length; i++) {
-                if (novos[i].de <= novos[i-1].ate) {
-                    alert("⚠️ Os escalões não podem sobrepor-se.\n\nLinha " + (i+1) + " começa em " + novos[i].de + " mas o anterior vai até " + novos[i-1].ate + ".");
-                    erro = true;
-                    break;
-                }
-            }
-            if (erro) return;
-
-            // O último escalão passa a ser "infinito"
-            novos[novos.length - 1].ate = 999999;
-
-            escaloes = novos;
-            guardarEscaloesLocal();
-            renderEscaloesForm();
-            calcular();
-            if (utilizadorAtual) guardarDadosNaNuvem();
-
-            alert("✅ Escalões guardados!");
-        }
-
-        function resetarEscaloes() {
-            if (!confirm("↻ Repor os escalões padrão?\n\nOs escalões atuais serão substituídos.")) return;
-            escaloes = JSON.parse(JSON.stringify(ESCALOES_PADRAO));
-            guardarEscaloesLocal();
-            renderEscaloesForm();
-            calcular();
-            if (utilizadorAtual) guardarDadosNaNuvem();
-            alert("✅ Escalões repostos ao padrão!");
-        }
-
-        function renderEscaloesForm() {
-            var container = document.getElementById("escaloesContainer");
-            if (!container) return;
-            container.innerHTML = "";
-
-            escaloes.forEach(function(esc, idx) {
-                var div = document.createElement("div");
-                div.className = "escalao-form";
-
-                var isUltimo = idx === escaloes.length - 1;
-
-                var html = '<input type="number" class="input-de" min="1" value="' + esc.de + '" placeholder="De">';
-                html += '<input type="number" class="input-ate" min="1" value="' + (isUltimo ? "" : esc.ate) + '" placeholder="' + (isUltimo ? "∞" : "Até") + '"' + (isUltimo ? ' readonly style="background:#fef3c7;color:#92400e;font-weight:600;cursor:default;"' : '') + '>';
-                html += '<div class="input-margem"><input type="number" class="input-margem-valor" min="0" step="0.10" value="' + formatarNumero(esc.margem, 2) + '" placeholder="0.00"></div>';
-                html += '<button type="button" class="btn-remover" onclick="removerEscalaoForm(' + idx + ')" ' + (escaloes.length <= 1 ? "disabled" : "") + '>✕</button>';
-
-                div.innerHTML = html;
-                container.appendChild(div);
-            });
-
-            atualizarAvisoUltimoEscalao();
-        }
-
-        function atualizarAvisoUltimoEscalao() {
-            var el = document.getElementById("avisoUltimoEscalao");
-            if (!el || !escaloes.length) return;
-            var ultimo = escaloes[escaloes.length - 1];
-            el.innerHTML = "⚠️ O último escalão (<strong>" + ultimo.de + "+</strong>) aplica-se a todas as quantidades acima";
-        }
-
-        function adicionarEscalaoForm() {
-            // Último escalão deixa de ser infinito (passa a ter um "até" real)
-            var ultimo = escaloes[escaloes.length - 1];
-            if (ultimo.ate >= 999999) {
-                ultimo.ate = ultimo.de + 9; // proposta: 10 unidades a mais
-            }
-
-            // Novo escalão começa depois do último
-            var novoDe = ultimo.ate + 1;
-            escaloes.push({
-                de: novoDe,
-                ate: novoDe + 9,
-                margem: Math.max(0, ultimo.margem - 0.50)
-            });
-
-            renderEscaloesForm();
-        }
-
-        function removerEscalaoForm(idx) {
-            if (escaloes.length <= 1) {
-                alert("⚠️ É necessário manter pelo menos um escalão.");
-                return;
-            }
-            escaloes.splice(idx, 1);
-            // O último volta a ser infinito
-            escaloes[escaloes.length - 1].ate = 999999;
-            renderEscaloesForm();
-        }
-
         function obterMargemPorQuantidade(qtd) {
             qtd = Math.max(1, parseInt(qtd) || 1);
             for (var i = 0; i < escaloes.length; i++) {
@@ -1265,7 +1035,6 @@
                     };
                 }
             }
-            // Fallback: último escalão
             var ultimo = escaloes[escaloes.length - 1];
             return {
                 margem: ultimo.margem,
@@ -1275,14 +1044,8 @@
             };
         }
 
-        function calcularMargem(qtd, valorIgnorado, tipoIgnorado, custoIgnorado) {
-            // Agora usa escalões por quantidade
-            var info = obterMargemPorQuantidade(qtd);
-            return Math.max(0, info.margem);
-        }
-
         // ============================================================
-        //  CONTADOR - CÁLCULO E SINCRONIZAÇÃO
+        //  CONTADOR
         // ============================================================
 
         function obterAnoAtual() {
@@ -1517,11 +1280,10 @@
                 orcamentos: carregarOrcamentos(),
                 clientes: carregarClientes(),
                 contador: localStorage.getItem(STORAGE_CONTADOR) || "",
-                escaloes: escaloes,
                 ultimaModificacao: Date.now()
             };
 
-            db.collection("userData").doc(utilizadorAtual.uid).set(payload)
+            db.collection("userData").doc(utilizadorAtual.uid).set(payload, { merge: true })
                 .then(function() {
                     sincronizacaoEmCurso = false;
                     console.log("✅ Dados guardados na nuvem");
@@ -1557,7 +1319,7 @@
                         }
                         if (payload.escaloes && Array.isArray(payload.escaloes) && payload.escaloes.length) {
                             escaloes = payload.escaloes;
-                            guardarEscaloesLocal();
+                            try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
                         }
                     } else {
                         console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
@@ -1570,7 +1332,6 @@
                     renderFornecedores();
                     renderTecnicas();
                     renderSelectClientes();
-                    renderEscaloesForm();
                     atualizarNumeroEData();
                     atualizarContadorTab();
                     calcular();
@@ -2369,13 +2130,13 @@
         }
 
         // ============================================================
-        //  EXPORTAR / IMPORTAR (backup local)
+        //  EXPORTAR / IMPORTAR
         // ============================================================
 
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "8.0",
+                    versao: "9.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados,
                     orcamentos: carregarOrcamentos(),
@@ -2439,7 +2200,7 @@
                     }
                     if (conteudo.escaloes && Array.isArray(conteudo.escaloes) && conteudo.escaloes.length) {
                         escaloes = conteudo.escaloes;
-                        guardarEscaloesLocal();
+                        try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
                     }
 
                     fornecedorId = null;
@@ -2454,7 +2215,6 @@
                     renderFornecedores();
                     renderTecnicas();
                     renderSelectClientes();
-                    renderEscaloesForm();
                     calcular();
                     atualizarInfoTecnica();
                     atualizarNumeroEData();
@@ -2999,16 +2759,9 @@
                 document.getElementById("resLucroUn").textContent = moeda(lucro);
                 document.getElementById("resLucroTotal").textContent = moeda(lucro * qtd);
 
-                // Badge de margem
                 var badge = document.getElementById("badgeMargem");
                 if (badge) {
-                    badge.textContent = "🏷️ Margem: " + moeda(lucro) + " (" + infoMargem.texto + ")";
-                }
-
-                // Texto do escalão atual
-                var elEsc = document.getElementById("escalaoAtualTexto");
-                if (elEsc) {
-                    elEsc.textContent = infoMargem.texto + "  →  " + moeda(lucro);
+                    badge.innerHTML = "🏷️ Margem: " + moeda(lucro) + " (" + infoMargem.texto + ") <a href=\"escaloes.html\" title=\"Editar escalões\">⚙️</a>";
                 }
 
                 var t = obterTecnica(tecId);
@@ -3121,7 +2874,6 @@
                 renderFornecedores();
                 renderTecnicas();
                 renderSelectClientes();
-                renderEscaloesForm();
                 atualizarNumeroEData();
                 atualizarContadorTab();
                 calcular();
@@ -3138,11 +2890,11 @@
         });
     </script>
 
-        <script>
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('sw.js').then(function(reg) {
-                    console.log('✅ Service Worker registado');
+                    console.log('✅ SW registado');
                     setInterval(function() { reg.update(); }, 60000);
                 }).catch(function(err) {
                     console.log('❌ Erro SW:', err);
