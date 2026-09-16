@@ -5,22 +5,37 @@ on:
     - cron: '0 4 * * *'
   workflow_dispatch:
 
+# 🔑 Permissão necessária para fazer push
+permissions:
+  contents: write
+
 jobs:
   limpar:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Remover backups com mais de 30 dias
         run: |
           mkdir -p backups
+          ANTES=$(find backups/ -name "backup_*.json" 2>/dev/null | wc -l)
           find backups/ -name "backup_*.json" -mtime +30 -delete 2>/dev/null || true
-          
+          DEPOIS=$(find backups/ -name "backup_*.json" 2>/dev/null | wc -l)
+          REMOVIDOS=$((ANTES - DEPOIS))
+          echo "🗑️ Backups removidos: $REMOVIDOS"
+
       - name: Commit alterações
         run: |
           git config user.name "GrafiSantos Backup"
           git config user.email "backup@grafisantos.local"
           git add backups/ 2>/dev/null || true
-          git diff --quiet && git diff --staged --quiet || git commit -m "🧹 Limpeza de backups antigos"
-          git push
+
+          # ✅ Só faz commit se houver alterações
+          if git diff --staged --quiet; then
+            echo "✅ Nenhum backup antigo para remover"
+          else
+            git commit -m "🧹 Limpeza de backups antigos ($(date +%Y-%m-%d))"
+            git push
+            echo "✅ Alterações enviadas"
+          fi
