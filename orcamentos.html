@@ -534,6 +534,20 @@
         .btn-menu-voltar:active {
             transform: scale(0.95);
         }
+        .portes-aviso {
+            color: #dc2626;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        .portes-botoes {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .portes-botoes .btn-pequeno {
+            flex: 1;
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -863,9 +877,13 @@
                         <input type="number" id="custoPeca" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
                     </div>
                     <div class="field campo-euro">
-                        <label>Portes Lote (s/IVA) €:</label>
+                        <label>Portes Lote (s/IVA) €: <span id="portesAviso" class="portes-aviso" style="display:none;">⚠️ Personalizado</span></label>
                         <span class="simbolo-euro-topo">€</span>
-                        <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;">
+                        <input type="number" id="portesFornecedor" value="0.00" step="0.01" readonly style="background:#f1f5f9;cursor:default;" oninput="onPortesEditado()" onchange="onPortesEditado()">
+                        <div class="portes-botoes">
+                            <button type="button" class="btn-pequeno" id="btnEditarPortes" onclick="toggleEditarPortes()">✏️ Editar</button>
+                            <button type="button" class="btn-pequeno" id="btnResetPortes" onclick="resetPortesFornecedor()" style="display:none;">🔄 Repor</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -972,7 +990,7 @@
         var GITHUB_REPO = "Calculo-estampagem-";
         var GITHUB_BRANCH = "main";
 
-        // Escalões por defeito (só usados se nada estiver guardado)
+        // Escalões por defeito (usados só se nada estiver guardado)
         var ESCALOES_PADRAO = [
             { de: 1, ate: 4, margem: 5.00 },
             { de: 5, ate: 9, margem: 4.50 },
@@ -1005,7 +1023,7 @@
         }
 
         // ============================================================
-        //  ESCALÕES (só leitura — edição é em escaloes.html)
+        //  ESCALÕES (só leitura — edição em escaloes.html)
         // ============================================================
 
         function carregarEscaloes() {
@@ -1405,6 +1423,9 @@
         var tecnicaId = null;
         var clienteSelecionadoId = null;
 
+        // ⚙️ Portes editáveis
+        var portesEditadosManualmente = false;
+
         // ============================================================
         //  PERSISTÊNCIA
         // ============================================================
@@ -1743,6 +1764,8 @@
                 tecnica: tecnica ? tecnica.nome : "",
                 quantidade: qtdAtual,
                 altura: parseNum(document.getElementById("alturaEstampa").value),
+                portesAplicados: parseNum(document.getElementById("portesFornecedor").value),
+                portesPersonalizados: portesEditadosManualmente,
                 precoUn: precoUnStr,
                 total: totalStr,
                 lucroUn: lucroUnStr,
@@ -1773,6 +1796,22 @@
             clienteSelecionadoId = null;
             var selCli = document.getElementById("selCliente");
             if (selCli) selCli.value = "";
+
+            // Repor portes ao limpar o formulário
+            portesEditadosManualmente = false;
+            var elP = document.getElementById("portesFornecedor");
+            var avisoP = document.getElementById("portesAviso");
+            var btnR = document.getElementById("btnResetPortes");
+            var btnE = document.getElementById("btnEditarPortes");
+            if (elP) {
+                elP.readOnly = true;
+                elP.style.background = "#f1f5f9";
+                elP.style.cursor = "default";
+            }
+            if (avisoP) avisoP.style.display = "none";
+            if (btnR) btnR.style.display = "none";
+            if (btnE) btnE.textContent = "✏️ Editar";
+            atualizarPortesFornecedor();
 
             atualizarNumeroEData();
             calcular();
@@ -1821,6 +1860,9 @@
                 html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
                 if (o.escalaoMargemTexto) {
                     html += '<div class="detalhes">📊 Escalão: ' + o.escalaoMargemTexto + ' → margem ' + moeda(o.margemAplicada || 0) + '</div>';
+                }
+                if (o.portesPersonalizados) {
+                    html += '<div class="detalhes" style="color:#dc2626;">⚠️ Portes personalizados: ' + moeda(o.portesAplicados || 0) + ' s/IVA</div>';
                 }
                 html += '<div class="total">💰 ' + o.total + '</div>';
                 html += '<div class="acoes">';
@@ -1916,6 +1958,35 @@
             document.getElementById("quantidade").value = o.quantidade || 1;
             document.getElementById("alturaEstampa").value = o.altura || 10;
 
+            // Restaurar portes personalizados se existirem
+            portesEditadosManualmente = false;
+            var elP = document.getElementById("portesFornecedor");
+            var avisoP = document.getElementById("portesAviso");
+            var btnR = document.getElementById("btnResetPortes");
+            var btnE = document.getElementById("btnEditarPortes");
+            if (elP) {
+                elP.readOnly = true;
+                elP.style.background = "#f1f5f9";
+                elP.style.cursor = "default";
+            }
+            if (avisoP) avisoP.style.display = "none";
+            if (btnR) btnR.style.display = "none";
+            if (btnE) btnE.textContent = "✏️ Editar";
+
+            if (o.portesPersonalizados && o.portesAplicados !== undefined) {
+                // Restaurar portes personalizados
+                if (elP) {
+                    elP.value = formatarNumero(o.portesAplicados, 2);
+                    elP.readOnly = false;
+                    elP.style.background = "#fff";
+                    elP.style.cursor = "text";
+                }
+                if (avisoP) avisoP.style.display = "inline";
+                if (btnR) btnR.style.display = "block";
+                if (btnE) btnE.textContent = "🔒 Bloquear";
+                portesEditadosManualmente = true;
+            }
+
             atualizarNumeroEData();
             calcular();
 
@@ -1949,6 +2020,9 @@
             txt += "📏 Altura: " + o.altura + " cm\n";
             if (o.escalaoMargemTexto) {
                 txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
+            }
+            if (o.portesPersonalizados) {
+                txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
             }
             txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
             txt += "💰 Preço/un.: " + o.precoUn + "\n";
@@ -1984,6 +2058,9 @@
             txt += "📏 Altura: " + o.altura + " cm\n";
             if (o.escalaoMargemTexto) {
                 txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
+            }
+            if (o.portesPersonalizados) {
+                txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
             }
             txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
             txt += "💰 Preço/un.: " + o.precoUn + "\n";
@@ -2136,7 +2213,7 @@
         function exportarDados() {
             try {
                 var backup = {
-                    versao: "9.0",
+                    versao: "10.0",
                     dataBackup: new Date().toLocaleString("pt-PT"),
                     dados: dados,
                     orcamentos: carregarOrcamentos(),
@@ -2305,10 +2382,82 @@
         // ============================================================
 
         function atualizarPortesFornecedor() {
+            // ⚙️ Se o utilizador editou os portes à mão, não mexer
+            if (portesEditadosManualmente) return;
+
             var f = obterFornecedor(fornecedorId);
             var el = document.getElementById("portesFornecedor");
             if (el && f) el.value = formatarNumero(f.portes, 2);
             else if (el) el.value = "0.00";
+        }
+
+        // ⚙️ Portes editáveis — funções novas
+        function toggleEditarPortes() {
+            var el = document.getElementById("portesFornecedor");
+            var btnEditar = document.getElementById("btnEditarPortes");
+            if (!el) return;
+
+            if (el.readOnly) {
+                el.readOnly = false;
+                el.style.background = "#fff";
+                el.style.cursor = "text";
+                el.focus();
+                el.select();
+                if (btnEditar) btnEditar.textContent = "🔒 Bloquear";
+            } else {
+                el.readOnly = true;
+                el.style.background = "#f1f5f9";
+                el.style.cursor = "default";
+                if (btnEditar) btnEditar.textContent = "✏️ Editar";
+            }
+        }
+
+        function onPortesEditado() {
+            var el = document.getElementById("portesFornecedor");
+            var aviso = document.getElementById("portesAviso");
+            var btnReset = document.getElementById("btnResetPortes");
+            if (!el) return;
+
+            var f = obterFornecedor(fornecedorId);
+            var valorOriginal = f ? f.portes : 0;
+            var valorAtual = parseNum(el.value);
+
+            var editado = Math.abs(valorAtual - valorOriginal) > 0.001;
+
+            if (editado) {
+                portesEditadosManualmente = true;
+                if (aviso) aviso.style.display = "inline";
+                if (btnReset) btnReset.style.display = "block";
+            } else {
+                portesEditadosManualmente = false;
+                if (aviso) aviso.style.display = "none";
+                if (btnReset) btnReset.style.display = "none";
+            }
+
+            calcular();
+        }
+
+        function resetPortesFornecedor() {
+            portesEditadosManualmente = false;
+
+            var el = document.getElementById("portesFornecedor");
+            var aviso = document.getElementById("portesAviso");
+            var btnReset = document.getElementById("btnResetPortes");
+            var btnEditar = document.getElementById("btnEditarPortes");
+
+            var f = obterFornecedor(fornecedorId);
+            if (el && f) el.value = formatarNumero(f.portes, 2);
+
+            if (el) {
+                el.readOnly = true;
+                el.style.background = "#f1f5f9";
+                el.style.cursor = "default";
+            }
+            if (aviso) aviso.style.display = "none";
+            if (btnReset) btnReset.style.display = "none";
+            if (btnEditar) btnEditar.textContent = "✏️ Editar";
+
+            calcular();
         }
 
         function atualizarSelectVariantes() {
@@ -2367,6 +2516,22 @@
         function onChangeFornecedor() {
             var sel = document.getElementById("selFornecedor");
             if (!sel) return;
+
+            // ⚙️ Repor portes personalizados ao mudar de fornecedor
+            portesEditadosManualmente = false;
+            var el = document.getElementById("portesFornecedor");
+            var aviso = document.getElementById("portesAviso");
+            var btnReset = document.getElementById("btnResetPortes");
+            var btnEditar = document.getElementById("btnEditarPortes");
+            if (el) {
+                el.readOnly = true;
+                el.style.background = "#f1f5f9";
+                el.style.cursor = "default";
+            }
+            if (aviso) aviso.style.display = "none";
+            if (btnReset) btnReset.style.display = "none";
+            if (btnEditar) btnEditar.textContent = "✏️ Editar";
+
             fornecedorId = sel.value;
             materialId = null;
             varianteId = null;
@@ -2831,8 +2996,11 @@
                 "🎨 Cor: " + varNome + "\n" +
                 "📐 Quantidade: " + q + "\n" +
                 "🖨️ Técnica: " + tec + "\n" +
-                "📊 Escalão: " + infoMargem.texto + " → margem " + moeda(infoMargem.margem) + "\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "📊 Escalão: " + infoMargem.texto + " → margem " + moeda(infoMargem.margem) + "\n";
+            if (portesEditadosManualmente) {
+                txt += "⚠️ Portes personalizados\n";
+            }
+            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                 "💰 Preço/un.: " + document.getElementById("resPrecoUn").textContent + "\n" +
                 "📊 Total: " + document.getElementById("resTotalComercial").textContent + "\n" +
                 "📈 Lucro total: " + document.getElementById("resLucroTotal").textContent + "\n" +
