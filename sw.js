@@ -1,6 +1,6 @@
 // Service Worker GrafiSantos
 // Versão: incrementa este número a cada alteração importante
-const CACHE_VERSION = "grafisantos-v11";
+const CACHE_VERSION = "grafisantos-v12";
 const CACHE_ASSETS = [
     "icon-192.png",
     "icon-512.png",
