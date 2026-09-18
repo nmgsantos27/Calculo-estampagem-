@@ -38,12 +38,8 @@
     transition: 0.15s;
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
-  .btn-menu-voltar:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  .btn-menu-voltar:active {
-    transform: scale(0.95);
-  }
+  .btn-menu-voltar:hover { background: rgba(255, 255, 255, 0.3); }
+  .btn-menu-voltar:active { transform: scale(0.95); }
 
   /* ===== LOGIN CARD ===== */
   .user-card {
@@ -59,9 +55,7 @@
     font-size: 0.85rem; color: #166534; font-weight: 600;
     display: flex; align-items: center; gap: 8px;
   }
-  .user-card .avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-  }
+  .user-card .avatar { width: 32px; height: 32px; border-radius: 50%; }
   .user-card .nome { font-weight: 700; color: #1e293b; }
   .user-card .email { font-size: 0.7rem; color: #64748b; font-weight: 500; }
   .user-card button {
@@ -72,7 +66,7 @@
   }
   .user-card button:hover { background: #f1f5f9; }
 
-  /* ===== TABS PRINCIPAIS ===== */
+  /* ===== TABS ===== */
   .tabs {
     display: flex; gap: 6px; margin-bottom: 16px;
     background: white; padding: 6px; border-radius: 12px;
@@ -86,7 +80,6 @@
   .tab.active { background: #6366f1; color: white; }
   .tab:hover:not(.active) { background: #f5f5f5; }
 
-  /* ===== SUB-TABS ===== */
   .sub-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
   .sub-tab {
     padding: 8px 16px; border: 1px solid #ddd; background: white; cursor: pointer;
@@ -103,7 +96,6 @@
   .page { display: none; }
   .page.active { display: block; }
 
-  /* ===== STATS ===== */
   .stats {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
     gap: 10px; margin-bottom: 20px;
@@ -117,10 +109,8 @@
   .stat.pago .stat-value { color: #10b981; }
   .stat.pendente .stat-value { color: #f59e0b; }
 
-  /* ===== TOOLBAR ===== */
   .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 
-  /* ===== BOTÕES ===== */
   button, .btn {
     padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer;
     font-size: 14px; font-weight: 600; transition: 0.2s; font-family: inherit;
@@ -137,7 +127,6 @@
   .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
   .btn-ico { padding: 6px 8px; font-size: 14px; min-width: 30px; }
 
-  /* ===== FILTROS ===== */
   .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
   .filters input, .filters select {
     padding: 10px; border: 1px solid #ddd; border-radius: 10px;
@@ -155,7 +144,6 @@
   .search-clear.visible { display: flex; }
   .search-clear:hover { background: #d1d5db; color: #111; }
 
-  /* ===== LISTA DE TRABALHOS ===== */
   .lista-compacta { display: grid; gap: 8px; }
   .linha-trabalho {
     background: white; padding: 12px 14px; border-radius: 12px;
@@ -193,7 +181,6 @@
     .linha-direita .badge-mini { display: none; }
   }
 
-  /* ===== REFERÊNCIA DO CLIENTE ===== */
   .ref {
     display: inline-block; font-size: 0.85em; font-weight: 700;
     color: #6366f1; background: #eef2ff;
@@ -206,7 +193,6 @@
   .linha-cliente .ref { font-size: 11px; padding: 1px 6px; }
   .card-title .ref { font-size: 13px; }
 
-  /* ===== DETALHE ===== */
   .detalhe { display: grid; gap: 14px; }
   .detalhe-bloco {
     background: white; border-radius: 14px; padding: 20px;
@@ -260,21 +246,16 @@
   }
   .cliente-info-item strong { color: #1a1a1a; }
 
-  /* ===== ANEXOS ===== */
   .anexos-grelha {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 10px; margin-bottom: 14px;
   }
   .anexo-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 10px;
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    border-radius: 12px; padding: 10px;
     display: flex; gap: 10px; align-items: center;
-    transition: 0.15s;
-    min-width: 0;
+    transition: 0.15s; min-width: 0;
   }
   .anexo-card:hover { background: white; border-color: #c7d2fe; }
 
@@ -319,7 +300,6 @@
   }
   .anexos-progresso.visible { display: block; }
 
-  /* ===== CUSTOS REAIS ===== */
   .custos-linha {
     display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
   }
@@ -354,13 +334,11 @@
     font-weight: 700;
   }
 
-  /* ===== EMPTY ===== */
   .empty {
     text-align: center; padding: 40px; color: #999;
     background: white; border-radius: 12px;
   }
 
-  /* ===== MODAL ===== */
   .modal-bg {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
     z-index: 100; align-items: center; justify-content: center; padding: 16px;
@@ -386,7 +364,6 @@
   .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
   .modal-actions button { flex: 1; }
 
-  /* ===== ESTADOS ===== */
   .estado-item {
     display: flex; align-items: center; gap: 10px; padding: 12px;
     background: white; border-radius: 12px; margin-bottom: 8px;
@@ -418,7 +395,6 @@
     .estado-preview { display: none; }
   }
 
-  /* ===== CLIENTES ===== */
   .cliente-card {
     background: white; padding: 18px; border-radius: 14px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -440,7 +416,6 @@
     border-left: 3px solid #e5e7eb;
   }
 
-  /* ===== TOGGLE PAGO ===== */
   .toggle-pago {
     display: flex; align-items: center; gap: 8px; padding: 10px;
     background: #f9fafb; border-radius: 8px; cursor: pointer;
@@ -452,7 +427,6 @@
     font-weight: 600; color: #333; margin: 0;
   }
 
-  /* ===== AVISO SYNC ===== */
   .sync-status {
     font-size: 11px; color: #64748b; text-align: right;
     padding: 0 4px 8px; opacity: 0.8;
@@ -461,7 +435,6 @@
   .sync-status.synced { color: #10b981; }
   .sync-status.error { color: #ef4444; }
 
-  /* ===== LIGAÇÃO ORÇAMENTO ===== */
   .aviso-orcamento {
     font-size: 12px; color: #6366f1; background: #eef2ff;
     border: 1px solid #c7d2fe; border-radius: 8px;
@@ -475,7 +448,6 @@
   }
   .aviso-orcamento a:hover { text-decoration: underline; }
 
-  /* ===== MOBILE ===== */
   @media (max-width: 500px) {
     .form-row { grid-template-columns: 1fr; }
     .tab { font-size: 12px; padding: 8px 4px; }
@@ -505,7 +477,6 @@
   </div>
 </header>
 
-<!-- ===== CARD DE LOGIN / UTILIZADOR ===== -->
 <div class="user-card login" id="cardUser">
   <div id="areaLogin" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;width:100%;">
     <div class="info">
@@ -543,7 +514,6 @@
   <button class="tab" onclick="mudarAba('estados', this)">⚙️ Estados</button>
 </div>
 
-<!-- ===== PÁGINA TRABALHOS ===== -->
 <div class="page active" id="page-trabalhos">
 
   <div id="vistaLista">
@@ -580,7 +550,6 @@
 
 </div>
 
-<!-- ===== PÁGINA CLIENTES ===== -->
 <div class="page" id="page-clientes">
   <div class="toolbar">
     <button class="btn-primary" onclick="abrirFormCliente()">➕ Novo Cliente</button>
@@ -594,7 +563,6 @@
   <div id="listaClientes" style="display:grid; gap:12px;"></div>
 </div>
 
-<!-- ===== PÁGINA ESTADOS ===== -->
 <div class="page" id="page-estados">
   <div class="toolbar">
     <button class="btn-primary" onclick="adicionarEstado()">➕ Novo Estado</button>
@@ -606,7 +574,6 @@
   <div id="listaEstados"></div>
 </div>
 
-<!-- ===== MODAL TRABALHO ===== -->
 <div class="modal-bg" id="modalTrabalho">
   <div class="modal">
     <h2 id="modalTitulo">Novo Trabalho</h2>
@@ -664,7 +631,6 @@
   </div>
 </div>
 
-<!-- ===== MODAL CLIENTE ===== -->
 <div class="modal-bg" id="modalCliente">
   <div class="modal">
     <h2 id="modalClienteTitulo">Novo Cliente</h2>
@@ -713,7 +679,6 @@
   </div>
 </div>
 
-<!-- Input escondido para anexos -->
 <input type="file" id="inputAnexos" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt" style="display:none" onchange="processarAnexos(event)">
 
 <script>
@@ -1681,7 +1646,6 @@ function renderDetalhe() {
         <div class="anexos-progresso" id="anexosProgresso"></div>
       </div>
 
-      <!-- ===== CUSTOS REAIS ===== -->
       <div class="detalhe-bloco">
         <div class="seccao-titulo">
           💰 Custos Reais
@@ -1903,18 +1867,15 @@ function atualizarCustoReal(trabalhoId, custoId, campo, valor) {
     c[campo] = valor;
   }
 
-  // Guardar sem re-render (para não perder o foco)
   localStorage.setItem(KEY_TRABALHOS, JSON.stringify(trabalhos));
   localStorage.setItem(KEY_ULTIMA_MOD, String(Date.now()));
   if (utilizadorAtual) {
-    // Sincronizar em background
     clearTimeout(window._syncTimeoutCustos);
     window._syncTimeoutCustos = setTimeout(function() {
       guardarNaNuvem();
     }, 800);
   }
 
-  // Re-render só o resumo
   var container = document.getElementById('custosReaisContainer');
   if (container) {
     container.innerHTML = renderCustosReaisHTML(t);
@@ -1953,17 +1914,48 @@ function importarCustosDoOrcamento(trabalhoId) {
     return;
   }
 
-  if (!confirm('📥 Importar custos do orçamento ' + o.numero + '?\n\nSerão adicionadas 3 linhas:\n• Material\n• Impressão\n• Portes\n\nDepois preenche os valores reais.')) return;
+  var temDetalhes = o.custosDetalhados && typeof o.custosDetalhados === 'object';
+
+  var msg;
+  if (temDetalhes) {
+    msg = '📥 Importar custos do orçamento ' + o.numero + '?\n\n'
+        + 'Serão adicionadas 3 linhas com valores pré-calculados:\n'
+        + '• Material: ' + (o.custosDetalhados.materialTotal || 0).toFixed(2) + ' €\n'
+        + '• Impressão: ' + (o.custosDetalhados.impressaoTotal || 0).toFixed(2) + ' €\n'
+        + '• Portes: ' + (o.custosDetalhados.portes || 0).toFixed(2) + ' €\n\n'
+        + 'Podes ajustar os valores depois.\n\nContinuar?';
+  } else {
+    msg = '📥 Importar custos do orçamento ' + o.numero + '?\n\n'
+        + '⚠️ Este orçamento é anterior à funcionalidade de custos detalhados.\n\n'
+        + 'Serão adicionadas 3 linhas VAZIAS com descrições pré-preenchidas:\n'
+        + '• Material\n'
+        + '• Impressão\n'
+        + '• Portes\n\n'
+        + 'Terás de preencher os valores reais à mão.\n\nContinuar?';
+  }
+
+  if (!confirm(msg)) return;
 
   if (!t.custosReais) t.custosReais = [];
 
-  var exemplos = [
-    { descricao: 'Material (' + (o.material || 'peça') + ')', valor: 0 },
-    { descricao: 'Impressão (' + (o.tecnica || 'técnica') + ')', valor: 0 },
-    { descricao: 'Portes', valor: 0 }
-  ];
+  var linhas = [];
 
-  exemplos.forEach(function(ex) {
+  if (temDetalhes) {
+    var d = o.custosDetalhados;
+    linhas = [
+      { descricao: 'Material (' + (o.material || 'peça') + ') · ' + o.quantidade + ' un', valor: parseFloat(d.materialTotal) || 0 },
+      { descricao: 'Impressão (' + (o.tecnica || 'técnica') + ')', valor: parseFloat(d.impressaoTotal) || 0 },
+      { descricao: 'Portes (lote)', valor: parseFloat(d.portes) || 0 }
+    ];
+  } else {
+    linhas = [
+      { descricao: 'Material (' + (o.material || 'peça') + ')', valor: 0 },
+      { descricao: 'Impressão (' + (o.tecnica || 'técnica') + ')', valor: 0 },
+      { descricao: 'Portes', valor: 0 }
+    ];
+  }
+
+  linhas.forEach(function(ex) {
     t.custosReais.push({
       id: 'c' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
       descricao: ex.descricao,
@@ -1974,7 +1966,11 @@ function importarCustosDoOrcamento(trabalhoId) {
   guardarTudo();
   renderDetalhe();
 
-  alert('✅ Linhas adicionadas!\n\nPreenche os valores reais que pagaste.');
+  if (temDetalhes) {
+    alert('✅ Custos importados com valores do orçamento!\n\nPodes ajustar se pagaste valores diferentes.');
+  } else {
+    alert('✅ Linhas adicionadas!\n\nPreenche os valores reais que pagaste.');
+  }
 }
 
 /* ============================================================
@@ -2043,7 +2039,7 @@ function apagarEstado(id) {
    ============================================================ */
 
 function exportarBackup() {
-  const data = JSON.stringify({ trabalhos, clientes, estados, contador, versao: 10 }, null, 2);
+  const data = JSON.stringify({ trabalhos, clientes, estados, contador, versao: 11 }, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2090,7 +2086,6 @@ document.querySelectorAll('.modal-bg').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
 });
 
-// Migração de campos em falta
 (function migrarCampos() {
   let alterado = false;
   trabalhos.forEach(t => {
