@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor - Publicidade & Estampagem</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5; color: #1a1a1a; padding: 16px;
+    max-width: 1100px; margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white; padding: 20px 24px; border-radius: 16px;
+    margin-bottom: 16px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+  header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+  header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+  /* ===== TABS PRINCIPAIS ===== */
+  .tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    background: white; padding: 6px; border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .tab {
+    flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer;
+    font-size: 14px; font-weight: 600; border-radius: 8px; font-family: inherit;
+    color: #666; transition: 0.2s;
+  }
+  .tab.active { background: #6366f1; color: white; }
+  .tab:hover:not(.active) { background: #f5f5f5; }
+
+  /* ===== SUB-TABS ===== */
+  .sub-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .sub-tab {
+    padding: 8px 16px; border: 1px solid #ddd; background: white; cursor: pointer;
+    font-size: 13px; font-weight: 600; border-radius: 20px; font-family: inherit;
+    color: #555; transition: 0.2s;
+  }
+  .sub-tab.active { background: #6366f1; color: white; border-color: #6366f1; }
+  .sub-tab .count {
+    display: inline-block; margin-left: 6px; background: rgba(0,0,0,0.1);
+    padding: 1px 7px; border-radius: 10px; font-size: 11px;
+  }
+  .sub-tab.active .count { background: rgba(255,255,255,0.25); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== STATS ===== */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+    gap: 10px; margin-bottom: 20px;
+  }
+  .stat {
+    background: white; padding: 14px; border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .stat-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .stat-value { font-size: 20px; font-weight: 800; margin-top: 4px; color: #6366f1; }
+  .stat.pago .stat-value { color: #10b981; }
+  .stat.pendente .stat-value { color: #f59e0b; }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+
+  /* ===== BOTÕES ===== */
+  button, .btn {
+    padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px; justify-content: center;
+  }
+  .btn-primary { background: #6366f1; color: white; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-secondary { background: white; color: #444; border: 1px solid #ddd; }
+  .btn-secondary:hover { background: #f5f5f5; }
+  .btn-danger { background: #ef4444; color: white; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+  .btn-ico { padding: 6px 8px; font-size: 14px; min-width: 30px; }
+
+  /* ===== FILTROS ===== */
+  .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filters input, .filters select {
+    padding: 10px; border: 1px solid #ddd; border-radius: 10px;
+    font-size: 14px; font-family: inherit; background: white;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap input { width: 100%; padding-right: 36px; }
+  .search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: #e5e7eb; color: #555; cursor: pointer; font-size: 13px;
+    font-weight: 700; line-height: 1; padding: 0; display: none;
+    align-items: center; justify-content: center;
+  }
+  .search-clear.visible { display: flex; }
+  .search-clear:hover { background: #d1d5db; color: #111; }
+
+  /* ===== LISTA DE TRABALHOS (compacta) ===== */
+  .lista-compacta { display: grid; gap: 8px; }
+  .linha-trabalho {
+    background: white; padding: 12px 14px; border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-left: 4px solid #6366f1;
+    cursor: pointer; transition: 0.15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .linha-trabalho:hover { transform: translateX(3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .linha-numero {
+    font-size: 12px; font-weight: 800; color: #6366f1;
+    background: #eef2ff; padding: 4px 8px; border-radius: 6px;
+    white-space: nowrap; font-family: ui-monospace, monospace;
+    flex-shrink: 0;
+  }
+  .linha-corpo { flex: 1; min-width: 0; }
+  .linha-cliente { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+  .linha-trabalho-txt {
+    font-size: 12px; color: #666; margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .linha-direita { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .linha-valor { font-size: 13px; font-weight: 700; color: #333; white-space: nowrap; }
+  .badge-mini {
+    font-size: 10px; padding: 3px 8px; border-radius: 20px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap; color: white;
+  }
+  .bolinha-pago { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; }
+  .bolinha-naopago { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; }
+  .clip-ico { font-size: 13px; color: #888; }
+
+  @media (max-width: 550px) {
+    .linha-direita .linha-valor,
+    .linha-direita .badge-mini { display: none; }
+  }
+
+  /* ===== REFERÊNCIA DO CLIENTE (Nome [Referência]) ===== */
+  .ref {
+    display: inline-block; font-size: 0.85em; font-weight: 700;
+    color: #6366f1; background: #eef2ff;
+    padding: 1px 7px; border-radius: 6px;
+    margin-left: 6px; border: 1px solid #c7d2fe;
+    vertical-align: middle;
+  }
+  .ref::before { content: '['; }
+  .ref::after { content: ']'; }
+  .linha-cliente .ref { font-size: 11px; padding: 1px 6px; }
+  .card-title .ref { font-size: 13px; }
+
+  /* ===== DETALHE DO TRABALHO ===== */
+  .detalhe { display: grid; gap: 14px; }
+
+  .detalhe-bloco {
+    background: white; border-radius: 14px; padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .detalhe-cabecalho {
+    display: flex; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; align-items: flex-start; margin-bottom: 8px;
+  }
+  .detalhe-num {
+    font-size: 12px; font-weight: 800; color: #6366f1;
+    font-family: ui-monospace, monospace; background: #eef2ff;
+    padding: 4px 10px; border-radius: 8px; display: inline-block;
+  }
+  .detalhe-titulo { font-size: 22px; font-weight: 800; margin-top: 10px; letter-spacing: -0.3px; }
+  .detalhe-cliente { font-size: 14px; color: #666; margin-top: 6px; }
+  .detalhe-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .detalhe-info {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin-top: 18px; padding: 16px;
+    background: #f9fafb; border-radius: 12px;
+  }
+  .info-item label {
+    font-size: 11px; color: #666; text-transform: uppercase;
+    letter-spacing: 0.5px; display: block; margin-bottom: 4px; font-weight: 600;
+  }
+  .info-item div { font-size: 15px; font-weight: 700; }
+
+  /* ===== SECÇÕES DO DETALHE ===== */
+  .seccao-titulo {
+    font-size: 13px; color: #555; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 12px;
+    font-weight: 700; display: flex; align-items: center; gap: 8px;
+  }
+  .seccao-titulo .badge-numero {
+    background: #eef2ff; color: #6366f1;
+    padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700;
+  }
+
+  .detalhe-notas {
+    background: #f9fafb; padding: 14px; border-radius: 10px;
+    font-size: 14px; color: #333; line-height: 1.6;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  .cliente-info {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .cliente-info-item {
+    background: #f9fafb; padding: 8px 12px; border-radius: 8px;
+    font-size: 13px; color: #333;
+  }
+  .cliente-info-item strong { color: #1a1a1a; }
+
+  /* ===== ANEXOS (dentro de um cartão, com grelha) ===== */
+  .anexos-grelha {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .anexo-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex; gap: 10px; align-items: center;
+    transition: 0.15s;
+    min-width: 0;
+  }
+  .anexo-card:hover { background: white; border-color: #c7d2fe; }
+
+  .anexo-preview-wrap {
+    width: 56px; height: 56px; flex-shrink: 0;
+    border-radius: 8px; overflow: hidden;
+    background: white; border: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .anexo-preview {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .anexo-ico {
+    font-size: 24px; line-height: 1;
+  }
+
+  .anexo-info { flex: 1; min-width: 0; }
+  .anexo-nome {
+    font-size: 13px; font-weight: 600; color: #333;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin-bottom: 3px;
+  }
+  .anexo-meta {
+    font-size: 11px; color: #888;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .anexo-meta .poupanca { color: #10b981; font-weight: 700; }
+
+  .anexo-acoes { display: flex; gap: 4px; flex-shrink: 0; }
+  .anexo-acoes button {
+    padding: 6px 8px; font-size: 13px;
+    border-radius: 8px; min-width: 30px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .anexos-vazio {
+    font-size: 13px; color: #999; padding: 20px; text-align: center;
+    background: #f9fafb; border-radius: 10px; border: 1px dashed #d1d5db;
+  }
+
+  .anexos-progresso {
+    font-size: 13px; color: #6366f1; background: #eef2ff;
+    padding: 10px 14px; border-radius: 8px; margin-top: 10px;
+    display: none; font-weight: 600;
+  }
+  .anexos-progresso.visible { display: block; }
+
+  /* ===== EMPTY ===== */
+  .empty {
+    text-align: center; padding: 40px; color: #999;
+    background: white; border-radius: 12px;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 100; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-bg.active { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 24px;
+    width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { margin-bottom: 16px; font-size: 18px; font-weight: 800; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block; font-size: 12px; font-weight: 600; color: #555;
+    margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; font-family: inherit;
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+  .form-group small { display: block; font-size: 11px; color: #999; margin-top: 4px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+  .modal-actions button { flex: 1; }
+
+  /* ===== ESTADOS ===== */
+  .estado-item {
+    display: flex; align-items: center; gap: 10px; padding: 12px;
+    background: white; border-radius: 12px; margin-bottom: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .estado-item input[type="color"] {
+    width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; padding: 0;
+    flex-shrink: 0;
+  }
+  .estado-item input[type="text"] {
+    flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; font-family: inherit; min-width: 0;
+  }
+  .estado-preview {
+    padding: 6px 12px; border-radius: 20px; color: white; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .ordem-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+  .ordem-btns button {
+    padding: 2px 8px; font-size: 12px; line-height: 1; background: #f5f5f5;
+    color: #555; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;
+  }
+  .ordem-btns button:hover:not(:disabled) { background: #6366f1; color: white; border-color: #6366f1; }
+  .ordem-btns button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  @media (max-width: 600px) {
+    .estado-item { flex-wrap: wrap; }
+    .estado-preview { display: none; }
+  }
+
+  /* ===== CLIENTES ===== */
+  .cliente-card {
+    background: white; padding: 18px; border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-left: 4px solid #6366f1;
+  }
+  .cliente-card .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .cliente-card .card-title { font-size: 16px; font-weight: 700; }
+  .cliente-card .card-sub { font-size: 13px; color: #666; margin-top: 2px; }
+  .cliente-card .card-actions {
+    display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap;
+    padding-top: 12px; border-top: 1px solid #f0f0f0;
+  }
+  .cliente-card .card-notas {
+    font-size: 13px; color: #555; background: #f9fafb;
+    padding: 10px 12px; border-radius: 8px; margin-top: 8px;
+    border-left: 3px solid #e5e7eb;
+  }
+
+  /* ===== TOGGLE PAGO ===== */
+  .toggle-pago {
+    display: flex; align-items: center; gap: 8px; padding: 10px;
+    background: #f9fafb; border-radius: 8px; cursor: pointer;
+    border: 1px solid #e5e7eb;
+  }
+  .toggle-pago input { width: auto; cursor: pointer; }
+  .toggle-pago label {
+    cursor: pointer; font-size: 14px; text-transform: none;
+    font-weight: 600; color: #333; margin: 0;
+  }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 500px) {
+    .form-row { grid-template-columns: 1fr; }
+    .tab { font-size: 12px; padding: 8px 4px; }
+    .detalhe-titulo { font-size: 18px; }
+    .anexos-grelha { grid-template-columns: 1fr; }
+    body { padding: 12px; }
+    .detalhe-bloco { padding: 16px; }
+    .toolbar { gap: 6px; }
+    .toolbar button { flex: 1; min-width: 0; font-size: 13px; padding: 9px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 Gestor de Trabalhos</h1>
+  <p>Publicidade & Estampagem</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="mudarAba('trabalhos', this)">📋 Trabalhos</button>
+  <button class="tab" onclick="mudarAba('clientes', this)">👥 Clientes</button>
+  <button class="tab" onclick="mudarAba('estados', this)">⚙️ Estados</button>
+</div>
+
+<!-- ===== PÁGINA TRABALHOS ===== -->
+<div class="page active" id="page-trabalhos">
+
+  <div id="vistaLista">
+    <div class="stats" id="stats"></div>
+
+    <div class="toolbar">
+      <button class="btn-primary" onclick="abrirFormTrabalho()">➕ Novo Trabalho</button>
+      <button class="btn-secondary" onclick="exportarBackup()">💾 Backup</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()">📥 Restaurar</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarBackup(event)">
+    </div>
+
+    <div class="sub-tabs" id="subTabs"></div>
+
+    <div class="filters">
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="🔍 Procurar por cliente, trabalho ou nº..." oninput="onSearchInput()">
+        <button class="search-clear" id="searchClear" onclick="limparPesquisa()" title="Limpar pesquisa">✖</button>
+      </div>
+      <select id="filtroPagamento" onchange="renderTrabalhos()">
+        <option value="">Todos pagamentos</option>
+        <option value="pago">✅ Só pagos</option>
+        <option value="naopago">⏳ Só não pagos</option>
+      </select>
+    </div>
+
+    <div class="lista-compacta" id="listaTrabalhos"></div>
+  </div>
+
+  <div id="vistaDetalhe" style="display:none">
+    <button class="btn-secondary btn-sm" onclick="voltarLista()" style="margin-bottom:14px">← Voltar à lista</button>
+    <div id="detalheConteudo"></div>
+  </div>
+
+</div>
+
+<!-- ===== PÁGINA CLIENTES ===== -->
+<div class="page" id="page-clientes">
+  <div class="toolbar">
+    <button class="btn-primary" onclick="abrirFormCliente()">➕ Novo Cliente</button>
+  </div>
+  <div class="filters">
+    <div class="search-wrap">
+      <input type="text" id="searchClientes" placeholder="🔍 Procurar cliente (nome ou referência)..." oninput="onSearchClientesInput()">
+      <button class="search-clear" id="searchClientesClear" onclick="limparPesquisaClientes()" title="Limpar pesquisa">✖</button>
+    </div>
+  </div>
+  <div id="listaClientes" style="display:grid; gap:12px;"></div>
+</div>
+
+<!-- ===== PÁGINA ESTADOS ===== -->
+<div class="page" id="page-estados">
+  <div class="toolbar">
+    <button class="btn-primary" onclick="adicionarEstado()">➕ Novo Estado</button>
+  </div>
+  <p style="font-size:13px;color:#666;margin-bottom:12px;">
+    Personaliza a ordem e os estados. Usa ⬆⬇ para reordenar. O pagamento é independente do estado.
+    <br><strong>Atenção:</strong> para que um trabalho apareça na aba <em>✅ Concluídos</em>, o nome do estado deve conter a palavra <strong>"conclu"</strong>.
+  </p>
+  <div id="listaEstados"></div>
+</div>
+
+<!-- ===== MODAL TRABALHO ===== -->
+<div class="modal-bg" id="modalTrabalho">
+  <div class="modal">
+    <h2 id="modalTitulo">Novo Trabalho</h2>
+    <input type="hidden" id="editId">
+    <div id="infoNumero" style="display:none; margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:#555;text-transform:uppercase;">Nº Trabalho</label>
+      <div id="numeroMostrar" style="font-family:ui-monospace,monospace;font-weight:800;color:#6366f1;font-size:16px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Cliente *</label>
+      <select id="fCliente"></select>
+    </div>
+    <div class="form-group">
+      <label>Trabalho *</label>
+      <input type="text" id="fTrabalho" placeholder="Ex: 50 t-shirts estampadas">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Valor (€)</label>
+        <input type="number" id="fValor" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="fEstado"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data início</label>
+        <input type="date" id="fDataInicio">
+      </div>
+      <div class="form-group">
+        <label>Data entrega</label>
+        <input type="date" id="fDataEntrega">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="toggle-pago">
+        <input type="checkbox" id="fPago">
+        <label for="fPago">💰 Já está pago</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <textarea id="fNotas" placeholder="Detalhes, cores, tamanhos, etc."></textarea>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:8px;background:#f9fafb;padding:10px;border-radius:8px;">
+      📎 Os anexos são adicionados no <strong>detalhe do trabalho</strong>, depois de guardar.
+      As imagens são automaticamente redimensionadas e comprimidas.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fecharModal('modalTrabalho')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarTrabalho()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CLIENTE ===== -->
+<div class="modal-bg" id="modalCliente">
+  <div class="modal">
+    <h2 id="modalClienteTitulo">Novo Cliente</h2>
+    <input type="hidden" id="editClienteId">
+    <div class="form-group">
+      <label>Nome *</label>
+      <input type="text" id="cNome" placeholder="Nome ou empresa">
+    </div>
+    <div class="form-group">
+      <label>Referência</label>
+      <input type="text" id="cReferencia" placeholder="Ex: Café Central, VIP, CLI001">
+      <small>Aparece depois do nome, entre parênteses retos. Podes usar o local, tipo de cliente, código interno...</small>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="tel" id="cTelefone" placeholder="912 345 678">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="cEmail" placeholder="cliente@email.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>NIF</label>
+        <input type="text" id="cNif" placeholder="123456789">
+      </div>
+      <div class="form-group">
+        <label>Localidade</label>
+        <input type="text" id="cLocalidade" placeholder="Lisboa">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Morada</label>
+      <input type="text" id="cMorada" placeholder="Rua, número, código postal">
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <textarea id="cNotas" placeholder="Observações sobre o cliente"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fecharModal('modalCliente')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarCliente()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Input escondido para anexos -->
+<input type="file" id="inputAnexos" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt" style="display:none" onchange="processarAnexos(event)">
+
+<script>
+/* ============ DADOS ============ */
+const KEY_TRABALHOS = 'gestor_trabalhos_v9';
+const KEY_CLIENTES = 'gestor_clientes_v9';
+const KEY_ESTADOS = 'gestor_estados_v9';
+const KEY_CONTADOR = 'gestor_contador_v9';
+
+let trabalhos = JSON.parse(localStorage.getItem(KEY_TRABALHOS) || '[]');
+let clientes  = JSON.parse(localStorage.getItem(KEY_CLIENTES) || '[]');
+let estados   = JSON.parse(localStorage.getItem(KEY_ESTADOS) || 'null') || [
+  { id: 'aguarda',   nome: 'Aguarda aprovação', cor: '#f59e0b' },
+  { id: 'producao',  nome: 'Em produção',       cor: '#3b82f6' },
+  { id: 'concluido', nome: 'Concluído',         cor: '#8b5cf6' },
+  { id: 'cancelado', nome: 'Cancelado',         cor: '#ef4444' },
+];
+let contador = parseInt(localStorage.getItem(KEY_CONTADOR) || '0');
+
+let subAbaAtual = 'emcurso';
+let idDetalheAberto = null;
+
+function guardarTudo() {
+  localStorage.setItem(KEY_TRABALHOS, JSON.stringify(trabalhos));
+  localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
+  localStorage.setItem(KEY_ESTADOS, JSON.stringify(estados));
+  localStorage.setItem(KEY_CONTADOR, String(contador));
+}
+
+function proximoNumero() { contador++; return contador; }
+function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
+
+/* ============ CLASSIFICAÇÃO ============ */
+function estadoEhConcluido(id) {
+  const e = estados.find(x => x.id === id);
+  return e && e.nome.toLowerCase().includes('conclu');
+}
+function estadoEhCancelado(id) {
+  const e = estados.find(x => x.id === id);
+  return e && e.nome.toLowerCase().includes('cancel');
+}
+
+/* ============ NAVEGAÇÃO ============ */
+function mudarAba(aba, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-' + aba).classList.add('active');
+  if (aba === 'trabalhos') voltarLista();
+}
+function mudarSubAba(sub) { subAbaAtual = sub; renderTrabalhos(); }
+
+function verDetalhe(id) {
+  idDetalheAberto = id;
+  document.getElementById('vistaLista').style.display = 'none';
+  document.getElementById('vistaDetalhe').style.display = 'block';
+  renderDetalhe();
+  window.scrollTo(0, 0);
+}
+function voltarLista() {
+  idDetalheAberto = null;
+  document.getElementById('vistaDetalhe').style.display = 'none';
+  document.getElementById('vistaLista').style.display = 'block';
+  renderTrabalhos();
+}
+function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+
+/* ============ PESQUISA ============ */
+function onSearchInput() {
+  document.getElementById('searchClear').classList.toggle('visible', document.getElementById('search').value.length > 0);
+  renderTrabalhos();
+}
+function limparPesquisa() {
+  document.getElementById('search').value = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  renderTrabalhos();
+}
+function onSearchClientesInput() {
+  document.getElementById('searchClientesClear').classList.toggle('visible', document.getElementById('searchClientes').value.length > 0);
+  renderClientes();
+}
+function limparPesquisaClientes() {
+  document.getElementById('searchClientes').value = '';
+  document.getElementById('searchClientesClear').classList.remove('visible');
+  renderClientes();
+}
+
+/* ============ HELPERS ============ */
+function escapar(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatarData(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function formatarTamanho(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+}
+function iconeAnexo(tipo, nome) {
+  if (tipo && tipo.startsWith('image/')) return '🖼️';
+  if (tipo === 'application/pdf') return '📕';
+  if (tipo && tipo.includes('word')) return '📘';
+  if (tipo && (tipo.includes('excel') || tipo.includes('spreadsheet'))) return '📗';
+  if (tipo && (tipo.includes('zip') || tipo.includes('rar'))) return '🗜️';
+  if (nome && /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(nome)) return '🖼️';
+  if (nome && /\.pdf$/i.test(nome)) return '📕';
+  return '📄';
+}
+
+function getEstado(id) { return estados.find(e => e.id === id) || { nome: '—', cor: '#999' }; }
+function getCliente(id) { return clientes.find(c => c.id === id); }
+
+function nomeClienteHtml(cli) {
+  if (!cli) return '<em style="color:#999">Cliente removido</em>';
+  const nome = escapar(cli.nome);
+  if (cli.referencia && cli.referencia.trim()) {
+    return `${nome} <span class="ref">${escapar(cli.referencia)}</span>`;
+  }
+  return nome;
+}
+function nomeClienteTexto(cli) {
+  if (!cli) return 'Cliente removido';
+  return cli.referencia ? `${cli.nome} [${cli.referencia}]` : cli.nome;
+}
+
+/* ============ REDIMENSIONAMENTO DE IMAGENS ============ */
+const MAX_DIMENSAO = 1600;
+const MINIATURA = 300;
+const QUALIDADE_JPEG = 0.82;
+const TAMANHO_MINIMO = 300 * 1024;
+
+function ehImagem(file) { return file.type && file.type.startsWith('image/'); }
+
+function carregarImagem(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = (err) => { URL.revokeObjectURL(url); reject(err); };
+    img.src = url;
+  });
+}
+
+function redimensionar(img, maxLado, qualidade, forcarFormato) {
+  return new Promise(resolve => {
+    let { width, height } = img;
+    const ratio = Math.min(1, maxLado / Math.max(width, height));
+    const w = Math.round(width * ratio);
+    const h = Math.round(height * ratio);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    const formato = forcarFormato || 'image/jpeg';
+    const dataUrl = canvas.toDataURL(formato, qualidade);
+    const tamanho = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 0.75);
+    resolve({ dataUrl, largura: w, altura: h, tamanho, formato });
+  });
+}
+
+async function temTransparencia(img) {
+  const canvas = document.createElement('canvas');
+  const w = Math.min(img.width, 200);
+  const h = Math.min(img.height, 200);
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+  const data = ctx.getImageData(0, 0, w, h).data;
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] < 255) return true;
+  }
+  return false;
+}
+
+async function processarFicheiro(file) {
+  if (!ehImagem(file)) {
+    const dataUrl = await lerComoDataURL(file);
+    return {
+      id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      nome: file.name, tipo: file.type,
+      tamanho: file.size, tamanhoOriginal: file.size,
+      dados: dataUrl, data: new Date().toISOString(),
+      redimensionado: false,
+    };
+  }
+  const img = await carregarImagem(file);
+  if (file.size < TAMANHO_MINIMO && Math.max(img.width, img.height) <= MAX_DIMENSAO) {
+    const mini = await redimensionar(img, MINIATURA, 0.75, 'image/jpeg');
+    return {
+      id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      nome: file.name, tipo: file.type,
+      tamanho: file.size, tamanhoOriginal: file.size,
+      dados: await lerComoDataURL(file),
+      miniatura: mini.dataUrl,
+      data: new Date().toISOString(),
+      redimensionado: false,
+    };
+  }
+  const temAlpha = (file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/webp')
+    ? await temTransparencia(img) : false;
+  const formato = temAlpha ? 'image/png' : 'image/jpeg';
+  const qualidade = temAlpha ? 0.9 : QUALIDADE_JPEG;
+  const principal = await redimensionar(img, MAX_DIMENSAO, qualidade, formato);
+  const mini = await redimensionar(img, MINIATURA, 0.75, 'image/jpeg');
+  return {
+    id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    nome: file.name, tipo: formato,
+    tamanho: principal.tamanho, tamanhoOriginal: file.size,
+    largura: principal.largura, altura: principal.altura,
+    dados: principal.dataUrl, miniatura: mini.dataUrl,
+    data: new Date().toISOString(),
+    redimensionado: true,
+  };
+}
+
+function lerComoDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============ TRABALHOS ============ */
+function abrirFormTrabalho(id) {
+  if (clientes.length === 0) {
+    if (confirm('Ainda não tens clientes. Queres criar um agora?')) {
+      mudarAba('clientes', document.querySelectorAll('.tab')[1]);
+      abrirFormCliente();
+    }
+    return;
+  }
+  const modal = document.getElementById('modalTrabalho');
+  modal.classList.add('active');
+  document.getElementById('modalTitulo').textContent = id ? 'Editar Trabalho' : 'Novo Trabalho';
+  document.getElementById('editId').value = id || '';
+
+  const selCliente = document.getElementById('fCliente');
+  selCliente.innerHTML = '<option value="">-- Escolher cliente --</option>' +
+    clientes.map(c => `<option value="${c.id}">${escapar(nomeClienteTexto(c))}</option>`).join('');
+
+  const selEstado = document.getElementById('fEstado');
+  selEstado.innerHTML = estados.map(e => `<option value="${e.id}">${escapar(e.nome)}</option>`).join('');
+
+  const infoNum = document.getElementById('infoNumero');
+
+  if (id) {
+    const t = trabalhos.find(x => x.id === id);
+    selCliente.value = t.clienteId || '';
+    document.getElementById('fTrabalho').value = t.trabalho;
+    document.getElementById('fValor').value = t.valor || '';
+    selEstado.value = t.estado;
+    document.getElementById('fDataInicio').value = t.dataInicio || '';
+    document.getElementById('fDataEntrega').value = t.dataEntrega || '';
+    document.getElementById('fNotas').value = t.notas || '';
+    document.getElementById('fPago').checked = !!t.pago;
+    infoNum.style.display = 'block';
+    document.getElementById('numeroMostrar').textContent = formatarNumero(t.numero);
+  } else {
+    ['fTrabalho','fValor','fDataInicio','fDataEntrega','fNotas'].forEach(x => document.getElementById(x).value = '');
+    document.getElementById('fPago').checked = false;
+    if (estados[0]) selEstado.value = estados[0].id;
+    infoNum.style.display = 'block';
+    document.getElementById('numeroMostrar').textContent = formatarNumero(contador + 1) + ' (ao guardar)';
+  }
+}
+
+function guardarTrabalho() {
+  const clienteId = document.getElementById('fCliente').value;
+  const trabalho = document.getElementById('fTrabalho').value.trim();
+  if (!clienteId || !trabalho) { alert('Escolhe cliente e escreve o trabalho'); return; }
+
+  const id = document.getElementById('editId').value;
+  const dados = {
+    clienteId, trabalho,
+    valor: parseFloat(document.getElementById('fValor').value) || 0,
+    estado: document.getElementById('fEstado').value,
+    pago: document.getElementById('fPago').checked,
+    dataInicio: document.getElementById('fDataInicio').value,
+    dataEntrega: document.getElementById('fDataEntrega').value,
+    notas: document.getElementById('fNotas').value.trim(),
+  };
+
+  if (id) {
+    const idx = trabalhos.findIndex(x => x.id === id);
+    trabalhos[idx] = { ...trabalhos[idx], ...dados };
+  } else {
+    const numero = proximoNumero();
+    trabalhos.unshift({
+      id: Date.now().toString(), numero, ...dados,
+      anexos: [], criado: new Date().toISOString(),
+    });
+  }
+  guardarTudo();
+  fecharModal('modalTrabalho');
+  if (idDetalheAberto) renderDetalhe(); else renderTrabalhos();
+}
+
+function apagarTrabalho(id) {
+  if (!confirm('Apagar este trabalho? O número não será reutilizado.')) return;
+  trabalhos = trabalhos.filter(x => x.id !== id);
+  guardarTudo();
+  voltarLista();
+}
+
+function mudarEstado(id, novo) {
+  const t = trabalhos.find(x => x.id === id);
+  t.estado = novo;
+  guardarTudo();
+  if (idDetalheAberto) renderDetalhe(); else renderTrabalhos();
+}
+
+function alternarPago(id) {
+  const t = trabalhos.find(x => x.id === id);
+  t.pago = !t.pago;
+  guardarTudo();
+  if (idDetalheAberto) renderDetalhe(); else renderTrabalhos();
+}
+
+function renderSubTabs() {
+  const emCurso = trabalhos.filter(t => !estadoEhConcluido(t.estado) && !estadoEhCancelado(t.estado)).length;
+  const concluidos = trabalhos.filter(t => estadoEhConcluido(t.estado)).length;
+  const cancelados = trabalhos.filter(t => estadoEhCancelado(t.estado)).length;
+
+  document.getElementById('subTabs').innerHTML = `
+    <button class="sub-tab ${subAbaAtual === 'emcurso' ? 'active' : ''}" onclick="mudarSubAba('emcurso')">
+      🔄 Em curso <span class="count">${emCurso}</span>
+    </button>
+    <button class="sub-tab ${subAbaAtual === 'concluidos' ? 'active' : ''}" onclick="mudarSubAba('concluidos')">
+      ✅ Concluídos <span class="count">${concluidos}</span>
+    </button>
+    <button class="sub-tab ${subAbaAtual === 'cancelados' ? 'active' : ''}" onclick="mudarSubAba('cancelados')">
+      ❌ Cancelados <span class="count">${cancelados}</span>
+    </button>
+  `;
+}
+
+function renderTrabalhos() {
+  renderSubTabs();
+
+  const busca = document.getElementById('search').value.toLowerCase();
+  const filtroPag = document.getElementById('filtroPagamento').value;
+
+  let lista = trabalhos.filter(t => {
+    const concluido = estadoEhConcluido(t.estado);
+    const cancelado = estadoEhCancelado(t.estado);
+    if (subAbaAtual === 'emcurso' && (concluido || cancelado)) return false;
+    if (subAbaAtual === 'concluidos' && !concluido) return false;
+    if (subAbaAtual === 'cancelados' && !cancelado) return false;
+    if (filtroPag === 'pago' && !t.pago) return false;
+    if (filtroPag === 'naopago' && t.pago) return false;
+    const cli = getCliente(t.clienteId);
+    const nomeCli = cli ? nomeClienteTexto(cli) : '';
+    const num = formatarNumero(t.numero || 0);
+    if (busca && !(`${nomeCli} ${t.trabalho} ${num}`.toLowerCase().includes(busca))) return false;
+    return true;
+  });
+
+  const validos = trabalhos.filter(t => !estadoEhCancelado(t.estado));
+  const totalGeral = validos.reduce((s,t) => s + t.valor, 0);
+  const totalPago = validos.reduce((s,t) => s + (t.pago ? t.valor : 0), 0);
+  const totalPendente = totalGeral - totalPago;
+  const emAndamento = trabalhos.filter(t => !estadoEhConcluido(t.estado) && !estadoEhCancelado(t.estado)).length;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-label">Em andamento</div><div class="stat-value">${emAndamento}</div></div>
+    <div class="stat"><div class="stat-label">Total trabalhos</div><div class="stat-value">${trabalhos.length}</div></div>
+    <div class="stat pago"><div class="stat-label">Recebido</div><div class="stat-value">${totalPago.toFixed(2)} €</div></div>
+    <div class="stat pendente"><div class="stat-label">Por receber</div><div class="stat-value">${totalPendente.toFixed(2)} €</div></div>
+  `;
+
+  if (lista.length === 0) {
+    const msg = subAbaAtual === 'emcurso' ? 'Sem trabalhos em curso.'
+              : subAbaAtual === 'concluidos' ? 'Sem trabalhos concluídos.'
+              : 'Sem trabalhos cancelados.';
+    document.getElementById('listaTrabalhos').innerHTML = `<div class="empty">${msg}</div>`;
+    return;
+  }
+
+  document.getElementById('listaTrabalhos').innerHTML = lista.map(t => {
+    const cli = getCliente(t.clienteId);
+    const est = getEstado(t.estado);
+    const numAnexos = (t.anexos || []).length;
+    return `
+      <div class="linha-trabalho" style="border-left-color:${est.cor}" onclick="verDetalhe('${t.id}')">
+        <span class="linha-numero">${formatarNumero(t.numero || 0)}</span>
+        <div class="linha-corpo">
+          <div class="linha-cliente">${nomeClienteHtml(cli)}</div>
+          <div class="linha-trabalho-txt">${escapar(t.trabalho)}</div>
+        </div>
+        <div class="linha-direita">
+          ${numAnexos > 0 ? `<span class="clip-ico" title="${numAnexos} anexo(s)">📎${numAnexos}</span>` : ''}
+          <span class="linha-valor">${t.valor.toFixed(2)} €</span>
+          <span class="badge-mini" style="background:${est.cor}">${escapar(est.nome)}</span>
+          <span class="${t.pago ? 'bolinha-pago' : 'bolinha-naopago'}" title="${t.pago ? 'Pago' : 'Não pago'}"></span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDetalhe() {
+  const t = trabalhos.find(x => x.id === idDetalheAberto);
+  if (!t) { voltarLista(); return; }
+
+  const cli = getCliente(t.clienteId);
+  const est = getEstado(t.estado);
+  const anexos = t.anexos || [];
+  const totalBytes = anexos.reduce((s,a) => s + (a.tamanho || 0), 0);
+
+  document.getElementById('detalheConteudo').innerHTML = `
+    <div class="detalhe">
+
+      <!-- ===== BLOCO 1: CABEÇALHO ===== -->
+      <div class="detalhe-bloco">
+        <div class="detalhe-cabecalho">
+          <div style="min-width:0;flex:1;">
+            <span class="detalhe-num">${formatarNumero(t.numero || 0)}</span>
+            <div class="detalhe-titulo">${escapar(t.trabalho)}</div>
+            <div class="detalhe-cliente">👤 ${nomeClienteHtml(cli)}</div>
+          </div>
+          <div class="detalhe-badges">
+            <span class="badge-mini" style="background:${est.cor};font-size:12px;padding:6px 12px;">${escapar(est.nome)}</span>
+            <span class="badge-mini" style="background:${t.pago ? '#10b981' : '#f59e0b'};font-size:12px;padding:6px 12px;">
+              ${t.pago ? '💰 Pago' : '⏳ Não pago'}
+            </span>
+          </div>
+        </div>
+
+        <div class="detalhe-info">
+          <div class="info-item"><label>Valor</label><div>${t.valor.toFixed(2)} €</div></div>
+          <div class="info-item"><label>Data início</label><div>${formatarData(t.dataInicio)}</div></div>
+          <div class="info-item"><label>Data entrega</label><div>${formatarData(t.dataEntrega)}</div></div>
+          <div class="info-item"><label>Criado em</label><div>${t.criado ? new Date(t.criado).toLocaleDateString('pt-PT') : '—'}</div></div>
+        </div>
+      </div>
+
+      <!-- ===== BLOCO 2: CLIENTE ===== -->
+      ${cli ? `
+        <div class="detalhe-bloco">
+          <div class="seccao-titulo">👤 Cliente</div>
+          <div class="cliente-info">
+            ${cli.telefone ? `<div class="cliente-info-item">📞 <strong>${escapar(cli.telefone)}</strong></div>` : ''}
+            ${cli.email ? `<div class="cliente-info-item">📧 <strong>${escapar(cli.email)}</strong></div>` : ''}
+            ${cli.nif ? `<div class="cliente-info-item">🧾 NIF: <strong>${escapar(cli.nif)}</strong></div>` : ''}
+            ${cli.localidade ? `<div class="cliente-info-item">📍 <strong>${escapar(cli.localidade)}</strong></div>` : ''}
+            ${cli.morada ? `<div class="cliente-info-item">🏠 <strong>${escapar(cli.morada)}</strong></div>` : ''}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- ===== BLOCO 3: NOTAS ===== -->
+      ${t.notas ? `
+        <div class="detalhe-bloco">
+          <div class="seccao-titulo">📝 Notas</div>
+          <div class="detalhe-notas">${escapar(t.notas)}</div>
+        </div>
+      ` : ''}
+
+      <!-- ===== BLOCO 4: ANEXOS ===== -->
+      <div class="detalhe-bloco">
+        <div class="seccao-titulo">
+          📎 Anexos
+          ${anexos.length > 0 ? `<span class="badge-numero">${anexos.length} · ${formatarTamanho(totalBytes)}</span>` : ''}
+        </div>
+
+        ${anexos.length === 0 ? `
+          <div class="anexos-vazio">
+            Ainda sem anexos.<br>
+            <small>Adiciona imagens, PDFs ou outros ficheiros. As imagens são redimensionadas automaticamente.</small>
+          </div>
+        ` : `
+          <div class="anexos-grelha">
+            ${anexos.map(a => {
+              const ehImg = a.tipo && a.tipo.startsWith('image/');
+              const srcMini = a.miniatura || (ehImg ? a.dados : '');
+              const meta = formatarTamanho(a.tamanho);
+              const reduz = (a.redimensionado && a.tamanhoOriginal)
+                ? ` · <span class="poupanca">de ${formatarTamanho(a.tamanhoOriginal)}</span>`
+                : '';
+              return `
+                <div class="anexo-card">
+                  <div class="anexo-preview-wrap" onclick="abrirAnexo('${t.id}','${a.id}')">
+                    ${ehImg
+                      ? `<img src="${srcMini}" class="anexo-preview" alt="">`
+                      : `<span class="anexo-ico">${iconeAnexo(a.tipo, a.nome)}</span>`}
+                  </div>
+                  <div class="anexo-info">
+                    <div class="anexo-nome" title="${escapar(a.nome)}">${escapar(a.nome)}</div>
+                    <div class="anexo-meta">${meta}${reduz}</div>
+                  </div>
+                  <div class="anexo-acoes">
+                    <button class="btn-secondary btn-ico" onclick="abrirAnexo('${t.id}','${a.id}')" title="Abrir">👁️</button>
+                    <button class="btn-danger btn-ico" onclick="apagarAnexo('${t.id}','${a.id}')" title="Remover">🗑️</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+
+        <button class="btn-secondary btn-sm" onclick="adicionarAnexo('${t.id}')">➕ Anexar ficheiro</button>
+        <div class="anexos-progresso" id="anexosProgresso"></div>
+      </div>
+
+      <!-- ===== BLOCO 5: AÇÕES ===== -->
+      <div class="detalhe-bloco">
+        <div class="seccao-titulo">⚡ Ações</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;display:block;margin-bottom:6px;">Alterar estado</label>
+            <select onchange="mudarEstado('${t.id}', this.value)" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;background:white;">
+              ${estados.map(e => `<option value="${e.id}" ${t.estado===e.id?'selected':''}>${escapar(e.nome)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f0;">
+          <button class="btn-primary" onclick="abrirFormTrabalho('${t.id}')">✏️ Editar</button>
+          <button class="btn-secondary" onclick="alternarPago('${t.id}')">
+            ${t.pago ? '⏳ Marcar como não pago' : '💰 Marcar como pago'}
+          </button>
+          <button class="btn-danger" onclick="apagarTrabalho('${t.id}')">🗑️ Apagar</button>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+/* ============ ANEXOS ============ */
+let idTrabalhoParaAnexar = null;
+
+function adicionarAnexo(trabalhoId) {
+  idTrabalhoParaAnexar = trabalhoId;
+  document.getElementById('inputAnexos').click();
+}
+
+async function processarAnexos(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length || !idTrabalhoParaAnexar) return;
+
+  const trabalho = trabalhos.find(x => x.id === idTrabalhoParaAnexar);
+  if (!trabalho) return;
+  if (!trabalho.anexos) trabalho.anexos = [];
+
+  const prog = document.getElementById('anexosProgresso');
+  const total = files.length;
+  let ok = 0;
+  let bytesAntes = 0, bytesDepois = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (prog) {
+      prog.classList.add('visible');
+      prog.textContent = `⏳ A processar ${i+1}/${total}: ${file.name}...`;
+    }
+    try {
+      const anexo = await processarFicheiro(file);
+      trabalho.anexos.push(anexo);
+      bytesAntes += anexo.tamanhoOriginal || anexo.tamanho;
+      bytesDepois += anexo.tamanho;
+      ok++;
+    } catch (err) {
+      console.error('Erro a processar', file.name, err);
+      alert(`Não foi possível processar "${file.name}"`);
+    }
+  }
+
+  guardarTudo();
+  event.target.value = '';
+  idTrabalhoParaAnexar = null;
+
+  if (prog) {
+    if (bytesAntes > bytesDepois) {
+      const poupanca = Math.round((1 - bytesDepois / bytesAntes) * 100);
+      prog.textContent = `✅ ${ok} ficheiro(s) adicionado(s) · ${formatarTamanho(bytesAntes)} → ${formatarTamanho(bytesDepois)} (poupança de ${poupanca}%)`;
+    } else {
+      prog.textContent = `✅ ${ok} ficheiro(s) adicionado(s)`;
+    }
+    setTimeout(() => { prog.classList.remove('visible'); }, 5000);
+  }
+
+  if (idDetalheAberto) renderDetalhe();
+  renderTrabalhos();
+}
+
+function abrirAnexo(trabalhoId, anexoId) {
+  const t = trabalhos.find(x => x.id === trabalhoId);
+  const a = (t?.anexos || []).find(x => x.id === anexoId);
+  if (!a) return;
+  const w = window.open();
+  if (!w) { alert('Permite pop-ups para abrir anexos.'); return; }
+  if (a.tipo && a.tipo.startsWith('image/')) {
+    w.document.write(`<title>${escapar(a.nome)}</title><body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${a.dados}" style="max-width:100%;max-height:100vh"></body>`);
+  } else if (a.tipo === 'application/pdf') {
+    w.document.write(`<title>${escapar(a.nome)}</title><body style="margin:0"><iframe src="${a.dados}" style="border:0;width:100vw;height:100vh"></iframe></body>`);
+  } else {
+    const link = w.document.createElement('a');
+    link.href = a.dados;
+    link.download = a.nome;
+    w.document.body.appendChild(link);
+    link.click();
+    w.document.write(`<title>${escapar(a.nome)}</title><body style="font-family:sans-serif;padding:20px">A descarregar <strong>${escapar(a.nome)}</strong>... Se não começar automaticamente, <a href="${a.dados}" download="${escapar(a.nome)}">clica aqui</a>.</body>`);
+  }
+  w.document.close();
+}
+
+function apagarAnexo(trabalhoId, anexoId) {
+  if (!confirm('Remover este anexo?')) return;
+  const t = trabalhos.find(x => x.id === trabalhoId);
+  if (!t || !t.anexos) return;
+  t.anexos = t.anexos.filter(x => x.id !== anexoId);
+  guardarTudo();
+  if (idDetalheAberto) renderDetalhe();
+  renderTrabalhos();
+}
+
+/* ============ CLIENTES ============ */
+function abrirFormCliente(id) {
+  const modal = document.getElementById('modalCliente');
+  modal.classList.add('active');
+  document.getElementById('modalClienteTitulo').textContent = id ? 'Editar Cliente' : 'Novo Cliente';
+  document.getElementById('editClienteId').value = id || '';
+
+  if (id) {
+    const c = clientes.find(x => x.id === id);
+    document.getElementById('cNome').value = c.nome;
+    document.getElementById('cReferencia').value = c.referencia || '';
+    document.getElementById('cTelefone').value = c.telefone || '';
+    document.getElementById('cEmail').value = c.email || '';
+    document.getElementById('cNif').value = c.nif || '';
+    document.getElementById('cLocalidade').value = c.localidade || '';
+    document.getElementById('cMorada').value = c.morada || '';
+    document.getElementById('cNotas').value = c.notas || '';
+  } else {
+    ['cNome','cReferencia','cTelefone','cEmail','cNif','cLocalidade','cMorada','cNotas'].forEach(x => document.getElementById(x).value = '');
+  }
+}
+
+function guardarCliente() {
+  const nome = document.getElementById('cNome').value.trim();
+  if (!nome) { alert('O nome é obrigatório'); return; }
+
+  const id = document.getElementById('editClienteId').value;
+  const dados = {
+    nome,
+    referencia: document.getElementById('cReferencia').value.trim(),
+    telefone: document.getElementById('cTelefone').value.trim(),
+    email: document.getElementById('cEmail').value.trim(),
+    nif: document.getElementById('cNif').value.trim(),
+    localidade: document.getElementById('cLocalidade').value.trim(),
+    morada: document.getElementById('cMorada').value.trim(),
+    notas: document.getElementById('cNotas').value.trim(),
+  };
+
+  if (id) {
+    const idx = clientes.findIndex(x => x.id === id);
+    clientes[idx] = { ...clientes[idx], ...dados };
+  } else {
+    clientes.push({ id: Date.now().toString(), ...dados, criado: new Date().toISOString() });
+  }
+  guardarTudo();
+  fecharModal('modalCliente');
+  renderClientes();
+  renderTrabalhos();
+}
+
+function apagarCliente(id) {
+  const numTrabalhos = trabalhos.filter(t => t.clienteId === id).length;
+  const msg = numTrabalhos > 0
+    ? `Este cliente tem ${numTrabalhos} trabalho(s). Se apagares o cliente, os trabalhos ficam mas sem cliente associado. Continuar?`
+    : 'Apagar este cliente?';
+  if (!confirm(msg)) return;
+  clientes = clientes.filter(x => x.id !== id);
+  guardarTudo();
+  renderClientes();
+  renderTrabalhos();
+}
+
+function renderClientes() {
+  const busca = document.getElementById('searchClientes').value.toLowerCase();
+  const lista = clientes.filter(c => {
+    if (!busca) return true;
+    const alvo = `${c.nome} ${c.referencia || ''} ${c.email || ''}`.toLowerCase();
+    return alvo.includes(busca);
+  }).sort((a,b) => a.nome.localeCompare(b.nome));
+
+  if (lista.length === 0) {
+    document.getElementById('listaClientes').innerHTML = '<div class="empty">Ainda não há clientes. Clica em ➕ Novo Cliente.</div>';
+    return;
+  }
+
+  document.getElementById('listaClientes').innerHTML = lista.map(c => {
+    const trabalhosCliente = trabalhos.filter(t => t.clienteId === c.id);
+    const total = trabalhosCliente.reduce((s,t) => s + t.valor, 0);
+    const pago = trabalhosCliente.reduce((s,t) => s + (t.pago ? t.valor : 0), 0);
+    const emFalta = total - pago;
+    return `
+      <div class="cliente-card">
+        <div class="card-header">
+          <div style="min-width:0;">
+            <div class="card-title">👤 ${nomeClienteHtml(c)}</div>
+            ${c.localidade ? `<div class="card-sub">📍 ${escapar(c.localidade)}</div>` : ''}
+          </div>
+          <span class="badge-mini" style="background:#6366f1">${trabalhosCliente.length} trab.</span>
+        </div>
+        <div class="cliente-info">
+          ${c.telefone ? `<div class="cliente-info-item">📞 <strong>${escapar(c.telefone)}</strong></div>` : ''}
+          ${c.email ? `<div class="cliente-info-item">📧 <strong>${escapar(c.email)}</strong></div>` : ''}
+          ${c.nif ? `<div class="cliente-info-item">🧾 NIF: <strong>${escapar(c.nif)}</strong></div>` : ''}
+          ${total > 0 ? `<div class="cliente-info-item">💰 Total: <strong>${total.toFixed(2)} €</strong></div>` : ''}
+          ${emFalta > 0 ? `<div class="cliente-info-item">⏳ Por receber: <strong style="color:#f59e0b">${emFalta.toFixed(2)} €</strong></div>` : (total > 0 ? `<div class="cliente-info-item">✅ <strong style="color:#10b981">Tudo pago</strong></div>` : '')}
+        </div>
+        ${c.morada ? `<div class="card-notas">🏠 ${escapar(c.morada)}</div>` : ''}
+        ${c.notas ? `<div class="card-notas">📝 ${escapar(c.notas)}</div>` : ''}
+        <div class="card-actions">
+          <button class="btn-secondary btn-sm" onclick="verTrabalhosCliente('${c.id}')">📋 Ver trabalhos</button>
+          <button class="btn-secondary btn-sm" onclick="abrirFormCliente('${c.id}')">✏️ Editar</button>
+          <button class="btn-danger btn-sm" onclick="apagarCliente('${c.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function verTrabalhosCliente(id) {
+  const c = getCliente(id);
+  document.getElementById('search').value = c.nome;
+  document.getElementById('searchClear').classList.add('visible');
+  document.getElementById('filtroPagamento').value = '';
+  subAbaAtual = 'emcurso';
+  mudarAba('trabalhos', document.querySelectorAll('.tab')[0]);
+  voltarLista();
+}
+
+/* ============ ESTADOS ============ */
+function adicionarEstado() {
+  const id = 'e' + Date.now();
+  estados.push({ id, nome: 'Novo estado', cor: '#6366f1' });
+  guardarTudo();
+  renderEstados();
+}
+
+function renderEstados() {
+  if (estados.length === 0) {
+    document.getElementById('listaEstados').innerHTML = '<div class="empty">Sem estados. Clica em ➕ Novo Estado.</div>';
+    return;
+  }
+  document.getElementById('listaEstados').innerHTML = estados.map((e, i) => `
+    <div class="estado-item">
+      <div class="ordem-btns">
+        <button onclick="moverEstado(${i}, -1)" ${i===0?'disabled':''} title="Subir">▲</button>
+        <button onclick="moverEstado(${i}, 1)" ${i===estados.length-1?'disabled':''} title="Descer">▼</button>
+      </div>
+      <input type="color" value="${e.cor}" onchange="atualizarEstado('${e.id}', 'cor', this.value)">
+      <input type="text" value="${escapar(e.nome)}" onchange="atualizarEstado('${e.id}', 'nome', this.value)">
+      <span class="estado-preview" style="background:${e.cor}">${escapar(e.nome)}</span>
+      <button class="btn-danger btn-sm" onclick="apagarEstado('${e.id}')">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function atualizarEstado(id, campo, valor) {
+  const e = estados.find(x => x.id === id);
+  if (!e) return;
+  e[campo] = valor;
+  guardarTudo();
+  renderEstados();
+  renderTrabalhos();
+  if (idDetalheAberto) renderDetalhe();
+}
+
+function moverEstado(idx, direcao) {
+  const novoIdx = idx + direcao;
+  if (novoIdx < 0 || novoIdx >= estados.length) return;
+  [estados[idx], estados[novoIdx]] = [estados[novoIdx], estados[idx]];
+  guardarTudo();
+  renderEstados();
+}
+
+function apagarEstado(id) {
+  const emUso = trabalhos.filter(t => t.estado === id).length;
+  if (emUso > 0) {
+    alert(`Não podes apagar: ${emUso} trabalho(s) usam este estado. Muda-os primeiro.`);
+    return;
+  }
+  if (!confirm('Apagar este estado?')) return;
+  estados = estados.filter(x => x.id !== id);
+  guardarTudo();
+  renderEstados();
+  renderTrabalhos();
+}
+
+/* ============ BACKUP ============ */
+function exportarBackup() {
+  const data = JSON.stringify({ trabalhos, clientes, estados, contador, versao: 9 }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-gestor-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarBackup(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (!dados.trabalhos || !dados.clientes || !dados.estados) throw new Error();
+      const nAnexos = dados.trabalhos.reduce((s,t) => s + ((t.anexos||[]).length), 0);
+      if (confirm(`Substituir tudo pelos dados do backup?\n\nTrabalhos: ${dados.trabalhos.length}\nClientes: ${dados.clientes.length}\nEstados: ${dados.estados.length}\nAnexos: ${nAnexos}`)) {
+        trabalhos = dados.trabalhos;
+        clientes = dados.clientes;
+        estados = dados.estados;
+        contador = dados.contador || Math.max(0, ...trabalhos.map(t => t.numero || 0));
+        trabalhos.forEach(t => { if (!t.anexos) t.anexos = []; });
+        clientes.forEach(c => { if (!c.referencia) c.referencia = ''; });
+        guardarTudo();
+        voltarLista();
+        renderClientes();
+        renderEstados();
+      }
+    } catch {
+      alert('Ficheiro inválido.');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+/* ============ INICIALIZAÇÃO ============ */
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+});
+
+(function migrar() {
+  let alterado = false;
+  trabalhos.forEach(t => {
+    if (!t.numero) { contador++; t.numero = contador; alterado = true; }
+    if (!t.anexos) { t.anexos = []; alterado = true; }
+  });
+  clientes.forEach(c => { if (!c.referencia) { c.referencia = ''; alterado = true; } });
+  if (alterado) guardarTudo();
+})();
+
+renderTrabalhos();
+renderClientes();
+renderEstados();
+</script>
+</body>
+</html>
