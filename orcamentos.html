@@ -483,6 +483,18 @@
             font-size: 0.7rem;
             margin-bottom: 4px;
         }
+        .historico-item .acoes .btn-trabalho {
+            background: #8b5cf6;
+            color: #fff;
+        }
+        .historico-item .acoes .btn-trabalho:active {
+            background: #7c3aed;
+        }
+        .historico-item .acoes .btn-trabalho-criado {
+            background: #eef2ff;
+            color: #6366f1;
+            border: 1px solid #c7d2fe;
+        }
         .tabs {
             display: flex;
             gap: 4px;
@@ -565,6 +577,17 @@
         }
         .aviso-clientes a:hover {
             text-decoration: underline;
+        }
+        .aviso-trabalho {
+            font-size: 0.72rem;
+            color: #6366f1;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
+            line-height: 1.4;
+            font-weight: 600;
         }
         @media (max-width: 480px) {
             .grid-2 {
@@ -987,6 +1010,11 @@ var STORAGE_CLIENTES = "grafisantos_clientes";
 var STORAGE_ESCALOES = "grafisantos_escaloes_margem";
 var GITHUB_TOKEN_KEY = "grafisantos_github_token";
 
+// Chaves do gestor (para ligação orçamento ↔ trabalho)
+var STORAGE_TRABALHOS_GESTOR = "gestor_trabalhos_v9";
+var STORAGE_CONTADOR_GESTOR = "gestor_contador_v9";
+var STORAGE_ESTADOS_GESTOR = "gestor_estados_v9";
+
 var GITHUB_OWNER = "nmgsantos27";
 var GITHUB_REPO = "Calculo-estampagem-";
 var GITHUB_BRANCH = "main";
@@ -1173,7 +1201,6 @@ async function backupGitHub() {
             dataBackup: new Date().toLocaleString("pt-PT"),
             dados: dados,
             orcamentos: carregarOrcamentos(),
-            clientes: carregarClientes(),
             contador: localStorage.getItem(STORAGE_CONTADOR),
             escaloes: escaloes
         };
@@ -1637,6 +1664,9 @@ function guardarOrcamento() {
         lucroTotal: lucroTotalStr,
         margemAplicada: infoMargem.margem,
         escalaoMargemTexto: infoMargem.texto,
+        // 🔗 Ligação ao trabalho
+        trabalhoId: null,
+        trabalhoNumero: null,
         dataGuardado: new Date().toLocaleString("pt-PT")
     };
 
@@ -1729,11 +1759,19 @@ function renderHistorico() {
         if (o.portesPersonalizados) {
             html += '<div class="detalhes" style="color:#dc2626;">⚠️ Portes personalizados: ' + moeda(o.portesAplicados || 0) + ' s/IVA</div>';
         }
+        if (o.trabalhoNumero) {
+            html += '<div class="detalhes" style="color:#6366f1;font-weight:600;">🎨 Ligado ao trabalho ' + o.trabalhoNumero + '</div>';
+        }
         html += '<div class="total">💰 ' + o.total + '</div>';
         html += '<div class="acoes">';
         html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
         html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
         html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
+        if (o.trabalhoId) {
+            html += '<button class="btn btn-trabalho-criado" onclick="abrirTrabalhoNoGestor(\'' + o.trabalhoId + '\')">✅ Trabalho ' + o.trabalhoNumero + '</button>';
+        } else {
+            html += '<button class="btn btn-trabalho" onclick="criarTrabalhoDeOrcamento(\'' + o.id + '\')">🎨 Criar Trabalho</button>';
+        }
         html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
         html += '</div>';
         html += '</div>';
@@ -1888,6 +1926,9 @@ function verOrcamentoHistorico(id) {
     if (o.portesPersonalizados) {
         txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
     }
+    if (o.trabalhoNumero) {
+        txt += "🎨 Trabalho associado: " + o.trabalhoNumero + "\n";
+    }
     txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     txt += "💰 Preço/un.: " + o.precoUn + "\n";
     txt += "📊 Total: " + o.total + "\n";
@@ -1926,6 +1967,9 @@ function copiarOrcamentoHistorico(id) {
     if (o.portesPersonalizados) {
         txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
     }
+    if (o.trabalhoNumero) {
+        txt += "🎨 Trabalho associado: " + o.trabalhoNumero + "\n";
+    }
     txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     txt += "💰 Preço/un.: " + o.precoUn + "\n";
     txt += "📊 Total: " + o.total + "\n";
@@ -1947,7 +1991,12 @@ function copiarOrcamentoHistorico(id) {
 function eliminarOrcamentoHistorico(id) {
     var o = obterOrcamentoPorId(id);
     if (!o) return;
-    if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
+
+    var msg = "🗑️ Eliminar o orçamento " + o.numero + "?";
+    if (o.trabalhoId) {
+        msg += "\n\n⚠️ Este orçamento está ligado a um trabalho no gestor.\nO trabalho mantém-se, só remove a ligação.";
+    }
+    if (!confirm(msg)) return;
 
     var lista = carregarOrcamentos();
     lista = lista.filter(function(x) { return x.id !== id; });
@@ -1961,6 +2010,222 @@ function atualizarContadorTab() {
     var lista = carregarOrcamentos();
     var contador = document.getElementById("contadorHistorico");
     if (contador) contador.textContent = lista.length;
+}
+
+// ============================================================
+//  LIGAÇÃO ORÇAMENTO → TRABALHO
+// ============================================================
+
+function carregarTrabalhosGestor() {
+    try {
+        var raw = localStorage.getItem(STORAGE_TRABALHOS_GESTOR);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) {}
+    return [];
+}
+
+function guardarTrabalhosGestor(lista) {
+    try { localStorage.setItem(STORAGE_TRABALHOS_GESTOR, JSON.stringify(lista)); } catch (e) {}
+    // Tentar sincronizar com a nuvem (se o utilizador estiver logado)
+    sincronizarTrabalhosNaNuvem(lista);
+}
+
+function sincronizarTrabalhosNaNuvem(lista) {
+    if (!utilizadorAtual) return;
+    try {
+        // Guardar na coleção gestorData (mesma que o gestor usa)
+        db.collection("gestorData").doc(utilizadorAtual.uid).set({
+            trabalhos: lista,
+            ultimaModificacao: Date.now()
+        }, { merge: true }).then(function() {
+            console.log("✅ Trabalhos sincronizados com a nuvem");
+        }).catch(function(error) {
+            console.warn("Aviso: não foi possível sincronizar trabalhos:", error);
+        });
+    } catch (e) {
+        console.warn("Erro ao sincronizar trabalhos:", e);
+    }
+}
+
+function gerarProximoNumeroTrabalho() {
+    var trabalhos = carregarTrabalhosGestor();
+    var contadorAtual = parseInt(localStorage.getItem(STORAGE_CONTADOR_GESTOR) || "0");
+    var maiorExistente = 0;
+    trabalhos.forEach(function(t) {
+        if (t.numero && t.numero > maiorExistente) maiorExistente = t.numero;
+    });
+    var proximo = Math.max(contadorAtual, maiorExistente) + 1;
+    try { localStorage.setItem(STORAGE_CONTADOR_GESTOR, String(proximo)); } catch (e) {}
+    return proximo;
+}
+
+function obterEstadosGestor() {
+    try {
+        var raw = localStorage.getItem(STORAGE_ESTADOS_GESTOR);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length) return parsed;
+        }
+    } catch (e) {}
+    return [
+        { id: 'aguarda',   nome: 'Aguarda aprovação', cor: '#f59e0b' },
+        { id: 'producao',  nome: 'Em produção',       cor: '#3b82f6' },
+        { id: 'concluido', nome: 'Concluído',         cor: '#8b5cf6' },
+        { id: 'cancelado', nome: 'Cancelado',         cor: '#ef4444' }
+    ];
+}
+
+function carregarClientesBrutos() {
+    try {
+        var raw = localStorage.getItem(STORAGE_CLIENTES);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) {}
+    return [];
+}
+
+function guardarClientesBrutos(lista) {
+    try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
+}
+
+function criarTrabalhoDeOrcamento(orcamentoId) {
+    var o = obterOrcamentoPorId(orcamentoId);
+    if (!o) {
+        alert("⚠️ Orçamento não encontrado.");
+        return;
+    }
+
+    if (o.trabalhoId) {
+        alert("⚠️ Este orçamento já tem um trabalho associado.\n\nVai a 🎨 Gestão de Trabalhos para o ver.");
+        return;
+    }
+
+    // ---------- 1. Encontrar ou criar o cliente no gestor ----------
+    var clientesGestor = carregarClientesBrutos();
+    var clienteIdNoGestor = o.cliente.id;
+
+    // Verificar se o ID existe na lista do gestor
+    if (clienteIdNoGestor) {
+        var existe = clientesGestor.some(function(c) { return c.id === clienteIdNoGestor; });
+        if (!existe) clienteIdNoGestor = null;
+    }
+
+    // Tentar encontrar por nome
+    if (!clienteIdNoGestor && o.cliente.nome) {
+        var encontrado = clientesGestor.find(function(c) {
+            return (c.nome || "").toLowerCase() === o.cliente.nome.toLowerCase();
+        });
+        if (encontrado) {
+            clienteIdNoGestor = encontrado.id;
+        }
+    }
+
+    // Se não existir, criar
+    if (!clienteIdNoGestor) {
+        if (!confirm("👤 Cliente \"" + o.cliente.nome + "\" não existe no gestor.\n\nCriar agora?")) {
+            return;
+        }
+        var novoCliente = {
+            id: Date.now().toString() + "_" + Math.random().toString(36).slice(2, 6),
+            nome: o.cliente.nome,
+            referencia: "",
+            telefone: o.cliente.contacto || "",
+            email: o.cliente.email || "",
+            nif: "",
+            localidade: "",
+            morada: "",
+            notas: "",
+            criado: new Date().toISOString()
+        };
+        clientesGestor.push(novoCliente);
+        guardarClientesBrutos(clientesGestor);
+        clienteIdNoGestor = novoCliente.id;
+    }
+
+    // ---------- 2. Pré-preencher dados ----------
+    var numTrabalho = gerarProximoNumeroTrabalho();
+    var numeroFormatado = "#" + String(numTrabalho).padStart(3, "0");
+
+    var descricaoDefault = o.material
+        + (o.cor ? " · " + o.cor : "")
+        + (o.tecnica ? " · " + o.tecnica : "")
+        + " · " + o.quantidade + " un";
+
+    var notasDefault = "📄 Origem: Orçamento " + o.numero + " (" + o.data + ")\n\n"
+        + "📦 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n"
+        + "🎨 Cor: " + o.cor + "\n"
+        + "🖨️ Técnica: " + o.tecnica + "\n"
+        + "🔢 Quantidade: " + o.quantidade + " un\n"
+        + "📏 Altura: " + o.altura + " cm\n"
+        + "💰 Preço/un.: " + o.precoUn + "\n"
+        + "📊 Total: " + o.total;
+
+    var hoje = new Date().toISOString().slice(0, 10);
+    var valorDefault = parseFloat(String(o.total).replace(/[^\d,.-]/g, "").replace(",", ".")) || 0;
+
+    // ---------- 3. Confirmação ----------
+    var msg = "🎨 Criar trabalho a partir do orçamento " + o.numero + "\n\n"
+        + "Nº Trabalho: " + numeroFormatado + "\n"
+        + "Cliente: " + o.cliente.nome + "\n"
+        + "Descrição: " + descricaoDefault + "\n"
+        + "Valor venda: " + valorDefault.toFixed(2) + " €\n"
+        + "Data início: " + hoje + "\n\n"
+        + "Continuar?";
+
+    if (!confirm(msg)) return;
+
+    // ---------- 4. Criar o trabalho ----------
+    var estados = obterEstadosGestor();
+    var trabalho = {
+        id: Date.now().toString() + "_" + Math.random().toString(36).slice(2, 6),
+        numero: numTrabalho,
+        clienteId: clienteIdNoGestor,
+        trabalho: descricaoDefault,
+        valor: valorDefault,
+        estado: estados[0] ? estados[0].id : 'aguarda',
+        pago: false,
+        dataInicio: hoje,
+        dataEntrega: "",
+        notas: notasDefault,
+        anexos: [],
+        criado: new Date().toISOString(),
+        // 🔗 ligações
+        orcamentoId: o.id,
+        orcamentoNumero: o.numero,
+        // 💰 custos reais (vazios — preenchidos no gestor)
+        custosReais: []
+    };
+
+    var trabalhos = carregarTrabalhosGestor();
+    trabalhos.unshift(trabalho);
+    guardarTrabalhosGestor(trabalhos);
+
+    // ---------- 5. Marcar orçamento como ligado ----------
+    var lista = carregarOrcamentos();
+    var idx = lista.findIndex(function(x) { return x.id === o.id; });
+    if (idx >= 0) {
+        lista[idx].trabalhoId = trabalho.id;
+        lista[idx].trabalhoNumero = numeroFormatado;
+        guardarOrcamentosLista(lista);
+    }
+
+    renderHistorico();
+
+    // ---------- 6. Perguntar se quer abrir ----------
+    if (confirm("✅ Trabalho " + numeroFormatado + " criado no gestor!\n\n"
+        + "Abrir agora o gestor para completar os custos reais?")) {
+        window.open("gestor.html", "_blank");
+    }
+}
+
+function abrirTrabalhoNoGestor(trabalhoId) {
+    // Abrir o gestor — vai mostrar o trabalho (o utilizador procura na lista)
+    window.open("gestor.html", "_blank");
 }
 
 // ============================================================
@@ -2077,7 +2342,7 @@ function eliminarTipo() {
 function exportarDados() {
     try {
         var backup = {
-            versao: "11.0",
+            versao: "12.0",
             dataBackup: new Date().toLocaleString("pt-PT"),
             dados: dados,
             orcamentos: carregarOrcamentos(),
