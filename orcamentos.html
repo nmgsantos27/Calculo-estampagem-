@@ -548,6 +548,24 @@
         .portes-botoes .btn-pequeno {
             flex: 1;
         }
+        .aviso-clientes {
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+        .aviso-clientes a {
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .aviso-clientes a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 480px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
@@ -675,11 +693,10 @@
                         <label>Selecionar cliente:</label>
                         <select id="selCliente" onchange="onChangeCliente()"></select>
                     </div>
-                    <div style="display:flex;gap:4px;margin-bottom:8px;">
-                        <button class="btn-icon" onclick="abrirFormCliente(false)" title="Novo cliente">+</button>
-                        <button class="btn-icon" onclick="abrirFormCliente(true)" title="Editar cliente">✎</button>
-                        <button class="btn-icon btn-icon-danger" onclick="eliminarCliente()" title="Eliminar cliente">✕</button>
-                    </div>
+                </div>
+
+                <div class="aviso-clientes">
+                    ℹ️ Para gerir clientes, vai a <a href="gestor.html">🎨 Gestão de Trabalhos → Clientes</a>
                 </div>
 
                 <div class="field">
@@ -694,22 +711,6 @@
                     <div class="field">
                         <label>Email:</label>
                         <input type="text" id="inputClienteEmail" placeholder="Email">
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="guardarClienteAtual()">
-                    💾 Guardar Cliente
-                </button>
-
-                <div class="form-panel hidden" id="formCliente">
-                    <h4 id="tituloFormCliente">Novo cliente</h4>
-                    <input type="hidden" id="editClienteId">
-                    <input type="text" id="novoNomeCliente" placeholder="Nome do Cliente">
-                    <input type="text" id="novoContactoCliente" placeholder="Contacto (telefone)">
-                    <input type="text" id="novoEmailCliente" placeholder="Email">
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="guardarClienteForm()">Guardar</button>
-                        <button class="btn btn-cancel" onclick="fecharFormCliente()">Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -951,1431 +952,1290 @@
     </div>
 
     <script>
-        "use strict";
+"use strict";
 
-        // ============================================================
-        //  CONFIGURAÇÃO FIREBASE
-        // ============================================================
+// ============================================================
+//  CONFIGURAÇÃO FIREBASE
+// ============================================================
 
-        var firebaseConfig = {
-            apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
-            authDomain: "grafisantos-orcamentos.firebaseapp.com",
-            projectId: "grafisantos-orcamentos",
-            storageBucket: "grafisantos-orcamentos.firebasestorage.app",
-            messagingSenderId: "769855753160",
-            appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
-        };
+var firebaseConfig = {
+    apiKey: "AIzaSyBFwUerMiiCKGIrTTy55DxhmfcE_BK1mkc",
+    authDomain: "grafisantos-orcamentos.firebaseapp.com",
+    projectId: "grafisantos-orcamentos",
+    storageBucket: "grafisantos-orcamentos.firebasestorage.app",
+    messagingSenderId: "769855753160",
+    appId: "1:769855753160:web:02a0c36f6e09cf7a9f8efd"
+};
 
-        var app = firebase.initializeApp(firebaseConfig);
-        var auth = firebase.auth();
-        var db = firebase.firestore();
-        var provider = new firebase.auth.GoogleAuthProvider();
+var app = firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+var provider = new firebase.auth.GoogleAuthProvider();
 
-        var utilizadorAtual = null;
-        var sincronizacaoEmCurso = false;
+var utilizadorAtual = null;
+var sincronizacaoEmCurso = false;
 
-        // ============================================================
-        //  CONFIGURAÇÕES
-        // ============================================================
+// ============================================================
+//  CONFIGURAÇÕES
+// ============================================================
 
-        var TAXA_IVA = 1.23;
-        var STORAGE_KEY = "grafisantos_v8";
-        var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
-        var STORAGE_CONTADOR = "grafisantos_contador";
-        var STORAGE_CLIENTES = "grafisantos_clientes";
-        var STORAGE_ESCALOES = "grafisantos_escaloes_margem";
-        var GITHUB_TOKEN_KEY = "grafisantos_github_token";
+var TAXA_IVA = 1.23;
+var STORAGE_KEY = "grafisantos_v8";
+var STORAGE_ORCAMENTOS = "grafisantos_orcamentos";
+var STORAGE_CONTADOR = "grafisantos_contador";
+var STORAGE_CLIENTES = "grafisantos_clientes";
+var STORAGE_ESCALOES = "grafisantos_escaloes_margem";
+var GITHUB_TOKEN_KEY = "grafisantos_github_token";
 
-        var GITHUB_OWNER = "nmgsantos27";
-        var GITHUB_REPO = "Calculo-estampagem-";
-        var GITHUB_BRANCH = "main";
+var GITHUB_OWNER = "nmgsantos27";
+var GITHUB_REPO = "Calculo-estampagem-";
+var GITHUB_BRANCH = "main";
 
-        // Escalões por defeito (usados só se nada estiver guardado)
-        var ESCALOES_PADRAO = [
-            { de: 1, ate: 4, margem: 5.00 },
-            { de: 5, ate: 9, margem: 4.50 },
-            { de: 10, ate: 24, margem: 3.50 },
-            { de: 25, ate: 49, margem: 2.50 },
-            { de: 50, ate: 99, margem: 1.80 },
-            { de: 100, ate: 999999, margem: 1.20 }
-        ];
+// Escalões por defeito (usados só se nada estiver guardado)
+var ESCALOES_PADRAO = [
+    { de: 1, ate: 4, margem: 5.00 },
+    { de: 5, ate: 9, margem: 4.50 },
+    { de: 10, ate: 24, margem: 3.50 },
+    { de: 25, ate: 49, margem: 2.50 },
+    { de: 50, ate: 99, margem: 1.80 },
+    { de: 100, ate: 999999, margem: 1.20 }
+];
 
-        var escaloes = [];
+var escaloes = [];
 
-        function parseNum(v) {
-            if (typeof v === "number") return isFinite(v) ? v : 0;
-            if (!v && v !== 0) return 0;
-            var n = parseFloat(String(v).replace(",", "."));
-            return isFinite(n) ? n : 0;
-        }
+function parseNum(v) {
+    if (typeof v === "number") return isFinite(v) ? v : 0;
+    if (!v && v !== 0) return 0;
+    var n = parseFloat(String(v).replace(",", "."));
+    return isFinite(n) ? n : 0;
+}
 
-        function moeda(v) {
-            return parseNum(v).toFixed(2).replace(".", ",") + " €";
-        }
+function moeda(v) {
+    return parseNum(v).toFixed(2).replace(".", ",") + " €";
+}
 
-        function formatarNumero(v, casas) {
-            casas = casas || 2;
-            return parseNum(v).toFixed(casas);
-        }
+function formatarNumero(v, casas) {
+    casas = casas || 2;
+    return parseNum(v).toFixed(casas);
+}
 
-        function gerarId() {
-            return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-        }
+function gerarId() {
+    return Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+}
 
-        // ============================================================
-        //  ESCALÕES (só leitura — edição em escaloes.html)
-        // ============================================================
+// ============================================================
+//  ESCALÕES (só leitura — edição em escaloes.html)
+// ============================================================
 
-        function carregarEscaloes() {
-            try {
-                var raw = localStorage.getItem(STORAGE_ESCALOES);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed) && parsed.length) {
-                        escaloes = parsed;
-                        return;
-                    }
-                }
-            } catch (e) {}
-            escaloes = JSON.parse(JSON.stringify(ESCALOES_PADRAO));
-        }
-
-        function obterMargemPorQuantidade(qtd) {
-            qtd = Math.max(1, parseInt(qtd) || 1);
-            for (var i = 0; i < escaloes.length; i++) {
-                var e = escaloes[i];
-                if (qtd >= e.de && qtd <= e.ate) {
-                    return {
-                        margem: e.margem,
-                        escalao: e,
-                        indice: i,
-                        texto: e.de + "–" + (e.ate >= 999999 ? "∞" : e.ate) + " un"
-                    };
-                }
-            }
-            var ultimo = escaloes[escaloes.length - 1];
-            return {
-                margem: ultimo.margem,
-                escalao: ultimo,
-                indice: escaloes.length - 1,
-                texto: ultimo.de + "+ un"
-            };
-        }
-
-        // ============================================================
-        //  CONTADOR
-        // ============================================================
-
-        function obterAnoAtual() {
-            return new Date().getFullYear();
-        }
-
-        function obterContador() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CONTADOR);
-                if (raw) {
-                    var obj = JSON.parse(raw);
-                    if (obj.ano === obterAnoAtual()) return obj.numero;
-                }
-            } catch (e) {}
-            return 0;
-        }
-
-        function incrementarContador() {
-            var num = obterContador() + 1;
-            try {
-                localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                    ano: obterAnoAtual(),
-                    numero: num
-                }));
-            } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-            return num;
-        }
-
-        function formatarNumeroOrcamento(num) {
-            var ano = obterAnoAtual();
-            var str = String(num).padStart(4, "0");
-            return "#" + ano + "-" + str;
-        }
-
-        function gerarNumeroOrcamento() {
-            var proximo = obterContador() + 1;
-            return formatarNumeroOrcamento(proximo);
-        }
-
-        function recalcularContadorDoHistorico() {
-            try {
-                var lista = carregarOrcamentos();
-                var anoAtual = obterAnoAtual();
-                var maiorNumero = 0;
-
-                lista.forEach(function(o) {
-                    if (!o.numero) return;
-                    var match = o.numero.match(/#(\d{4})-(\d{4})/);
-                    if (match) {
-                        var ano = parseInt(match[1]);
-                        var num = parseInt(match[2]);
-                        if (ano === anoAtual && num > maiorNumero) {
-                            maiorNumero = num;
-                        }
-                    }
-                });
-
-                var contadorAtual = obterContador();
-                if (maiorNumero > contadorAtual) {
-                    localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
-                        ano: anoAtual,
-                        numero: maiorNumero
-                    }));
-                    console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
-                }
-            } catch (e) {
-                console.error("Erro ao recalcular contador:", e);
-            }
-        }
-
-        function obterDataHoje() {
-            var d = new Date();
-            var dia = String(d.getDate()).padStart(2, "0");
-            var mes = String(d.getMonth() + 1).padStart(2, "0");
-            var ano = d.getFullYear();
-            return dia + "/" + mes + "/" + ano;
-        }
-
-        function atualizarNumeroEData() {
-            recalcularContadorDoHistorico();
-            document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
-            document.getElementById("dataOrcamento").value = obterDataHoje();
-        }
-
-        // ============================================================
-        //  BACKUP GITHUB
-        // ============================================================
-
-        async function backupGitHub() {
-            var token = obterTokenGitHub();
-            if (!token) {
-                alert("⚠️ Precisas de configurar o token do GitHub primeiro.");
+function carregarEscaloes() {
+    try {
+        var raw = localStorage.getItem(STORAGE_ESCALOES);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length) {
+                escaloes = parsed;
                 return;
             }
+        }
+    } catch (e) {}
+    escaloes = JSON.parse(JSON.stringify(ESCALOES_PADRAO));
+}
 
-            if (!confirm("☁️ Enviar backup para o GitHub?\n\nVai criar um ficheiro em 'backups/' com a data de hoje.")) return;
+function obterMargemPorQuantidade(qtd) {
+    qtd = Math.max(1, parseInt(qtd) || 1);
+    for (var i = 0; i < escaloes.length; i++) {
+        var e = escaloes[i];
+        if (qtd >= e.de && qtd <= e.ate) {
+            return {
+                margem: e.margem,
+                escalao: e,
+                indice: i,
+                texto: e.de + "–" + (e.ate >= 999999 ? "∞" : e.ate) + " un"
+            };
+        }
+    }
+    var ultimo = escaloes[escaloes.length - 1];
+    return {
+        margem: ultimo.margem,
+        escalao: ultimo,
+        indice: escaloes.length - 1,
+        texto: ultimo.de + "+ un"
+    };
+}
 
-            try {
-                var dataHoje = new Date().toISOString().slice(0, 10);
-                var nomeFicheiro = "backups/backup_" + dataHoje + ".json";
-                var caminhoCompleto = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + nomeFicheiro;
+// ============================================================
+//  CONTADOR
+// ============================================================
 
-                var backup = {
-                    versao: "1.0",
-                    dataBackup: new Date().toLocaleString("pt-PT"),
-                    dados: dados,
-                    orcamentos: carregarOrcamentos(),
-                    clientes: carregarClientes(),
-                    contador: localStorage.getItem(STORAGE_CONTADOR),
-                    escaloes: escaloes
-                };
+function obterAnoAtual() {
+    return new Date().getFullYear();
+}
 
-                var conteudo = JSON.stringify(backup, null, 2);
-                var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
+function obterContador() {
+    try {
+        var raw = localStorage.getItem(STORAGE_CONTADOR);
+        if (raw) {
+            var obj = JSON.parse(raw);
+            if (obj.ano === obterAnoAtual()) return obj.numero;
+        }
+    } catch (e) {}
+    return 0;
+}
 
-                var sha = null;
-                try {
-                    var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
-                        headers: {
-                            "Authorization": "token " + token,
-                            "Accept": "application/vnd.github.v3+json"
-                        }
-                    });
-                    if (respGet.ok) {
-                        var dadosGet = await respGet.json();
-                        sha = dadosGet.sha;
-                    }
-                } catch (e) {}
+function incrementarContador() {
+    var num = obterContador() + 1;
+    try {
+        localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+            ano: obterAnoAtual(),
+            numero: num
+        }));
+    } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+    return num;
+}
 
-                var payload = {
-                    message: "☁️ Backup " + dataHoje + " - " + new Date().toLocaleTimeString("pt-PT"),
-                    content: conteudoBase64,
-                    branch: GITHUB_BRANCH
-                };
-                if (sha) payload.sha = sha;
+function formatarNumeroOrcamento(num) {
+    var ano = obterAnoAtual();
+    var str = String(num).padStart(4, "0");
+    return "#" + ano + "-" + str;
+}
 
-                var respPut = await fetch(caminhoCompleto, {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": "token " + token,
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
+function gerarNumeroOrcamento() {
+    var proximo = obterContador() + 1;
+    return formatarNumeroOrcamento(proximo);
+}
 
-                if (respPut.ok) {
-                    alert("✅ Backup enviado para o GitHub!\n\n📁 Ficheiro: " + nomeFicheiro + "\n📅 Data: " + dataHoje);
-                } else {
-                    var erro = await respPut.json();
-                    alert("❌ Erro ao enviar: " + (erro.message || "desconhecido"));
+function recalcularContadorDoHistorico() {
+    try {
+        var lista = carregarOrcamentos();
+        var anoAtual = obterAnoAtual();
+        var maiorNumero = 0;
+
+        lista.forEach(function(o) {
+            if (!o.numero) return;
+            var match = o.numero.match(/#(\d{4})-(\d{4})/);
+            if (match) {
+                var ano = parseInt(match[1]);
+                var num = parseInt(match[2]);
+                if (ano === anoAtual && num > maiorNumero) {
+                    maiorNumero = num;
                 }
-            } catch (e) {
-                alert("❌ Erro: " + e.message);
-            }
-        }
-
-        function obterTokenGitHub() {
-            try {
-                var token = localStorage.getItem(GITHUB_TOKEN_KEY);
-                if (token) return token;
-            } catch (e) {}
-
-            var novo = prompt(
-                "🔐 Configurar Token do GitHub\n\n" +
-                "Cola aqui o token que criaste (github_pat_...):\n\n" +
-                "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
-                "O token fica guardado no teu dispositivo."
-            );
-
-            if (!novo || novo.trim().length < 20) {
-                return null;
-            }
-
-            novo = novo.trim();
-            try { localStorage.setItem(GITHUB_TOKEN_KEY, novo); } catch (e) {}
-            alert("✅ Token guardado! Agora podes fazer backup com 1 clique.");
-            return novo;
-        }
-
-        // ============================================================
-        //  FIREBASE - AUTENTICAÇÃO
-        // ============================================================
-
-        function fazerLogin() {
-            auth.signInWithPopup(provider)
-                .then(function(result) {
-                    console.log("Login OK:", result.user.email);
-                })
-                .catch(function(error) {
-                    console.error("Erro login:", error);
-                    alert("❌ Erro ao entrar: " + error.message);
-                });
-        }
-
-        function fazerLogout() {
-            if (!confirm("Sair da conta?\n\nOs dados locais mantêm-se no dispositivo.")) return;
-            auth.signOut();
-        }
-
-        auth.onAuthStateChanged(function(user) {
-            var areaLogin = document.getElementById("areaLogin");
-            var areaLogado = document.getElementById("areaUserLogado");
-
-            if (user) {
-                utilizadorAtual = user;
-                areaLogin.classList.add("hidden");
-                areaLogado.classList.remove("hidden");
-                document.getElementById("userNome").textContent = user.displayName || "Utilizador";
-                document.getElementById("userEmail").textContent = user.email || "";
-                if (user.photoURL) document.getElementById("userAvatar").src = user.photoURL;
-
-                carregarDadosDaNuvem();
-            } else {
-                utilizadorAtual = null;
-                areaLogin.classList.remove("hidden");
-                areaLogado.classList.add("hidden");
             }
         });
 
-        // ============================================================
-        //  FIREBASE - GUARDAR / CARREGAR
-        // ============================================================
-
-        function guardarDadosNaNuvem() {
-            if (!utilizadorAtual || sincronizacaoEmCurso) return;
-            sincronizacaoEmCurso = true;
-
-            var payload = {
-                dados: dados,
-                orcamentos: carregarOrcamentos(),
-                clientes: carregarClientes(),
-                contador: localStorage.getItem(STORAGE_CONTADOR) || "",
-                ultimaModificacao: Date.now()
-            };
-
-            db.collection("userData").doc(utilizadorAtual.uid).set(payload, { merge: true })
-                .then(function() {
-                    sincronizacaoEmCurso = false;
-                    console.log("✅ Dados guardados na nuvem");
-                })
-                .catch(function(error) {
-                    sincronizacaoEmCurso = false;
-                    console.error("Erro ao guardar na nuvem:", error);
-                });
+        var contadorAtual = obterContador();
+        if (maiorNumero > contadorAtual) {
+            localStorage.setItem(STORAGE_CONTADOR, JSON.stringify({
+                ano: anoAtual,
+                numero: maiorNumero
+            }));
+            console.log("✅ Contador corrigido para: #" + anoAtual + "-" + String(maiorNumero).padStart(4, "0"));
         }
+    } catch (e) {
+        console.error("Erro ao recalcular contador:", e);
+    }
+}
 
-        function carregarDadosDaNuvem() {
-            if (!utilizadorAtual) return;
-            sincronizacaoEmCurso = true;
+function obterDataHoje() {
+    var d = new Date();
+    var dia = String(d.getDate()).padStart(2, "0");
+    var mes = String(d.getMonth() + 1).padStart(2, "0");
+    var ano = d.getFullYear();
+    return dia + "/" + mes + "/" + ano;
+}
 
-            db.collection("userData").doc(utilizadorAtual.uid).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        var payload = doc.data();
-                        console.log("📥 Dados recebidos da nuvem");
+function atualizarNumeroEData() {
+    recalcularContadorDoHistorico();
+    document.getElementById("numeroOrcamento").value = gerarNumeroOrcamento();
+    document.getElementById("dataOrcamento").value = obterDataHoje();
+}
 
-                        if (payload.dados) {
-                            dados = payload.dados;
-                            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-                        }
-                        if (payload.orcamentos) {
-                            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(payload.orcamentos)); } catch (e) {}
-                        }
-                        if (payload.clientes) {
-                            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(payload.clientes)); } catch (e) {}
-                        }
-                        if (payload.contador) {
-                            localStorage.setItem(STORAGE_CONTADOR, payload.contador);
-                        }
-                        if (payload.escaloes && Array.isArray(payload.escaloes) && payload.escaloes.length) {
-                            escaloes = payload.escaloes;
-                            try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
-                        }
-                    } else {
-                        console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
-                    }
-                    sincronizacaoEmCurso = false;
+// ============================================================
+//  BACKUP GITHUB
+// ============================================================
 
-                    recalcularContadorDoHistorico();
+async function backupGitHub() {
+    var token = obterTokenGitHub();
+    if (!token) {
+        alert("⚠️ Precisas de configurar o token do GitHub primeiro.");
+        return;
+    }
 
-                    renderTipos();
-                    renderFornecedores();
-                    renderTecnicas();
-                    renderSelectClientes();
-                    atualizarNumeroEData();
-                    atualizarContadorTab();
-                    calcular();
-                    atualizarInfoTecnica();
+    if (!confirm("☁️ Enviar backup para o GitHub?\n\nVai criar um ficheiro em 'backups/' com a data de hoje.")) return;
 
-                    if (!doc.exists) {
-                        guardarDadosNaNuvem();
-                    }
-                })
-                .catch(function(error) {
-                    sincronizacaoEmCurso = false;
-                    console.error("Erro ao carregar da nuvem:", error);
-                });
-        }
+    try {
+        var dataHoje = new Date().toISOString().slice(0, 10);
+        var nomeFicheiro = "backups/backup_" + dataHoje + ".json";
+        var caminhoCompleto = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + nomeFicheiro;
 
-        // ============================================================
-        //  TABS
-        // ============================================================
-
-        function mudarTab(tab) {
-            var tabNovo = document.getElementById("tabNovo");
-            var tabHist = document.getElementById("tabHistorico");
-            var btnNovo = document.getElementById("tabBtnNovo");
-            var btnHist = document.getElementById("tabBtnHistorico");
-
-            if (tab === "novo") {
-                tabNovo.classList.remove("hidden");
-                tabHist.classList.add("hidden");
-                btnNovo.classList.add("active");
-                btnHist.classList.remove("active");
-            } else {
-                tabNovo.classList.add("hidden");
-                tabHist.classList.remove("hidden");
-                btnNovo.classList.remove("active");
-                btnHist.classList.add("active");
-                renderHistorico();
-            }
-        }
-
-        // ============================================================
-        //  DADOS PADRÃO
-        // ============================================================
-
-        var DADOS_PADRAO = {
-            tipos: [
-                { id: "tp1", nome: "T-Shirt" },
-                { id: "tp2", nome: "Polo" },
-                { id: "tp3", nome: "Sweats" }
-            ],
-            fornecedores: [{
-                id: "f1", nome: "Roly", portes: 4.50,
-                materiais: [{
-                    id: "m1", nome: "T-Shirt Beagle 150g", referencia: "BEAGLE-150", tipoId: "tp1",
-                    variantes: [
-                        { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
-                        { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 }
-                    ]
-                }]
-            }],
-            tecnicas: [
-                { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
-                { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 }
-            ]
+        var backup = {
+            versao: "1.0",
+            dataBackup: new Date().toLocaleString("pt-PT"),
+            dados: dados,
+            orcamentos: carregarOrcamentos(),
+            clientes: carregarClientes(),
+            contador: localStorage.getItem(STORAGE_CONTADOR),
+            escaloes: escaloes
         };
 
-        var dados = null;
-        var fornecedorId = null;
-        var tipoSelecionadoId = "todos";
-        var materialId = null;
-        var varianteId = null;
-        var tecnicaId = null;
-        var clienteSelecionadoId = null;
+        var conteudo = JSON.stringify(backup, null, 2);
+        var conteudoBase64 = btoa(unescape(encodeURIComponent(conteudo)));
 
-        // ⚙️ Portes editáveis
-        var portesEditadosManualmente = false;
-
-        // ============================================================
-        //  PERSISTÊNCIA
-        // ============================================================
-
-        function carregarDados() {
-            try {
-                var raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (parsed && parsed.fornecedores && parsed.tecnicas) {
-                        if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
-                        dados = parsed;
-                        return;
-                    }
+        var sha = null;
+        try {
+            var respGet = await fetch(caminhoCompleto + "?ref=" + GITHUB_BRANCH, {
+                headers: {
+                    "Authorization": "token " + token,
+                    "Accept": "application/vnd.github.v3+json"
                 }
-            } catch (e) {}
-            dados = JSON.parse(JSON.stringify(DADOS_PADRAO));
-            guardarDados();
+            });
+            if (respGet.ok) {
+                var dadosGet = await respGet.json();
+                sha = dadosGet.sha;
+            }
+        } catch (e) {}
+
+        var payload = {
+            message: "☁️ Backup " + dataHoje + " - " + new Date().toLocaleTimeString("pt-PT"),
+            content: conteudoBase64,
+            branch: GITHUB_BRANCH
+        };
+        if (sha) payload.sha = sha;
+
+        var respPut = await fetch(caminhoCompleto, {
+            method: "PUT",
+            headers: {
+                "Authorization": "token " + token,
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (respPut.ok) {
+            alert("✅ Backup enviado para o GitHub!\n\n📁 Ficheiro: " + nomeFicheiro + "\n📅 Data: " + dataHoje);
+        } else {
+            var erro = await respPut.json();
+            alert("❌ Erro ao enviar: " + (erro.message || "desconhecido"));
         }
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
+    }
+}
 
-        function guardarDados() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
+function obterTokenGitHub() {
+    try {
+        var token = localStorage.getItem(GITHUB_TOKEN_KEY);
+        if (token) return token;
+    } catch (e) {}
 
-        function obterFornecedor(id) {
-            return dados.fornecedores.find(function(f) { return f.id === id; });
-        }
+    var novo = prompt(
+        "🔐 Configurar Token do GitHub\n\n" +
+        "Cola aqui o token que criaste (github_pat_...):\n\n" +
+        "⚠️ Só precisas fazer isto UMA VEZ por dispositivo.\n" +
+        "O token fica guardado no teu dispositivo."
+    );
 
-        function obterTipo(id) {
-            if (!dados.tipos || id === "todos") return null;
-            return dados.tipos.find(function(t) { return t.id === id; });
-        }
+    if (!novo || novo.trim().length < 20) {
+        return null;
+    }
 
-        function obterMaterial(id) {
-            var f = obterFornecedor(fornecedorId);
-            if (!f) return null;
-            return f.materiais.find(function(m) { return m.id === id; });
-        }
+    novo = novo.trim();
+    try { localStorage.setItem(GITHUB_TOKEN_KEY, novo); } catch (e) {}
+    alert("✅ Token guardado! Agora podes fazer backup com 1 clique.");
+    return novo;
+}
 
-        function obterVariante(id) {
-            var m = obterMaterial(materialId);
-            if (!m) return null;
-            return m.variantes.find(function(v) { return v.id === id; });
-        }
+// ============================================================
+//  FIREBASE - AUTENTICAÇÃO
+// ============================================================
 
-        function obterTecnica(id) {
-            return dados.tecnicas.find(function(t) { return t.id === id; });
-        }
+function fazerLogin() {
+    auth.signInWithPopup(provider)
+        .then(function(result) {
+            console.log("Login OK:", result.user.email);
+        })
+        .catch(function(error) {
+            console.error("Erro login:", error);
+            alert("❌ Erro ao entrar: " + error.message);
+        });
+}
 
-        // ============================================================
-        //  CLIENTES
-        // ============================================================
+function fazerLogout() {
+    if (!confirm("Sair da conta?\n\nOs dados locais mantêm-se no dispositivo.")) return;
+    auth.signOut();
+}
 
-        function carregarClientes() {
-            try {
-                var raw = localStorage.getItem(STORAGE_CLIENTES);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) return parsed;
+auth.onAuthStateChanged(function(user) {
+    var areaLogin = document.getElementById("areaLogin");
+    var areaLogado = document.getElementById("areaUserLogado");
+
+    if (user) {
+        utilizadorAtual = user;
+        areaLogin.classList.add("hidden");
+        areaLogado.classList.remove("hidden");
+        document.getElementById("userNome").textContent = user.displayName || "Utilizador";
+        document.getElementById("userEmail").textContent = user.email || "";
+        if (user.photoURL) document.getElementById("userAvatar").src = user.photoURL;
+
+        carregarDadosDaNuvem();
+    } else {
+        utilizadorAtual = null;
+        areaLogin.classList.remove("hidden");
+        areaLogado.classList.add("hidden");
+    }
+});
+
+// ============================================================
+//  FIREBASE - GUARDAR / CARREGAR
+// ============================================================
+
+function guardarDadosNaNuvem() {
+    if (!utilizadorAtual || sincronizacaoEmCurso) return;
+    sincronizacaoEmCurso = true;
+
+    var payload = {
+        dados: dados,
+        orcamentos: carregarOrcamentos(),
+        contador: localStorage.getItem(STORAGE_CONTADOR) || "",
+        ultimaModificacao: Date.now()
+    };
+
+    db.collection("userData").doc(utilizadorAtual.uid).set(payload, { merge: true })
+        .then(function() {
+            sincronizacaoEmCurso = false;
+            console.log("✅ Dados guardados na nuvem");
+        })
+        .catch(function(error) {
+            sincronizacaoEmCurso = false;
+            console.error("Erro ao guardar na nuvem:", error);
+        });
+}
+
+function carregarDadosDaNuvem() {
+    if (!utilizadorAtual) return;
+    sincronizacaoEmCurso = true;
+
+    db.collection("userData").doc(utilizadorAtual.uid).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                var payload = doc.data();
+                console.log("📥 Dados recebidos da nuvem");
+
+                if (payload.dados) {
+                    dados = payload.dados;
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
                 }
-            } catch (e) {}
-            return [];
-        }
-
-        function guardarClientesLista(lista) {
-            try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(lista)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
-
-        function obterCliente(id) {
-            var lista = carregarClientes();
-            return lista.find(function(c) { return c.id === id; });
-        }
-
-        function renderSelectClientes() {
-            var sel = document.getElementById("selCliente");
-            if (!sel) return;
-
-            var clientes = carregarClientes();
-            sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
-
-            clientes.sort(function(a, b) {
-                return (a.nome || "").localeCompare(b.nome || "");
-            });
-
-            clientes.forEach(function(c) {
-                var opt = document.createElement("option");
-                opt.value = c.id;
-                var label = c.nome;
-                if (c.contacto) label += " (" + c.contacto + ")";
-                opt.textContent = label;
-                sel.appendChild(opt);
-            });
-
-            if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
-                sel.value = clienteSelecionadoId;
+                if (payload.orcamentos) {
+                    try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(payload.orcamentos)); } catch (e) {}
+                }
+                if (payload.contador) {
+                    localStorage.setItem(STORAGE_CONTADOR, payload.contador);
+                }
+                if (payload.escaloes && Array.isArray(payload.escaloes) && payload.escaloes.length) {
+                    escaloes = payload.escaloes;
+                    try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
+                }
             } else {
-                clienteSelecionadoId = null;
-                sel.value = "";
+                console.log("📤 Primeiro login - a enviar dados locais para a nuvem");
             }
-        }
-
-        function onChangeCliente() {
-            var sel = document.getElementById("selCliente");
-            if (!sel) return;
-            clienteSelecionadoId = sel.value || null;
-
-            if (!clienteSelecionadoId) {
-                return;
-            }
-
-            var c = obterCliente(clienteSelecionadoId);
-            if (!c) return;
-
-            document.getElementById("inputClienteNome").value = c.nome || "";
-            document.getElementById("inputClienteContacto").value = c.contacto || "";
-            document.getElementById("inputClienteEmail").value = c.email || "";
-        }
-
-        function abrirFormCliente(editar) {
-            var c = editar && clienteSelecionadoId ? obterCliente(clienteSelecionadoId) : null;
-            if (editar && !c) {
-                alert("⚠️ Selecione um cliente da lista para editar.");
-                return;
-            }
-            document.getElementById("formCliente").classList.remove("hidden");
-            document.getElementById("tituloFormCliente").textContent = editar ? "✏️ Editar cliente" : "➕ Novo cliente";
-            document.getElementById("editClienteId").value = editar && c ? c.id : "";
-            document.getElementById("novoNomeCliente").value = editar && c ? (c.nome || "") : "";
-            document.getElementById("novoContactoCliente").value = editar && c ? (c.contacto || "") : "";
-            document.getElementById("novoEmailCliente").value = editar && c ? (c.email || "") : "";
-        }
-
-        function fecharFormCliente() {
-            document.getElementById("formCliente").classList.add("hidden");
-        }
-
-        function guardarClienteForm() {
-            var nome = document.getElementById("novoNomeCliente").value.trim();
-            if (!nome) { alert("⚠️ Indica o nome do cliente."); return; }
-            var contacto = document.getElementById("novoContactoCliente").value.trim();
-            var email = document.getElementById("novoEmailCliente").value.trim();
-            var eid = document.getElementById("editClienteId").value;
-
-            var lista = carregarClientes();
-
-            if (eid) {
-                var duplicado = lista.find(function(c) {
-                    return c.id !== eid && c.nome.toLowerCase() === nome.toLowerCase();
-                });
-                if (duplicado && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
-
-                var c = lista.find(function(x) { return x.id === eid; });
-                if (c) {
-                    c.nome = nome;
-                    c.contacto = contacto;
-                    c.email = email;
-                }
-                clienteSelecionadoId = eid;
-            } else {
-                var duplicado2 = lista.find(function(c) {
-                    return c.nome.toLowerCase() === nome.toLowerCase();
-                });
-                if (duplicado2 && !confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nContinuar a guardar?")) return;
-
-                var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
-                lista.push(novo);
-                clienteSelecionadoId = novo.id;
-            }
-
-            guardarClientesLista(lista);
-            fecharFormCliente();
-            renderSelectClientes();
-
-            var c2 = obterCliente(clienteSelecionadoId);
-            if (c2) {
-                document.getElementById("inputClienteNome").value = c2.nome || "";
-                document.getElementById("inputClienteContacto").value = c2.contacto || "";
-                document.getElementById("inputClienteEmail").value = c2.email || "";
-            }
-
-            alert("✅ Cliente guardado!");
-        }
-
-        function eliminarCliente() {
-            if (!clienteSelecionadoId) {
-                alert("⚠️ Selecione um cliente primeiro.");
-                return;
-            }
-            var c = obterCliente(clienteSelecionadoId);
-            if (!c) return;
-            if (!confirm("🗑️ Eliminar o cliente \"" + c.nome + "\"?\n\nOs orçamentos no histórico mantêm-se.")) return;
-
-            var lista = carregarClientes();
-            lista = lista.filter(function(x) { return x.id !== clienteSelecionadoId; });
-            guardarClientesLista(lista);
-
-            clienteSelecionadoId = null;
-            renderSelectClientes();
-
-            document.getElementById("inputClienteNome").value = "";
-            document.getElementById("inputClienteContacto").value = "";
-            document.getElementById("inputClienteEmail").value = "";
-
-            alert("🗑️ Cliente eliminado!");
-        }
-
-        function guardarClienteAtual() {
-            var nome = document.getElementById("inputClienteNome").value.trim();
-            if (!nome) {
-                alert("⚠️ Preenche o nome do cliente primeiro.");
-                return;
-            }
-
-            var contacto = document.getElementById("inputClienteContacto").value.trim();
-            var email = document.getElementById("inputClienteEmail").value.trim();
-
-            var lista = carregarClientes();
-
-            if (clienteSelecionadoId) {
-                var c = lista.find(function(x) { return x.id === clienteSelecionadoId; });
-                if (c) {
-                    c.nome = nome;
-                    c.contacto = contacto;
-                    c.email = email;
-                    guardarClientesLista(lista);
-                    renderSelectClientes();
-                    alert("✅ Cliente atualizado!");
-                    return;
-                }
-            }
-
-            var existente = lista.find(function(c) {
-                return c.nome.toLowerCase() === nome.toLowerCase();
-            });
-
-            if (existente) {
-                if (confirm("⚠️ Já existe um cliente com o nome \"" + nome + "\".\n\nAtualizar os dados desse cliente?")) {
-                    existente.contacto = contacto;
-                    existente.email = email;
-                    guardarClientesLista(lista);
-                    clienteSelecionadoId = existente.id;
-                    renderSelectClientes();
-                    alert("✅ Cliente atualizado!");
-                }
-                return;
-            }
-
-            var novo = { id: gerarId(), nome: nome, contacto: contacto, email: email };
-            lista.push(novo);
-            guardarClientesLista(lista);
-            clienteSelecionadoId = novo.id;
-            renderSelectClientes();
-            alert("✅ Cliente guardado!");
-        }
-
-        // ============================================================
-        //  ORÇAMENTOS
-        // ============================================================
-
-        function carregarOrcamentos() {
-            try {
-                var raw = localStorage.getItem(STORAGE_ORCAMENTOS);
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) return parsed;
-                }
-            } catch (e) {}
-            return [];
-        }
-
-        function guardarOrcamentosLista(lista) {
-            try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
-            if (utilizadorAtual) guardarDadosNaNuvem();
-        }
-
-        function guardarOrcamento() {
-            var nome = document.getElementById("inputClienteNome").value.trim();
-            if (!nome) {
-                alert("⚠️ Preenche o nome do cliente antes de guardar.");
-                return;
-            }
-
-            var material = obterMaterial(materialId);
-            if (!material) {
-                alert("⚠️ Seleciona um material.");
-                return;
-            }
+            sincronizacaoEmCurso = false;
 
             recalcularContadorDoHistorico();
-            var listaExistente = carregarOrcamentos();
-            var numeroAtual = document.getElementById("numeroOrcamento").value;
-            var tentativas = 0;
 
-            while (listaExistente.some(function(x) { return x.numero === numeroAtual; }) && tentativas < 1000) {
-                incrementarContador();
-                numeroAtual = gerarNumeroOrcamento();
-                tentativas++;
-            }
-
-            if (listaExistente.some(function(x) { return x.numero === numeroAtual; })) {
-                alert("❌ Não foi possível gerar um número único.\n\nVerifica os orçamentos no histórico.");
-                return;
-            }
-
-            document.getElementById("numeroOrcamento").value = numeroAtual;
-
-            var tecnica = obterTecnica(tecnicaId);
-            var variante = obterVariante(varianteId);
-            var fornecedor = obterFornecedor(fornecedorId);
-            var tipo = obterTipo(material.tipoId);
-            var qtdAtual = parseNum(document.getElementById("quantidade").value);
-            var infoMargem = obterMargemPorQuantidade(qtdAtual);
-
-            var precoUnStr = document.getElementById("resPrecoUn").textContent;
-            var totalStr = document.getElementById("resTotalComercial").textContent;
-            var lucroUnStr = document.getElementById("resLucroUn").textContent;
-            var lucroTotalStr = document.getElementById("resLucroTotal").textContent;
-
-            var orcamento = {
-                id: gerarId(),
-                numero: numeroAtual,
-                data: document.getElementById("dataOrcamento").value,
-                cliente: {
-                    id: clienteSelecionadoId || null,
-                    nome: nome,
-                    contacto: document.getElementById("inputClienteContacto").value.trim(),
-                    email: document.getElementById("inputClienteEmail").value.trim()
-                },
-                fornecedor: fornecedor ? fornecedor.nome : "",
-                material: material.nome,
-                referencia: material.referencia || "",
-                tipo: tipo ? tipo.nome : "",
-                cor: variante ? variante.nome : "",
-                tecnica: tecnica ? tecnica.nome : "",
-                quantidade: qtdAtual,
-                altura: parseNum(document.getElementById("alturaEstampa").value),
-                portesAplicados: parseNum(document.getElementById("portesFornecedor").value),
-                portesPersonalizados: portesEditadosManualmente,
-                precoUn: precoUnStr,
-                total: totalStr,
-                lucroUn: lucroUnStr,
-                lucroTotal: lucroTotalStr,
-                margemAplicada: infoMargem.margem,
-                escalaoMargemTexto: infoMargem.texto,
-                dataGuardado: new Date().toLocaleString("pt-PT")
-            };
-
-            var lista = carregarOrcamentos();
-            lista.push(orcamento);
-            guardarOrcamentosLista(lista);
-
-            incrementarContador();
-
-            alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
-
-            limparFormularioNovo();
-        }
-
-        function limparFormularioNovo() {
-            document.getElementById("inputClienteNome").value = "";
-            document.getElementById("inputClienteContacto").value = "";
-            document.getElementById("inputClienteEmail").value = "";
-            document.getElementById("quantidade").value = "1";
-            document.getElementById("alturaEstampa").value = "10";
-
-            clienteSelecionadoId = null;
-            var selCli = document.getElementById("selCliente");
-            if (selCli) selCli.value = "";
-
-            // Repor portes ao limpar o formulário
-            portesEditadosManualmente = false;
-            var elP = document.getElementById("portesFornecedor");
-            var avisoP = document.getElementById("portesAviso");
-            var btnR = document.getElementById("btnResetPortes");
-            var btnE = document.getElementById("btnEditarPortes");
-            if (elP) {
-                elP.readOnly = true;
-                elP.style.background = "#f1f5f9";
-                elP.style.cursor = "default";
-            }
-            if (avisoP) avisoP.style.display = "none";
-            if (btnR) btnR.style.display = "none";
-            if (btnE) btnE.textContent = "✏️ Editar";
-            atualizarPortesFornecedor();
-
-            atualizarNumeroEData();
-            calcular();
-            atualizarContadorTab();
-        }
-
-        function renderHistorico() {
-            var lista = carregarOrcamentos();
-            var pesquisa = (document.getElementById("pesquisaHistorico").value || "").toLowerCase().trim();
-
-            if (pesquisa) {
-                lista = lista.filter(function(o) {
-                    return (o.cliente.nome || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.numero || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.data || "").toLowerCase().indexOf(pesquisa) !== -1 ||
-                        (o.material || "").toLowerCase().indexOf(pesquisa) !== -1;
-                });
-            }
-
-            lista = lista.slice().reverse();
-
-            var container = document.getElementById("listaHistorico");
-
-            if (!lista.length) {
-                container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">' +
-                    (pesquisa ? "Nenhum orçamento encontrado" : "Nenhum orçamento guardado") +
-                    '</div>';
-                return;
-            }
-
-            var html = "";
-            lista.forEach(function(o) {
-                html += '<div class="historico-item">';
-                html += '<div class="topo">';
-                html += '<span class="numero">' + o.numero + '</span>';
-                html += '<span class="data">📅 ' + o.data + '</span>';
-                html += '</div>';
-                html += '<div class="cliente">👤 ' + o.cliente.nome + '</div>';
-                if (o.cliente.contacto || o.cliente.email) {
-                    html += '<div class="detalhes">';
-                    if (o.cliente.contacto) html += '📞 ' + o.cliente.contacto;
-                    if (o.cliente.email) html += (o.cliente.contacto ? ' | ' : '') + '📧 ' + o.cliente.email;
-                    html += '</div>';
-                }
-                html += '<div class="detalhes">📦 ' + o.material + (o.tipo ? ' [' + o.tipo + ']' : '') + ' · 🎨 ' + o.cor + '</div>';
-                html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
-                if (o.escalaoMargemTexto) {
-                    html += '<div class="detalhes">📊 Escalão: ' + o.escalaoMargemTexto + ' → margem ' + moeda(o.margemAplicada || 0) + '</div>';
-                }
-                if (o.portesPersonalizados) {
-                    html += '<div class="detalhes" style="color:#dc2626;">⚠️ Portes personalizados: ' + moeda(o.portesAplicados || 0) + ' s/IVA</div>';
-                }
-                html += '<div class="total">💰 ' + o.total + '</div>';
-                html += '<div class="acoes">';
-                html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
-                html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
-                html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
-                html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
-                html += '</div>';
-                html += '</div>';
-            });
-
-            container.innerHTML = html;
-        }
-
-        function obterOrcamentoPorId(id) {
-            var lista = carregarOrcamentos();
-            return lista.find(function(o) { return o.id === id; });
-        }
-
-        function duplicarOrcamento(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) {
-                alert("⚠️ Orçamento não encontrado.");
-                return;
-            }
-
-            if (!confirm("📝 Duplicar o orçamento " + o.numero + "?\n\n" +
-                         "Vai ser criado um NOVO orçamento com:\n" +
-                         "• Novo número\n" +
-                         "• Data de hoje\n" +
-                         "• Os mesmos dados para poder editar\n\n" +
-                         "O orçamento original mantém-se no histórico.\n\n" +
-                         "Continuar?")) {
-                return;
-            }
-
-            mudarTab('novo');
-
-            clienteSelecionadoId = o.cliente.id || null;
-
-            document.getElementById("inputClienteNome").value = o.cliente.nome || "";
-            document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
-            document.getElementById("inputClienteEmail").value = o.cliente.email || "";
-
+            renderTipos();
+            renderFornecedores();
+            renderTecnicas();
             renderSelectClientes();
-
-            var fornecedorEncontrado = dados.fornecedores.find(function(f) {
-                return f.nome === o.fornecedor;
-            });
-            if (fornecedorEncontrado) {
-                fornecedorId = fornecedorEncontrado.id;
-                document.getElementById("selFornecedor").value = fornecedorId;
-                atualizarPortesFornecedor();
-            }
-
-            tipoSelecionadoId = "todos";
-            var selTipo = document.getElementById("selTipoMaterial");
-            if (selTipo) selTipo.value = "todos";
-
-            var fAtual = obterFornecedor(fornecedorId);
-            var materialEncontrado = null;
-            if (fAtual) {
-                materialEncontrado = fAtual.materiais.find(function(m) {
-                    return m.nome === o.material && (m.referencia || "") === (o.referencia || "");
-                });
-            }
-
-            renderMateriais();
-
-            if (materialEncontrado) {
-                materialId = materialEncontrado.id;
-                document.getElementById("selMaterial").value = materialId;
-
-                var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
-                    return v.nome === o.cor;
-                });
-                if (varianteEncontrada) {
-                    varianteId = varianteEncontrada.id;
-                    document.getElementById("selVariante").value = varianteId;
-                    onChangeVariante();
-                }
-            }
-
-            var tecnicaEncontrada = dados.tecnicas.find(function(t) {
-                return t.nome === o.tecnica;
-            });
-            if (tecnicaEncontrada) {
-                tecnicaId = tecnicaEncontrada.id;
-                document.getElementById("selTecnica").value = tecnicaId;
-                atualizarInfoTecnica();
-            }
-
-            document.getElementById("quantidade").value = o.quantidade || 1;
-            document.getElementById("alturaEstampa").value = o.altura || 10;
-
-            // Restaurar portes personalizados se existirem
-            portesEditadosManualmente = false;
-            var elP = document.getElementById("portesFornecedor");
-            var avisoP = document.getElementById("portesAviso");
-            var btnR = document.getElementById("btnResetPortes");
-            var btnE = document.getElementById("btnEditarPortes");
-            if (elP) {
-                elP.readOnly = true;
-                elP.style.background = "#f1f5f9";
-                elP.style.cursor = "default";
-            }
-            if (avisoP) avisoP.style.display = "none";
-            if (btnR) btnR.style.display = "none";
-            if (btnE) btnE.textContent = "✏️ Editar";
-
-            if (o.portesPersonalizados && o.portesAplicados !== undefined) {
-                // Restaurar portes personalizados
-                if (elP) {
-                    elP.value = formatarNumero(o.portesAplicados, 2);
-                    elP.readOnly = false;
-                    elP.style.background = "#fff";
-                    elP.style.cursor = "text";
-                }
-                if (avisoP) avisoP.style.display = "inline";
-                if (btnR) btnR.style.display = "block";
-                if (btnE) btnE.textContent = "🔒 Bloquear";
-                portesEditadosManualmente = true;
-            }
-
             atualizarNumeroEData();
-            calcular();
-
-            setTimeout(function() {
-                alert("✅ Orçamento duplicado!\n\n" +
-                      "• Novo Nº: " + document.getElementById("numeroOrcamento").value + "\n" +
-                      "• Data: " + document.getElementById("dataOrcamento").value + "\n\n" +
-                      "Altere o que quiser e clique em 💾 Guardar Orçamento.");
-            }, 300);
-        }
-
-        function verOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-
-            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📄 Nº: " + o.numero + "\n";
-            txt += "📅 Data: " + o.data + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "👤 Cliente: " + o.cliente.nome + "\n";
-            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
-            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
-            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
-            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
-            txt += "🎨 Cor: " + o.cor + "\n";
-            txt += "🖨️ Técnica: " + o.tecnica + "\n";
-            txt += "🔢 Quantidade: " + o.quantidade + "\n";
-            txt += "📏 Altura: " + o.altura + " cm\n";
-            if (o.escalaoMargemTexto) {
-                txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
-            }
-            if (o.portesPersonalizados) {
-                txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
-            }
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "💰 Preço/un.: " + o.precoUn + "\n";
-            txt += "📊 Total: " + o.total + "\n";
-            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "Guardado em: " + o.dataGuardado;
-
-            alert(txt);
-        }
-
-        function copiarOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-
-            var txt = "🖨️ GrafiSantos Print - Orçamento\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📄 Nº: " + o.numero + "\n";
-            txt += "📅 Data: " + o.data + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "👤 Cliente: " + o.cliente.nome + "\n";
-            if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
-            if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "📦 Fornecedor: " + o.fornecedor + "\n";
-            txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
-            if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
-            txt += "🎨 Cor: " + o.cor + "\n";
-            txt += "🖨️ Técnica: " + o.tecnica + "\n";
-            txt += "🔢 Quantidade: " + o.quantidade + "\n";
-            txt += "📏 Altura: " + o.altura + " cm\n";
-            if (o.escalaoMargemTexto) {
-                txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
-            }
-            if (o.portesPersonalizados) {
-                txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
-            }
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "💰 Preço/un.: " + o.precoUn + "\n";
-            txt += "📊 Total: " + o.total + "\n";
-            txt += "📈 Lucro total: " + o.lucroTotal + "\n";
-            txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA";
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(txt).then(function() {
-                    alert("✅ Orçamento copiado!");
-                }).catch(function() {
-                    prompt("📋 Copia o orçamento:", txt);
-                });
-            } else {
-                prompt("📋 Copia o orçamento:", txt);
-            }
-        }
-
-        function eliminarOrcamentoHistorico(id) {
-            var o = obterOrcamentoPorId(id);
-            if (!o) return;
-            if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
-
-            var lista = carregarOrcamentos();
-            lista = lista.filter(function(x) { return x.id !== id; });
-            guardarOrcamentosLista(lista);
-            renderHistorico();
             atualizarContadorTab();
-            alert("🗑️ Orçamento eliminado!");
-        }
+            calcular();
+            atualizarInfoTecnica();
 
-        function atualizarContadorTab() {
-            var lista = carregarOrcamentos();
-            var contador = document.getElementById("contadorHistorico");
-            if (contador) contador.textContent = lista.length;
-        }
+            if (!doc.exists) {
+                guardarDadosNaNuvem();
+            }
+        })
+        .catch(function(error) {
+            sincronizacaoEmCurso = false;
+            console.error("Erro ao carregar da nuvem:", error);
+        });
+}
 
-        // ============================================================
-        //  TIPOS DE MATERIAL
-        // ============================================================
+// ============================================================
+//  TABS
+// ============================================================
 
-        function renderTipos() {
-            var sel = document.getElementById("selTipoMaterial");
-            var selForm = document.getElementById("selTipoMaterialForm");
-            if (!sel || !selForm) return;
+function mudarTab(tab) {
+    var tabNovo = document.getElementById("tabNovo");
+    var tabHist = document.getElementById("tabHistorico");
+    var btnNovo = document.getElementById("tabBtnNovo");
+    var btnHist = document.getElementById("tabBtnHistorico");
 
-            sel.innerHTML = "";
-            selForm.innerHTML = "";
+    if (tab === "novo") {
+        tabNovo.classList.remove("hidden");
+        tabHist.classList.add("hidden");
+        btnNovo.classList.add("active");
+        btnHist.classList.remove("active");
+    } else {
+        tabNovo.classList.add("hidden");
+        tabHist.classList.remove("hidden");
+        btnNovo.classList.remove("active");
+        btnHist.classList.add("active");
+        renderHistorico();
+    }
+}
 
-            var optTodos = document.createElement("option");
-            optTodos.value = "todos";
-            optTodos.textContent = "🔍 Todos os tipos";
-            sel.appendChild(optTodos);
+// ============================================================
+//  DADOS PADRÃO
+// ============================================================
 
-            if (!dados.tipos || !dados.tipos.length) {
-                selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
-                tipoSelecionadoId = "todos";
-                sel.value = "todos";
+var DADOS_PADRAO = {
+    tipos: [
+        { id: "tp1", nome: "T-Shirt" },
+        { id: "tp2", nome: "Polo" },
+        { id: "tp3", nome: "Sweats" }
+    ],
+    fornecedores: [{
+        id: "f1", nome: "Roly", portes: 4.50,
+        materiais: [{
+            id: "m1", nome: "T-Shirt Beagle 150g", referencia: "BEAGLE-150", tipoId: "tp1",
+            variantes: [
+                { id: "v1", nome: "Branco", cor: "#ffffff", preco: 1.85 },
+                { id: "v2", nome: "Preto", cor: "#000000", preco: 2.10 }
+            ]
+        }]
+    }],
+    tecnicas: [
+        { id: "t1", nome: "DTF", custoMetro: 5.50, largura: 28 },
+        { id: "t2", nome: "Vinil Flex", custoMetro: 6.50, largura: 28 }
+    ]
+};
+
+var dados = null;
+var fornecedorId = null;
+var tipoSelecionadoId = "todos";
+var materialId = null;
+var varianteId = null;
+var tecnicaId = null;
+var clienteSelecionadoId = null;
+
+// ⚙️ Portes editáveis
+var portesEditadosManualmente = false;
+
+// ============================================================
+//  PERSISTÊNCIA
+// ============================================================
+
+function carregarDados() {
+    try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.fornecedores && parsed.tecnicas) {
+                if (!parsed.tipos) parsed.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
+                dados = parsed;
                 return;
             }
-
-            dados.tipos.forEach(function(t) {
-                var opt1 = document.createElement("option");
-                opt1.value = t.id;
-                opt1.textContent = t.nome;
-                sel.appendChild(opt1);
-
-                var opt2 = document.createElement("option");
-                opt2.value = t.id;
-                opt2.textContent = t.nome;
-                selForm.appendChild(opt2);
-            });
-
-            if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
-                tipoSelecionadoId = "todos";
-            }
-            sel.value = tipoSelecionadoId;
         }
+    } catch (e) {}
+    dados = JSON.parse(JSON.stringify(DADOS_PADRAO));
+    guardarDados();
+}
 
-        function onChangeTipo() {
-            var sel = document.getElementById("selTipoMaterial");
-            if (!sel) return;
-            tipoSelecionadoId = sel.value;
+function guardarDados() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+function obterFornecedor(id) {
+    return dados.fornecedores.find(function(f) { return f.id === id; });
+}
+
+function obterTipo(id) {
+    if (!dados.tipos || id === "todos") return null;
+    return dados.tipos.find(function(t) { return t.id === id; });
+}
+
+function obterMaterial(id) {
+    var f = obterFornecedor(fornecedorId);
+    if (!f) return null;
+    return f.materiais.find(function(m) { return m.id === id; });
+}
+
+function obterVariante(id) {
+    var m = obterMaterial(materialId);
+    if (!m) return null;
+    return m.variantes.find(function(v) { return v.id === id; });
+}
+
+function obterTecnica(id) {
+    return dados.tecnicas.find(function(t) { return t.id === id; });
+}
+
+// ============================================================
+//  CLIENTES (unificados com o gestor — só leitura no orçamento)
+// ============================================================
+
+function carregarClientes() {
+    try {
+        var raw = localStorage.getItem(STORAGE_CLIENTES);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                // ✅ Normaliza: o gestor guarda "telefone", o orçamento espera "contacto"
+                return parsed.map(function(c) {
+                    return {
+                        id: c.id,
+                        nome: c.nome || "",
+                        contacto: c.contacto || c.telefone || "",
+                        email: c.email || ""
+                    };
+                });
+            }
+        }
+    } catch (e) {}
+    return [];
+}
+
+function obterCliente(id) {
+    var lista = carregarClientes();
+    return lista.find(function(c) { return c.id === id; });
+}
+
+function renderSelectClientes() {
+    var sel = document.getElementById("selCliente");
+    if (!sel) return;
+
+    var clientes = carregarClientes();
+    sel.innerHTML = '<option value="">— Cliente sem registo —</option>';
+
+    clientes.sort(function(a, b) {
+        return (a.nome || "").localeCompare(b.nome || "");
+    });
+
+    clientes.forEach(function(c) {
+        var opt = document.createElement("option");
+        opt.value = c.id;
+        var label = c.nome;
+        if (c.contacto) label += " (" + c.contacto + ")";
+        opt.textContent = label;
+        sel.appendChild(opt);
+    });
+
+    if (clienteSelecionadoId && clientes.some(function(c) { return c.id === clienteSelecionadoId; })) {
+        sel.value = clienteSelecionadoId;
+    } else {
+        clienteSelecionadoId = null;
+        sel.value = "";
+    }
+}
+
+function onChangeCliente() {
+    var sel = document.getElementById("selCliente");
+    if (!sel) return;
+    clienteSelecionadoId = sel.value || null;
+
+    if (!clienteSelecionadoId) {
+        return;
+    }
+
+    var c = obterCliente(clienteSelecionadoId);
+    if (!c) return;
+
+    document.getElementById("inputClienteNome").value = c.nome || "";
+    document.getElementById("inputClienteContacto").value = c.contacto || "";
+    document.getElementById("inputClienteEmail").value = c.email || "";
+}
+
+// ============================================================
+//  ORÇAMENTOS
+// ============================================================
+
+function carregarOrcamentos() {
+    try {
+        var raw = localStorage.getItem(STORAGE_ORCAMENTOS);
+        if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        }
+    } catch (e) {}
+    return [];
+}
+
+function guardarOrcamentosLista(lista) {
+    try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(lista)); } catch (e) {}
+    if (utilizadorAtual) guardarDadosNaNuvem();
+}
+
+function guardarOrcamento() {
+    var nome = document.getElementById("inputClienteNome").value.trim();
+    if (!nome) {
+        alert("⚠️ Preenche o nome do cliente antes de guardar.");
+        return;
+    }
+
+    var material = obterMaterial(materialId);
+    if (!material) {
+        alert("⚠️ Seleciona um material.");
+        return;
+    }
+
+    recalcularContadorDoHistorico();
+    var listaExistente = carregarOrcamentos();
+    var numeroAtual = document.getElementById("numeroOrcamento").value;
+    var tentativas = 0;
+
+    while (listaExistente.some(function(x) { return x.numero === numeroAtual; }) && tentativas < 1000) {
+        incrementarContador();
+        numeroAtual = gerarNumeroOrcamento();
+        tentativas++;
+    }
+
+    if (listaExistente.some(function(x) { return x.numero === numeroAtual; })) {
+        alert("❌ Não foi possível gerar um número único.\n\nVerifica os orçamentos no histórico.");
+        return;
+    }
+
+    document.getElementById("numeroOrcamento").value = numeroAtual;
+
+    var tecnica = obterTecnica(tecnicaId);
+    var variante = obterVariante(varianteId);
+    var fornecedor = obterFornecedor(fornecedorId);
+    var tipo = obterTipo(material.tipoId);
+    var qtdAtual = parseNum(document.getElementById("quantidade").value);
+    var infoMargem = obterMargemPorQuantidade(qtdAtual);
+
+    var precoUnStr = document.getElementById("resPrecoUn").textContent;
+    var totalStr = document.getElementById("resTotalComercial").textContent;
+    var lucroUnStr = document.getElementById("resLucroUn").textContent;
+    var lucroTotalStr = document.getElementById("resLucroTotal").textContent;
+
+    var orcamento = {
+        id: gerarId(),
+        numero: numeroAtual,
+        data: document.getElementById("dataOrcamento").value,
+        cliente: {
+            id: clienteSelecionadoId || null,
+            nome: nome,
+            contacto: document.getElementById("inputClienteContacto").value.trim(),
+            email: document.getElementById("inputClienteEmail").value.trim()
+        },
+        fornecedor: fornecedor ? fornecedor.nome : "",
+        material: material.nome,
+        referencia: material.referencia || "",
+        tipo: tipo ? tipo.nome : "",
+        cor: variante ? variante.nome : "",
+        tecnica: tecnica ? tecnica.nome : "",
+        quantidade: qtdAtual,
+        altura: parseNum(document.getElementById("alturaEstampa").value),
+        portesAplicados: parseNum(document.getElementById("portesFornecedor").value),
+        portesPersonalizados: portesEditadosManualmente,
+        precoUn: precoUnStr,
+        total: totalStr,
+        lucroUn: lucroUnStr,
+        lucroTotal: lucroTotalStr,
+        margemAplicada: infoMargem.margem,
+        escalaoMargemTexto: infoMargem.texto,
+        dataGuardado: new Date().toLocaleString("pt-PT")
+    };
+
+    var lista = carregarOrcamentos();
+    lista.push(orcamento);
+    guardarOrcamentosLista(lista);
+
+    incrementarContador();
+
+    alert("✅ Orçamento " + orcamento.numero + " guardado com sucesso!");
+
+    limparFormularioNovo();
+}
+
+function limparFormularioNovo() {
+    document.getElementById("inputClienteNome").value = "";
+    document.getElementById("inputClienteContacto").value = "";
+    document.getElementById("inputClienteEmail").value = "";
+    document.getElementById("quantidade").value = "1";
+    document.getElementById("alturaEstampa").value = "10";
+
+    clienteSelecionadoId = null;
+    var selCli = document.getElementById("selCliente");
+    if (selCli) selCli.value = "";
+
+    // Repor portes ao limpar o formulário
+    portesEditadosManualmente = false;
+    var elP = document.getElementById("portesFornecedor");
+    var avisoP = document.getElementById("portesAviso");
+    var btnR = document.getElementById("btnResetPortes");
+    var btnE = document.getElementById("btnEditarPortes");
+    if (elP) {
+        elP.readOnly = true;
+        elP.style.background = "#f1f5f9";
+        elP.style.cursor = "default";
+    }
+    if (avisoP) avisoP.style.display = "none";
+    if (btnR) btnR.style.display = "none";
+    if (btnE) btnE.textContent = "✏️ Editar";
+    atualizarPortesFornecedor();
+
+    atualizarNumeroEData();
+    calcular();
+    atualizarContadorTab();
+}
+
+function renderHistorico() {
+    var lista = carregarOrcamentos();
+    var pesquisa = (document.getElementById("pesquisaHistorico").value || "").toLowerCase().trim();
+
+    if (pesquisa) {
+        lista = lista.filter(function(o) {
+            return (o.cliente.nome || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.numero || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.data || "").toLowerCase().indexOf(pesquisa) !== -1 ||
+                (o.material || "").toLowerCase().indexOf(pesquisa) !== -1;
+        });
+    }
+
+    lista = lista.slice().reverse();
+
+    var container = document.getElementById("listaHistorico");
+
+    if (!lista.length) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;">' +
+            (pesquisa ? "Nenhum orçamento encontrado" : "Nenhum orçamento guardado") +
+            '</div>';
+        return;
+    }
+
+    var html = "";
+    lista.forEach(function(o) {
+        html += '<div class="historico-item">';
+        html += '<div class="topo">';
+        html += '<span class="numero">' + o.numero + '</span>';
+        html += '<span class="data">📅 ' + o.data + '</span>';
+        html += '</div>';
+        html += '<div class="cliente">👤 ' + o.cliente.nome + '</div>';
+        if (o.cliente.contacto || o.cliente.email) {
+            html += '<div class="detalhes">';
+            if (o.cliente.contacto) html += '📞 ' + o.cliente.contacto;
+            if (o.cliente.email) html += (o.cliente.contacto ? ' | ' : '') + '📧 ' + o.cliente.email;
+            html += '</div>';
+        }
+        html += '<div class="detalhes">📦 ' + o.material + (o.tipo ? ' [' + o.tipo + ']' : '') + ' · 🎨 ' + o.cor + '</div>';
+        html += '<div class="detalhes">🖨️ ' + o.tecnica + ' · ' + o.quantidade + ' un · Alt: ' + o.altura + 'cm</div>';
+        if (o.escalaoMargemTexto) {
+            html += '<div class="detalhes">📊 Escalão: ' + o.escalaoMargemTexto + ' → margem ' + moeda(o.margemAplicada || 0) + '</div>';
+        }
+        if (o.portesPersonalizados) {
+            html += '<div class="detalhes" style="color:#dc2626;">⚠️ Portes personalizados: ' + moeda(o.portesAplicados || 0) + ' s/IVA</div>';
+        }
+        html += '<div class="total">💰 ' + o.total + '</div>';
+        html += '<div class="acoes">';
+        html += '<button class="btn btn-primary" onclick="duplicarOrcamento(\'' + o.id + '\')">📝 Duplicar</button>';
+        html += '<button class="btn btn-secondary" onclick="verOrcamentoHistorico(\'' + o.id + '\')">👁️ Ver</button>';
+        html += '<button class="btn btn-secondary" onclick="copiarOrcamentoHistorico(\'' + o.id + '\')">📋 Copiar</button>';
+        html += '<button class="btn btn-danger" onclick="eliminarOrcamentoHistorico(\'' + o.id + '\')">🗑️ Eliminar</button>';
+        html += '</div>';
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function obterOrcamentoPorId(id) {
+    var lista = carregarOrcamentos();
+    return lista.find(function(o) { return o.id === id; });
+}
+
+function duplicarOrcamento(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) {
+        alert("⚠️ Orçamento não encontrado.");
+        return;
+    }
+
+    if (!confirm("📝 Duplicar o orçamento " + o.numero + "?\n\n" +
+                 "Vai ser criado um NOVO orçamento com:\n" +
+                 "• Novo número\n" +
+                 "• Data de hoje\n" +
+                 "• Os mesmos dados para poder editar\n\n" +
+                 "O orçamento original mantém-se no histórico.\n\n" +
+                 "Continuar?")) {
+        return;
+    }
+
+    mudarTab('novo');
+
+    clienteSelecionadoId = o.cliente.id || null;
+
+    document.getElementById("inputClienteNome").value = o.cliente.nome || "";
+    document.getElementById("inputClienteContacto").value = o.cliente.contacto || "";
+    document.getElementById("inputClienteEmail").value = o.cliente.email || "";
+
+    renderSelectClientes();
+
+    var fornecedorEncontrado = dados.fornecedores.find(function(f) {
+        return f.nome === o.fornecedor;
+    });
+    if (fornecedorEncontrado) {
+        fornecedorId = fornecedorEncontrado.id;
+        document.getElementById("selFornecedor").value = fornecedorId;
+        atualizarPortesFornecedor();
+    }
+
+    tipoSelecionadoId = "todos";
+    var selTipo = document.getElementById("selTipoMaterial");
+    if (selTipo) selTipo.value = "todos";
+
+    var fAtual = obterFornecedor(fornecedorId);
+    var materialEncontrado = null;
+    if (fAtual) {
+        materialEncontrado = fAtual.materiais.find(function(m) {
+            return m.nome === o.material && (m.referencia || "") === (o.referencia || "");
+        });
+    }
+
+    renderMateriais();
+
+    if (materialEncontrado) {
+        materialId = materialEncontrado.id;
+        document.getElementById("selMaterial").value = materialId;
+
+        var varianteEncontrada = materialEncontrado.variantes.find(function(v) {
+            return v.nome === o.cor;
+        });
+        if (varianteEncontrada) {
+            varianteId = varianteEncontrada.id;
+            document.getElementById("selVariante").value = varianteId;
+            onChangeVariante();
+        }
+    }
+
+    var tecnicaEncontrada = dados.tecnicas.find(function(t) {
+        return t.nome === o.tecnica;
+    });
+    if (tecnicaEncontrada) {
+        tecnicaId = tecnicaEncontrada.id;
+        document.getElementById("selTecnica").value = tecnicaId;
+        atualizarInfoTecnica();
+    }
+
+    document.getElementById("quantidade").value = o.quantidade || 1;
+    document.getElementById("alturaEstampa").value = o.altura || 10;
+
+    // Restaurar portes personalizados se existirem
+    portesEditadosManualmente = false;
+    var elP = document.getElementById("portesFornecedor");
+    var avisoP = document.getElementById("portesAviso");
+    var btnR = document.getElementById("btnResetPortes");
+    var btnE = document.getElementById("btnEditarPortes");
+    if (elP) {
+        elP.readOnly = true;
+        elP.style.background = "#f1f5f9";
+        elP.style.cursor = "default";
+    }
+    if (avisoP) avisoP.style.display = "none";
+    if (btnR) btnR.style.display = "none";
+    if (btnE) btnE.textContent = "✏️ Editar";
+
+    if (o.portesPersonalizados && o.portesAplicados !== undefined) {
+        if (elP) {
+            elP.value = formatarNumero(o.portesAplicados, 2);
+            elP.readOnly = false;
+            elP.style.background = "#fff";
+            elP.style.cursor = "text";
+        }
+        if (avisoP) avisoP.style.display = "inline";
+        if (btnR) btnR.style.display = "block";
+        if (btnE) btnE.textContent = "🔒 Bloquear";
+        portesEditadosManualmente = true;
+    }
+
+    atualizarNumeroEData();
+    calcular();
+
+    setTimeout(function() {
+        alert("✅ Orçamento duplicado!\n\n" +
+              "• Novo Nº: " + document.getElementById("numeroOrcamento").value + "\n" +
+              "• Data: " + document.getElementById("dataOrcamento").value + "\n\n" +
+              "Altere o que quiser e clique em 💾 Guardar Orçamento.");
+    }, 300);
+}
+
+function verOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+
+    var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📄 Nº: " + o.numero + "\n";
+    txt += "📅 Data: " + o.data + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "👤 Cliente: " + o.cliente.nome + "\n";
+    if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+    if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+    txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+    if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+    txt += "🎨 Cor: " + o.cor + "\n";
+    txt += "🖨️ Técnica: " + o.tecnica + "\n";
+    txt += "🔢 Quantidade: " + o.quantidade + "\n";
+    txt += "📏 Altura: " + o.altura + " cm\n";
+    if (o.escalaoMargemTexto) {
+        txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
+    }
+    if (o.portesPersonalizados) {
+        txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
+    }
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "💰 Preço/un.: " + o.precoUn + "\n";
+    txt += "📊 Total: " + o.total + "\n";
+    txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "Guardado em: " + o.dataGuardado;
+
+    alert(txt);
+}
+
+function copiarOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+
+    var txt = "🖨️ GrafiSantos Print - Orçamento\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📄 Nº: " + o.numero + "\n";
+    txt += "📅 Data: " + o.data + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "👤 Cliente: " + o.cliente.nome + "\n";
+    if (o.cliente.contacto) txt += "📞 Contacto: " + o.cliente.contacto + "\n";
+    if (o.cliente.email) txt += "📧 Email: " + o.cliente.email + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "📦 Fornecedor: " + o.fornecedor + "\n";
+    txt += "👕 Material: " + o.material + (o.referencia ? " (" + o.referencia + ")" : "") + "\n";
+    if (o.tipo) txt += "🏷️ Tipo: " + o.tipo + "\n";
+    txt += "🎨 Cor: " + o.cor + "\n";
+    txt += "🖨️ Técnica: " + o.tecnica + "\n";
+    txt += "🔢 Quantidade: " + o.quantidade + "\n";
+    txt += "📏 Altura: " + o.altura + " cm\n";
+    if (o.escalaoMargemTexto) {
+        txt += "📊 Escalão: " + o.escalaoMargemTexto + " → margem " + moeda(o.margemAplicada || 0) + "\n";
+    }
+    if (o.portesPersonalizados) {
+        txt += "⚠️ Portes personalizados: " + moeda(o.portesAplicados || 0) + " s/IVA\n";
+    }
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "💰 Preço/un.: " + o.precoUn + "\n";
+    txt += "📊 Total: " + o.total + "\n";
+    txt += "📈 Lucro total: " + o.lucroTotal + "\n";
+    txt += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    txt += "⚠️ Regime de isenção — Artigo 53.º do CIVA";
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function() {
+            alert("✅ Orçamento copiado!");
+        }).catch(function() {
+            prompt("📋 Copia o orçamento:", txt);
+        });
+    } else {
+        prompt("📋 Copia o orçamento:", txt);
+    }
+}
+
+function eliminarOrcamentoHistorico(id) {
+    var o = obterOrcamentoPorId(id);
+    if (!o) return;
+    if (!confirm("🗑️ Eliminar o orçamento " + o.numero + "?")) return;
+
+    var lista = carregarOrcamentos();
+    lista = lista.filter(function(x) { return x.id !== id; });
+    guardarOrcamentosLista(lista);
+    renderHistorico();
+    atualizarContadorTab();
+    alert("🗑️ Orçamento eliminado!");
+}
+
+function atualizarContadorTab() {
+    var lista = carregarOrcamentos();
+    var contador = document.getElementById("contadorHistorico");
+    if (contador) contador.textContent = lista.length;
+}
+
+// ============================================================
+//  TIPOS DE MATERIAL
+// ============================================================
+
+function renderTipos() {
+    var sel = document.getElementById("selTipoMaterial");
+    var selForm = document.getElementById("selTipoMaterialForm");
+    if (!sel || !selForm) return;
+
+    sel.innerHTML = "";
+    selForm.innerHTML = "";
+
+    var optTodos = document.createElement("option");
+    optTodos.value = "todos";
+    optTodos.textContent = "🔍 Todos os tipos";
+    sel.appendChild(optTodos);
+
+    if (!dados.tipos || !dados.tipos.length) {
+        selForm.innerHTML = '<option value="">⚠️ Crie um tipo primeiro</option>';
+        tipoSelecionadoId = "todos";
+        sel.value = "todos";
+        return;
+    }
+
+    dados.tipos.forEach(function(t) {
+        var opt1 = document.createElement("option");
+        opt1.value = t.id;
+        opt1.textContent = t.nome;
+        sel.appendChild(opt1);
+
+        var opt2 = document.createElement("option");
+        opt2.value = t.id;
+        opt2.textContent = t.nome;
+        selForm.appendChild(opt2);
+    });
+
+    if (tipoSelecionadoId !== "todos" && !obterTipo(tipoSelecionadoId)) {
+        tipoSelecionadoId = "todos";
+    }
+    sel.value = tipoSelecionadoId;
+}
+
+function onChangeTipo() {
+    var sel = document.getElementById("selTipoMaterial");
+    if (!sel) return;
+    tipoSelecionadoId = sel.value;
+    materialId = null;
+    varianteId = null;
+    renderMateriais();
+    calcular();
+}
+
+function abrirFormTipo(editar) {
+    if (editar && tipoSelecionadoId === "todos") {
+        alert("⚠️ Selecione um tipo específico para editar.\n\n\"Todos\" é apenas um filtro.");
+        return;
+    }
+    var t = obterTipo(tipoSelecionadoId);
+    document.getElementById("formTipo").classList.remove("hidden");
+    document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
+    document.getElementById("editTipoId").value = editar && t ? t.id : "";
+    document.getElementById("inputNomeTipo").value = editar && t ? t.nome : "";
+}
+
+function fecharFormTipo() {
+    document.getElementById("formTipo").classList.add("hidden");
+}
+
+function guardarTipo() {
+    var nome = document.getElementById("inputNomeTipo").value.trim();
+    if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
+    var eid = document.getElementById("editTipoId").value;
+    if (eid) {
+        var t = obterTipo(eid);
+        if (t) t.nome = nome;
+    } else {
+        var novo = { id: gerarId(), nome: nome };
+        dados.tipos.push(novo);
+        tipoSelecionadoId = novo.id;
+    }
+    guardarDados();
+    fecharFormTipo();
+    renderTipos();
+    renderMateriais();
+}
+
+function eliminarTipo() {
+    if (tipoSelecionadoId === "todos") {
+        alert("⚠️ \"Todos\" é apenas um filtro, não pode ser eliminado.");
+        return;
+    }
+    if (!tipoSelecionadoId) return;
+    if (dados.tipos.length <= 1) { alert("⚠️ Manter pelo menos um tipo."); return; }
+    var t = obterTipo(tipoSelecionadoId);
+    if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?")) return;
+    dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
+    dados.fornecedores.forEach(function(f) {
+        (f.materiais || []).forEach(function(m) {
+            if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
+        });
+    });
+    tipoSelecionadoId = "todos";
+    guardarDados();
+    renderTipos();
+    renderMateriais();
+}
+
+// ============================================================
+//  EXPORTAR / IMPORTAR
+// ============================================================
+
+function exportarDados() {
+    try {
+        var backup = {
+            versao: "11.0",
+            dataBackup: new Date().toLocaleString("pt-PT"),
+            dados: dados,
+            orcamentos: carregarOrcamentos(),
+            contador: localStorage.getItem(STORAGE_CONTADOR),
+            escaloes: escaloes
+        };
+        var json = JSON.stringify(backup, null, 2);
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var data = new Date().toISOString().slice(0, 10);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "grafisantos_backup_" + data + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert("✅ Backup local criado!");
+    } catch (e) {
+        alert("❌ Erro ao exportar: " + e.message);
+    }
+}
+
+function importarDados() {
+    var input = document.getElementById("inputImportar");
+    if (input) input.click();
+}
+
+function processarImportacao(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var conteudo = JSON.parse(e.target.result);
+            var dadosImportados = conteudo.dados || conteudo;
+            if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
+                alert("❌ Ficheiro inválido!");
+                event.target.value = "";
+                return;
+            }
+            if (!dadosImportados.tipos) {
+                dadosImportados.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
+            }
+            if (!confirm("⚠️ Vai substituir TODOS os dados atuais.\n\nContinuar?")) {
+                event.target.value = "";
+                return;
+            }
+            dados = dadosImportados;
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
+
+            if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
+                try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(conteudo.orcamentos)); } catch (e) {}
+            }
+            if (conteudo.contador) {
+                localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
+            }
+            if (conteudo.escaloes && Array.isArray(conteudo.escaloes) && conteudo.escaloes.length) {
+                escaloes = conteudo.escaloes;
+                try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
+            }
+
+            fornecedorId = null;
+            tipoSelecionadoId = "todos";
             materialId = null;
             varianteId = null;
-            renderMateriais();
+            tecnicaId = null;
+            clienteSelecionadoId = null;
+
+            recalcularContadorDoHistorico();
+            renderTipos();
+            renderFornecedores();
+            renderTecnicas();
+            renderSelectClientes();
             calcular();
-        }
+            atualizarInfoTecnica();
+            atualizarNumeroEData();
+            atualizarContadorTab();
 
-        function abrirFormTipo(editar) {
-            if (editar && tipoSelecionadoId === "todos") {
-                alert("⚠️ Selecione um tipo específico para editar.\n\n\"Todos\" é apenas um filtro.");
-                return;
-            }
-            var t = obterTipo(tipoSelecionadoId);
-            document.getElementById("formTipo").classList.remove("hidden");
-            document.getElementById("tituloTipo").textContent = editar ? "✏️ Editar tipo" : "➕ Novo tipo";
-            document.getElementById("editTipoId").value = editar && t ? t.id : "";
-            document.getElementById("inputNomeTipo").value = editar && t ? t.nome : "";
-        }
+            if (utilizadorAtual) guardarDadosNaNuvem();
 
-        function fecharFormTipo() {
-            document.getElementById("formTipo").classList.add("hidden");
+            alert("✅ Backup restaurado!");
+        } catch (err) {
+            alert("❌ Erro ao ler o ficheiro: " + err.message);
         }
+        event.target.value = "";
+    };
+    reader.readAsText(file);
+}
 
-        function guardarTipo() {
-            var nome = document.getElementById("inputNomeTipo").value.trim();
-            if (!nome) { alert("⚠️ Indica o nome do tipo."); return; }
-            var eid = document.getElementById("editTipoId").value;
-            if (eid) {
-                var t = obterTipo(eid);
-                if (t) t.nome = nome;
-            } else {
-                var novo = { id: gerarId(), nome: nome };
-                dados.tipos.push(novo);
-                tipoSelecionadoId = novo.id;
-            }
-            guardarDados();
-            fecharFormTipo();
-            renderTipos();
-            renderMateriais();
-        }
+// ============================================================
+//  VARIANTES
+// ============================================================
 
-        function eliminarTipo() {
-            if (tipoSelecionadoId === "todos") {
-                alert("⚠️ \"Todos\" é apenas um filtro, não pode ser eliminado.");
-                return;
-            }
-            if (!tipoSelecionadoId) return;
-            if (dados.tipos.length <= 1) { alert("⚠️ Manter pelo menos um tipo."); return; }
-            var t = obterTipo(tipoSelecionadoId);
-            if (!confirm("🗑️ Eliminar o tipo \"" + (t ? t.nome : "") + "\"?")) return;
-            dados.tipos = dados.tipos.filter(function(x) { return x.id !== tipoSelecionadoId; });
-            dados.fornecedores.forEach(function(f) {
-                (f.materiais || []).forEach(function(m) {
-                    if (m.tipoId === tipoSelecionadoId) m.tipoId = "";
-                });
+function criarCampoVariante(variante) {
+    variante = variante || { id: "", nome: "", cor: "#ffffff", preco: 0 };
+    var div = document.createElement("div");
+    div.className = "variante-form";
+    var html = '<input type="color" class="inputCor" value="' + (variante.cor || '#ffffff') + '" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">';
+    html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
+    html += '<div class="campo-euro" style="flex:1;">';
+    html += '<span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>';
+    html += '<input type="number" class="inputVariantePreco" placeholder="Preço s/IVA" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
+    html += '</div>';
+    html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
+    html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
+    div.innerHTML = html;
+    return div;
+}
+
+function adicionarVarianteForm() {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    container.appendChild(criarCampoVariante(null));
+}
+
+function removerVarianteForm(btn) {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    if (container.children.length <= 1) {
+        alert("⚠️ É necessário manter pelo menos uma cor.");
+        return;
+    }
+    container.removeChild(btn.parentNode);
+}
+
+function carregarVariantesForm(material) {
+    var container = document.getElementById("variantesFormContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    if (material && material.variantes && material.variantes.length) {
+        material.variantes.forEach(function(v) {
+            container.appendChild(criarCampoVariante(v));
+        });
+    } else {
+        container.appendChild(criarCampoVariante(null));
+    }
+}
+
+function obterVariantesDoForm() {
+    var variantes = [];
+    var items = document.querySelectorAll("#variantesFormContainer .variante-form");
+    items.forEach(function(item) {
+        var nome = item.querySelector(".inputVarianteNome").value.trim();
+        var preco = parseNum(item.querySelector(".inputVariantePreco").value);
+        var cor = item.querySelector(".inputCor").value;
+        var idEl = item.querySelector(".inputVarianteId");
+        if (nome) {
+            variantes.push({
+                id: idEl && idEl.value ? idEl.value : gerarId(),
+                nome: nome,
+                cor: cor || "#ffffff",
+                preco: preco
             });
-            tipoSelecionadoId = "todos";
-            guardarDados();
-            renderTipos();
-            renderMateriais();
         }
-
-        // ============================================================
-        //  EXPORTAR / IMPORTAR
-        // ============================================================
-
-        function exportarDados() {
-            try {
-                var backup = {
-                    versao: "10.0",
-                    dataBackup: new Date().toLocaleString("pt-PT"),
-                    dados: dados,
-                    orcamentos: carregarOrcamentos(),
-                    clientes: carregarClientes(),
-                    contador: localStorage.getItem(STORAGE_CONTADOR),
-                    escaloes: escaloes
-                };
-                var json = JSON.stringify(backup, null, 2);
-                var blob = new Blob([json], { type: "application/json" });
-                var url = URL.createObjectURL(blob);
-                var data = new Date().toISOString().slice(0, 10);
-                var a = document.createElement("a");
-                a.href = url;
-                a.download = "grafisantos_backup_" + data + ".json";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                alert("✅ Backup local criado!");
-            } catch (e) {
-                alert("❌ Erro ao exportar: " + e.message);
-            }
-        }
-
-        function importarDados() {
-            var input = document.getElementById("inputImportar");
-            if (input) input.click();
-        }
-
-        function processarImportacao(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var conteudo = JSON.parse(e.target.result);
-                    var dadosImportados = conteudo.dados || conteudo;
-                    if (!dadosImportados.fornecedores || !dadosImportados.tecnicas) {
-                        alert("❌ Ficheiro inválido!");
-                        event.target.value = "";
-                        return;
-                    }
-                    if (!dadosImportados.tipos) {
-                        dadosImportados.tipos = JSON.parse(JSON.stringify(DADOS_PADRAO.tipos));
-                    }
-                    if (!confirm("⚠️ Vai substituir TODOS os dados atuais.\n\nContinuar?")) {
-                        event.target.value = "";
-                        return;
-                    }
-                    dados = dadosImportados;
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dados)); } catch (e) {}
-
-                    if (conteudo.orcamentos && Array.isArray(conteudo.orcamentos)) {
-                        try { localStorage.setItem(STORAGE_ORCAMENTOS, JSON.stringify(conteudo.orcamentos)); } catch (e) {}
-                    }
-                    if (conteudo.clientes && Array.isArray(conteudo.clientes)) {
-                        try { localStorage.setItem(STORAGE_CLIENTES, JSON.stringify(conteudo.clientes)); } catch (e) {}
-                    }
-                    if (conteudo.contador) {
-                        localStorage.setItem(STORAGE_CONTADOR, conteudo.contador);
-                    }
-                    if (conteudo.escaloes && Array.isArray(conteudo.escaloes) && conteudo.escaloes.length) {
-                        escaloes = conteudo.escaloes;
-                        try { localStorage.setItem(STORAGE_ESCALOES, JSON.stringify(escaloes)); } catch (e) {}
-                    }
-
-                    fornecedorId = null;
-                    tipoSelecionadoId = "todos";
-                    materialId = null;
-                    varianteId = null;
-                    tecnicaId = null;
-                    clienteSelecionadoId = null;
-
-                    recalcularContadorDoHistorico();
-                    renderTipos();
-                    renderFornecedores();
-                    renderTecnicas();
-                    renderSelectClientes();
-                    calcular();
-                    atualizarInfoTecnica();
-                    atualizarNumeroEData();
-                    atualizarContadorTab();
-
-                    if (utilizadorAtual) guardarDadosNaNuvem();
-
-                    alert("✅ Backup restaurado!");
-                } catch (err) {
-                    alert("❌ Erro ao ler o ficheiro: " + err.message);
-                }
-                event.target.value = "";
-            };
-            reader.readAsText(file);
-        }
-
-        // ============================================================
-        //  VARIANTES
-        // ============================================================
-
-        function criarCampoVariante(variante) {
-            variante = variante || { id: "", nome: "", cor: "#ffffff", preco: 0 };
-            var div = document.createElement("div");
-            div.className = "variante-form";
-            var html = '<input type="color" class="inputCor" value="' + (variante.cor || '#ffffff') + '" style="width:36px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:4px;cursor:pointer;">';
-            html += '<input type="text" class="inputVarianteNome" placeholder="Nome da cor (ex: Branco)" style="flex:1.5;" value="' + (variante.nome || '') + '">';
-            html += '<div class="campo-euro" style="flex:1;">';
-            html += '<span class="simbolo-euro" style="left:6px;bottom:8px;font-size:0.8rem;">€</span>';
-            html += '<input type="number" class="inputVariantePreco" placeholder="Preço s/IVA" step="0.01" style="padding-left:20px;font-size:0.8rem;" value="' + (variante.preco ? formatarNumero(variante.preco, 2) : '') + '">';
-            html += '</div>';
-            html += '<button class="btn btn-danger btn-pequeno" onclick="removerVarianteForm(this)">✕</button>';
-            html += '<input type="hidden" class="inputVarianteId" value="' + (variante.id || '') + '">';
-            div.innerHTML = html;
-            return div;
-        }
-
-        function adicionarVarianteForm() {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            container.appendChild(criarCampoVariante(null));
-        }
-
-        function removerVarianteForm(btn) {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            if (container.children.length <= 1) {
-                alert("⚠️ É necessário manter pelo menos uma cor.");
-                return;
-            }
-            container.removeChild(btn.parentNode);
-        }
-
-        function carregarVariantesForm(material) {
-            var container = document.getElementById("variantesFormContainer");
-            if (!container) return;
-            container.innerHTML = "";
-            if (material && material.variantes && material.variantes.length) {
-                material.variantes.forEach(function(v) {
-                    container.appendChild(criarCampoVariante(v));
-                });
-            } else {
-                container.appendChild(criarCampoVariante(null));
-            }
-        }
-
-        function obterVariantesDoForm() {
-            var variantes = [];
-            var items = document.querySelectorAll("#variantesFormContainer .variante-form");
-            items.forEach(function(item) {
-                var nome = item.querySelector(".inputVarianteNome").value.trim();
-                var preco = parseNum(item.querySelector(".inputVariantePreco").value);
-                var cor = item.querySelector(".inputCor").value;
-                var idEl = item.querySelector(".inputVarianteId");
-                if (nome) {
-                    variantes.push({
-                        id: idEl && idEl.value ? idEl.value : gerarId(),
-                        nome: nome,
-                        cor: cor || "#ffffff",
-                        preco: preco
-                    });
-                }
-            });
-            return variantes;
-        } 
+    });
+    return variantes;
+}
 
         // ============================================================
         //  FORNECEDORES
@@ -2391,7 +2251,7 @@
             else if (el) el.value = "0.00";
         }
 
-        // ⚙️ Portes editáveis — funções novas
+        // ⚙️ Portes editáveis
         function toggleEditarPortes() {
             var el = document.getElementById("portesFornecedor");
             var btnEditar = document.getElementById("btnEditarPortes");
@@ -3079,4 +2939,4 @@
     </script>
 
 </body>
-</html>        
+</html>
