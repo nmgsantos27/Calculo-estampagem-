@@ -24,6 +24,26 @@
   header .header-info { flex: 1; min-width: 0; }
   header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
   header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+   .btn-menu-voltar {
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.15s;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .btn-menu-voltar:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .btn-menu-voltar:active {
+    transform: scale(0.95);
+  }
 
   /* ===== LOGIN CARD ===== */
   .user-card {
@@ -426,9 +446,12 @@
 </head>
 <body>
 
-<header>
+<<header>
   <div class="header-info">
-    <h1>🎨 Gestor de Trabalhos</h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <a href="index.html" class="btn-menu-voltar">🏠 Menu</a>
+      <h1>🎨 Gestor de Trabalhos</h1>
+    </div>
     <p>Publicidade & Estampagem</p>
   </div>
 </header>
