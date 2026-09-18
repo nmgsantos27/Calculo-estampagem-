@@ -24,7 +24,7 @@
   header .header-info { flex: 1; min-width: 0; }
   header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
   header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
-   .btn-menu-voltar {
+  .btn-menu-voltar {
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 8px;
@@ -319,6 +319,41 @@
   }
   .anexos-progresso.visible { display: block; }
 
+  /* ===== CUSTOS REAIS ===== */
+  .custos-linha {
+    display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
+  }
+  .custos-linha .input-desc {
+    flex: 2; padding: 8px 10px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: 13px; font-family: inherit; min-width: 0;
+  }
+  .custos-linha .input-val {
+    flex: 1; padding: 8px 10px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: 13px; font-family: inherit;
+    min-width: 70px; text-align: right;
+  }
+  .custos-linha .btn-rem {
+    flex-shrink: 0;
+    padding: 6px 8px; font-size: 13px; min-width: 30px;
+    background: #ef4444; color: white; border: none;
+    border-radius: 8px; cursor: pointer; font-family: inherit;
+  }
+  .custos-linha .btn-rem:hover { background: #dc2626; }
+  .custos-resumo {
+    background: #f9fafb; border-radius: 10px; padding: 12px 14px;
+    border: 1px solid #e5e7eb; margin-top: 8px;
+  }
+  .custos-resumo-linha {
+    display: flex; justify-content: space-between;
+    font-size: 13px; padding: 4px 0;
+  }
+  .custos-resumo-total {
+    display: flex; justify-content: space-between;
+    font-size: 15px; padding: 8px 0 4px;
+    border-top: 1px solid #e5e7eb; margin-top: 6px;
+    font-weight: 700;
+  }
+
   /* ===== EMPTY ===== */
   .empty {
     text-align: center; padding: 40px; color: #999;
@@ -426,6 +461,20 @@
   .sync-status.synced { color: #10b981; }
   .sync-status.error { color: #ef4444; }
 
+  /* ===== LIGAÇÃO ORÇAMENTO ===== */
+  .aviso-orcamento {
+    font-size: 12px; color: #6366f1; background: #eef2ff;
+    border: 1px solid #c7d2fe; border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 12px;
+    font-weight: 600; display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap;
+  }
+  .aviso-orcamento a {
+    color: #4f46e5; font-weight: 700; text-decoration: none;
+    margin-left: auto;
+  }
+  .aviso-orcamento a:hover { text-decoration: underline; }
+
   /* ===== MOBILE ===== */
   @media (max-width: 500px) {
     .form-row { grid-template-columns: 1fr; }
@@ -446,7 +495,7 @@
 </head>
 <body>
 
-<<header>
+<header>
   <div class="header-info">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <a href="index.html" class="btn-menu-voltar">🏠 Menu</a>
@@ -699,10 +748,11 @@ var GITHUB_BRANCH = "main";
    ============================================================ */
 
 const KEY_TRABALHOS = 'gestor_trabalhos_v9';
-const KEY_CLIENTES = 'grafisantos_clientes';           // ⚠️ unificado com orcamentos.html
+const KEY_CLIENTES = 'grafisantos_clientes';
 const KEY_ESTADOS = 'gestor_estados_v9';
 const KEY_CONTADOR = 'gestor_contador_v9';
-const KEY_CLIENTES_ANTIGO = 'gestor_clientes_v9';       // chave antiga (para migração)
+const KEY_CLIENTES_ANTIGO = 'gestor_clientes_v9';
+const KEY_ULTIMA_MOD = 'gestor_ultima_modificacao';
 
 let trabalhos = JSON.parse(localStorage.getItem(KEY_TRABALHOS) || '[]');
 let clientes  = JSON.parse(localStorage.getItem(KEY_CLIENTES) || '[]');
@@ -722,14 +772,22 @@ function guardarTudo() {
   localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
   localStorage.setItem(KEY_ESTADOS, JSON.stringify(estados));
   localStorage.setItem(KEY_CONTADOR, String(contador));
+  localStorage.setItem(KEY_ULTIMA_MOD, String(Date.now()));
   if (utilizadorAtual) guardarNaNuvem();
+}
+
+function guardarTudoLocal() {
+  localStorage.setItem(KEY_TRABALHOS, JSON.stringify(trabalhos));
+  localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
+  localStorage.setItem(KEY_ESTADOS, JSON.stringify(estados));
+  localStorage.setItem(KEY_CONTADOR, String(contador));
 }
 
 function proximoNumero() { contador++; return contador; }
 function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
 
 /* ============================================================
-   MIGRAÇÃO — juntar clientes antigos com a lista unificada
+   MIGRAÇÃO — juntar clientes antigos
    ============================================================ */
 
 (function migrarClientesAntigos() {
@@ -740,7 +798,6 @@ function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
 
   if (!Array.isArray(antigos) || antigos.length === 0) return;
 
-  // Encontrar clientes que ainda não existem na lista unificada (por nome)
   const nomesExistentes = new Set(clientes.map(c => (c.nome || '').toLowerCase().trim()));
   const novos = antigos.filter(c => {
     const nome = (c.nome || '').toLowerCase().trim();
@@ -748,7 +805,6 @@ function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
   });
 
   if (novos.length === 0) {
-    // Todos já existem — só limpa a chave antiga
     localStorage.removeItem(KEY_CLIENTES_ANTIGO);
     return;
   }
@@ -761,7 +817,6 @@ function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
   );
 
   if (resposta) {
-    // Garantir que os novos têm todos os campos
     const normalizados = novos.map(c => ({
       id: c.id || Date.now().toString() + '_' + Math.random().toString(36).slice(2, 6),
       nome: c.nome || '',
@@ -779,7 +834,6 @@ function formatarNumero(n) { return '#' + String(n).padStart(3, '0'); }
     localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
   }
 
-  // Remover a chave antiga independentemente da resposta
   localStorage.removeItem(KEY_CLIENTES_ANTIGO);
 })();
 
@@ -1208,21 +1262,19 @@ function carregarDaNuvem() {
         console.log("📥 Dados recebidos da nuvem");
 
         var modificacaoNuvem = payload.ultimaModificacao || 0;
-        var modificacaoLocal = parseInt(localStorage.getItem('gestor_ultima_modificacao') || '0');
+        var modificacaoLocal = parseInt(localStorage.getItem(KEY_ULTIMA_MOD) || '0');
 
-        // Se a nuvem for mais recente → usar nuvem
         if (modificacaoNuvem >= modificacaoLocal) {
           if (Array.isArray(payload.trabalhos)) trabalhos = payload.trabalhos;
           if (Array.isArray(payload.clientes)) clientes = payload.clientes;
           if (Array.isArray(payload.estados) && payload.estados.length) estados = payload.estados;
           if (typeof payload.contador === 'number') contador = payload.contador;
 
-          // Garantir campos obrigatórios
-          trabalhos.forEach(t => { if (!t.anexos) t.anexos = []; });
+          trabalhos.forEach(t => { if (!t.anexos) t.anexos = []; if (!t.custosReais) t.custosReais = []; });
           clientes.forEach(c => { if (!c.referencia) c.referencia = ''; });
 
           guardarTudoLocal();
-          localStorage.setItem('gestor_ultima_modificacao', String(modificacaoNuvem));
+          localStorage.setItem(KEY_ULTIMA_MOD, String(modificacaoNuvem));
         }
       } else {
         console.log("📤 Primeiro login — a enviar dados locais");
@@ -1231,7 +1283,6 @@ function carregarDaNuvem() {
       mostrarSyncStatus('✅ Sincronizado', 'synced');
       setTimeout(function() { mostrarSyncStatus('', ''); }, 2000);
 
-      // Re-render tudo
       renderTrabalhos();
       renderClientes();
       renderEstados();
@@ -1245,15 +1296,6 @@ function carregarDaNuvem() {
       mostrarSyncStatus('❌ Erro de carregamento', 'error');
       console.error("Erro ao carregar da nuvem:", error);
     });
-}
-
-// Guardar apenas localmente (evita loop com guardarNaNuvem)
-function guardarTudoLocal() {
-  localStorage.setItem(KEY_TRABALHOS, JSON.stringify(trabalhos));
-  localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
-  localStorage.setItem(KEY_ESTADOS, JSON.stringify(estados));
-  localStorage.setItem(KEY_CONTADOR, String(contador));
-  localStorage.setItem('gestor_ultima_modificacao', String(Date.now()));
 }
 
 /* ============================================================
@@ -1421,7 +1463,7 @@ function guardarTrabalho() {
     const numero = proximoNumero();
     trabalhos.unshift({
       id: Date.now().toString(), numero, ...dados,
-      anexos: [], criado: new Date().toISOString(),
+      anexos: [], custosReais: [], criado: new Date().toISOString(),
     });
   }
   guardarTudo();
@@ -1559,6 +1601,13 @@ function renderDetalhe() {
           </div>
         </div>
 
+        ${t.orcamentoId ? `
+          <div class="aviso-orcamento">
+            📄 Ligado ao orçamento <strong>${escapar(t.orcamentoNumero || '')}</strong>
+            <a href="orcamentos.html" target="_blank">Ver orçamento →</a>
+          </div>
+        ` : ''}
+
         <div class="detalhe-info">
           <div class="info-item"><label>Valor</label><div>${t.valor.toFixed(2)} €</div></div>
           <div class="info-item"><label>Data início</label><div>${formatarData(t.dataInicio)}</div></div>
@@ -1630,6 +1679,24 @@ function renderDetalhe() {
 
         <button class="btn-secondary btn-sm" onclick="adicionarAnexo('${t.id}')">➕ Anexar ficheiro</button>
         <div class="anexos-progresso" id="anexosProgresso"></div>
+      </div>
+
+      <!-- ===== CUSTOS REAIS ===== -->
+      <div class="detalhe-bloco">
+        <div class="seccao-titulo">
+          💰 Custos Reais
+          ${(t.custosReais && t.custosReais.length > 0) ? `<span class="badge-numero">${t.custosReais.length}</span>` : ''}
+        </div>
+
+        <div id="custosReaisContainer">
+          ${renderCustosReaisHTML(t)}
+        </div>
+
+        <button class="btn-secondary btn-sm" style="margin-top:10px;width:100%;" onclick="adicionarCustoReal('${t.id}')">➕ Adicionar custo</button>
+
+        ${t.orcamentoId ? `
+          <button class="btn-secondary btn-sm" style="margin-top:6px;width:100%;" onclick="importarCustosDoOrcamento('${t.id}')">📥 Importar do orçamento ${t.orcamentoNumero || ''}</button>
+        ` : ''}
       </div>
 
       <div class="detalhe-bloco">
@@ -1747,6 +1814,170 @@ function apagarAnexo(trabalhoId, anexoId) {
 }
 
 /* ============================================================
+   CUSTOS REAIS
+   ============================================================ */
+
+function renderCustosReaisHTML(t) {
+  var custos = t.custosReais || [];
+
+  var venda = t.valor || 0;
+  var totalCustos = custos.reduce(function(s, c) { return s + (c.valor || 0); }, 0);
+  var lucro = venda - totalCustos;
+  var margemPct = venda > 0 ? (lucro / venda * 100) : 0;
+
+  var corLucro = lucro >= 0 ? '#10b981' : '#ef4444';
+
+  var html = '';
+
+  if (custos.length === 0) {
+    html += '<div class="anexos-vazio" style="margin-bottom:10px;">';
+    html += 'Sem custos registados.<br>';
+    html += '<small>Adiciona os custos reais para veres o lucro verdadeiro do trabalho.</small>';
+    html += '</div>';
+  } else {
+    html += '<div style="margin-bottom:12px;">';
+
+    custos.forEach(function(c) {
+      html += '<div class="custos-linha">';
+      html += '<input type="text" class="input-desc" value="' + escapar(c.descricao || '') + '" placeholder="Descrição" ';
+      html += 'onchange="atualizarCustoReal(\'' + t.id + '\',\'' + c.id + '\',\'descricao\',this.value)">';
+
+      html += '<input type="number" step="0.01" class="input-val" value="' + (c.valor ? c.valor.toFixed(2) : '') + '" placeholder="0.00" ';
+      html += 'onchange="atualizarCustoReal(\'' + t.id + '\',\'' + c.id + '\',\'valor\',this.value)" ';
+      html += 'oninput="atualizarCustoReal(\'' + t.id + '\',\'' + c.id + '\',\'valor\',this.value)">';
+
+      html += '<button class="btn-rem" onclick="removerCustoReal(\'' + t.id + '\',\'' + c.id + '\')" title="Remover">🗑️</button>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+  }
+
+  html += '<div class="custos-resumo">';
+
+  html += '<div class="custos-resumo-linha">';
+  html += '<span>💵 Venda</span>';
+  html += '<strong>' + venda.toFixed(2) + ' €</strong>';
+  html += '</div>';
+
+  html += '<div class="custos-resumo-linha">';
+  html += '<span>💸 Custos totais</span>';
+  html += '<strong style="color:#dc2626;">' + totalCustos.toFixed(2) + ' €</strong>';
+  html += '</div>';
+
+  html += '<div class="custos-resumo-total">';
+  html += '<span>📈 Lucro real</span>';
+  html += '<strong style="color:' + corLucro + ';font-size:17px;">' + lucro.toFixed(2) + ' € <span style="font-size:12px;opacity:0.7;">(' + margemPct.toFixed(1) + '%)</span></strong>';
+  html += '</div>';
+
+  html += '</div>';
+
+  return html;
+}
+
+function adicionarCustoReal(trabalhoId) {
+  var t = trabalhos.find(function(x) { return x.id === trabalhoId; });
+  if (!t) return;
+  if (!t.custosReais) t.custosReais = [];
+
+  t.custosReais.push({
+    id: 'c' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    descricao: '',
+    valor: 0
+  });
+
+  guardarTudo();
+  renderDetalhe();
+}
+
+function atualizarCustoReal(trabalhoId, custoId, campo, valor) {
+  var t = trabalhos.find(function(x) { return x.id === trabalhoId; });
+  if (!t || !t.custosReais) return;
+
+  var c = t.custosReais.find(function(x) { return x.id === custoId; });
+  if (!c) return;
+
+  if (campo === 'valor') {
+    c.valor = parseFloat(valor) || 0;
+  } else {
+    c[campo] = valor;
+  }
+
+  // Guardar sem re-render (para não perder o foco)
+  localStorage.setItem(KEY_TRABALHOS, JSON.stringify(trabalhos));
+  localStorage.setItem(KEY_ULTIMA_MOD, String(Date.now()));
+  if (utilizadorAtual) {
+    // Sincronizar em background
+    clearTimeout(window._syncTimeoutCustos);
+    window._syncTimeoutCustos = setTimeout(function() {
+      guardarNaNuvem();
+    }, 800);
+  }
+
+  // Re-render só o resumo
+  var container = document.getElementById('custosReaisContainer');
+  if (container) {
+    container.innerHTML = renderCustosReaisHTML(t);
+  }
+}
+
+function removerCustoReal(trabalhoId, custoId) {
+  if (!confirm('Remover este custo?')) return;
+
+  var t = trabalhos.find(function(x) { return x.id === trabalhoId; });
+  if (!t || !t.custosReais) return;
+
+  t.custosReais = t.custosReais.filter(function(x) { return x.id !== custoId; });
+
+  guardarTudo();
+  renderDetalhe();
+}
+
+function importarCustosDoOrcamento(trabalhoId) {
+  var t = trabalhos.find(function(x) { return x.id === trabalhoId; });
+  if (!t) return;
+  if (!t.orcamentoId) {
+    alert('⚠️ Este trabalho não está ligado a um orçamento.');
+    return;
+  }
+
+  var orcamentos = [];
+  try {
+    var raw = localStorage.getItem('grafisantos_orcamentos');
+    if (raw) orcamentos = JSON.parse(raw) || [];
+  } catch (e) { orcamentos = []; }
+
+  var o = orcamentos.find(function(x) { return x.id === t.orcamentoId; });
+  if (!o) {
+    alert('⚠️ Orçamento original não encontrado.\n\nPode ter sido eliminado.');
+    return;
+  }
+
+  if (!confirm('📥 Importar custos do orçamento ' + o.numero + '?\n\nSerão adicionadas 3 linhas:\n• Material\n• Impressão\n• Portes\n\nDepois preenche os valores reais.')) return;
+
+  if (!t.custosReais) t.custosReais = [];
+
+  var exemplos = [
+    { descricao: 'Material (' + (o.material || 'peça') + ')', valor: 0 },
+    { descricao: 'Impressão (' + (o.tecnica || 'técnica') + ')', valor: 0 },
+    { descricao: 'Portes', valor: 0 }
+  ];
+
+  exemplos.forEach(function(ex) {
+    t.custosReais.push({
+      id: 'c' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+      descricao: ex.descricao,
+      valor: ex.valor
+    });
+  });
+
+  guardarTudo();
+  renderDetalhe();
+
+  alert('✅ Linhas adicionadas!\n\nPreenche os valores reais que pagaste.');
+}
+
+/* ============================================================
    ESTADOS
    ============================================================ */
 
@@ -1812,7 +2043,7 @@ function apagarEstado(id) {
    ============================================================ */
 
 function exportarBackup() {
-  const data = JSON.stringify({ trabalhos, clientes, estados, contador, versao: 9 }, null, 2);
+  const data = JSON.stringify({ trabalhos, clientes, estados, contador, versao: 10 }, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1836,7 +2067,7 @@ function importarBackup(ev) {
         clientes = dados.clientes;
         estados = dados.estados;
         contador = dados.contador || Math.max(0, ...trabalhos.map(t => t.numero || 0));
-        trabalhos.forEach(t => { if (!t.anexos) t.anexos = []; });
+        trabalhos.forEach(t => { if (!t.anexos) t.anexos = []; if (!t.custosReais) t.custosReais = []; });
         clientes.forEach(c => { if (!c.referencia) c.referencia = ''; });
         guardarTudo();
         voltarLista();
@@ -1859,12 +2090,13 @@ document.querySelectorAll('.modal-bg').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
 });
 
-// Migração de campos em falta nos trabalhos
+// Migração de campos em falta
 (function migrarCampos() {
   let alterado = false;
   trabalhos.forEach(t => {
     if (!t.numero) { contador++; t.numero = contador; alterado = true; }
     if (!t.anexos) { t.anexos = []; alterado = true; }
+    if (!t.custosReais) { t.custosReais = []; alterado = true; }
   });
   clientes.forEach(c => { if (!c.referencia) { c.referencia = ''; alterado = true; } });
   if (alterado) guardarTudoLocal();
@@ -1875,4 +2107,4 @@ renderClientes();
 renderEstados();
 </script>
 </body>
-</html> 
+</html>
