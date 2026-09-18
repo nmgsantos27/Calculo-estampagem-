@@ -1,0 +1,763 @@
+{
+  "versao": "1.0",
+  "dataBackup": "18/09/2026, 22:43:54",
+  "dados": {
+    "tecnicas": [
+      {
+        "nome": "DTF",
+        "id": "t1",
+        "largura": 28,
+        "custoMetro": 5.5
+      },
+      {
+        "custoMetro": 9,
+        "id": "t2",
+        "largura": 50,
+        "nome": "Vinil Flex"
+      },
+      {
+        "largura": 56,
+        "custoMetro": 17.5,
+        "nome": "Sublimação",
+        "id": "t3"
+      },
+      {
+        "custoMetro": 10,
+        "nome": "DTF",
+        "largura": 56,
+        "id": "1789423413211_7m8f"
+      }
+    ],
+    "fornecedores": [
+      {
+        "materiais": [
+          {
+            "id": "1789036087105_r64h",
+            "nome": "150g T-shirt Unissexo",
+            "variantes": [
+              {
+                "nome": "Branco",
+                "cor": "#ffffff",
+                "preco": 2,
+                "id": "1789036087105_kcn7"
+              },
+              {
+                "preco": 2.1,
+                "nome": "Cores",
+                "id": "1789036087105_9lp1",
+                "cor": "#000000"
+              }
+            ]
+          },
+          {
+            "id": "1789037547154_spl8",
+            "nome": "190g T-shirt Unissexo",
+            "variantes": [
+              {
+                "id": "1789036087105_kcn7",
+                "preco": 2.51,
+                "nome": "Branco",
+                "cor": "#ffffff"
+              },
+              {
+                "id": "1789036087105_9lp1",
+                "preco": 2.61,
+                "nome": "Cores",
+                "cor": "#000000"
+              }
+            ]
+          },
+          {
+            "id": "1789392533213_11qp",
+            "nome": "150g T-shirt Unissexo",
+            "referencia": "BC560301",
+            "tipoId": "tp1",
+            "variantes": [
+              {
+                "preco": 1.6,
+                "nome": "Branco",
+                "cor": "#ffffff",
+                "id": "1789392533213_aaer"
+              },
+              {
+                "nome": "cores",
+                "id": "1789395772057_rfl5",
+                "preco": 2,
+                "cor": "#000000"
+              }
+            ]
+          },
+          {
+            "id": "1789392591900_dd3z",
+            "tipoId": "1789392572565_5pnt",
+            "variantes": [
+              {
+                "preco": 8,
+                "cor": "#ffffff",
+                "nome": "branco",
+                "id": "1789392591900_tv5k"
+              }
+            ],
+            "nome": "Cenecas",
+            "referencia": ""
+          },
+          {
+            "referencia": "BC560302",
+            "variantes": [
+              {
+                "preco": 1.65,
+                "cor": "#ffffff",
+                "nome": "Branco",
+                "id": "1789392533213_aaer"
+              },
+              {
+                "id": "1789395772057_rfl5",
+                "nome": "cores",
+                "cor": "#000000",
+                "preco": 2.07
+              }
+            ],
+            "id": "1789395864216_w92k",
+            "nome": "150g T-shirt Mulher",
+            "tipoId": "tp1"
+          },
+          {
+            "tipoId": "tp1",
+            "nome": "190g T-shirt Unissexo",
+            "variantes": [
+              {
+                "id": "1789392533213_aaer",
+                "nome": "Branco",
+                "preco": 2.1,
+                "cor": "#ffffff"
+              },
+              {
+                "id": "1789395772057_rfl5",
+                "nome": "cores",
+                "cor": "#000000",
+                "preco": 2.51
+              }
+            ],
+            "referencia": "BC560303",
+            "id": "1789395986600_xyji"
+          },
+          {
+            "tipoId": "tp1",
+            "variantes": [
+              {
+                "cor": "#ffffff",
+                "id": "1789392533213_aaer",
+                "preco": 2.15,
+                "nome": "Branco"
+              },
+              {
+                "cor": "#000000",
+                "nome": "cores",
+                "id": "1789395772057_rfl5",
+                "preco": 2.57
+              }
+            ],
+            "nome": "190g T-shirt Mulher",
+            "id": "1789396045688_vgbs",
+            "referencia": "BC560304"
+          },
+          {
+            "variantes": [
+              {
+                "cor": "#ffffff",
+                "preco": 2.1,
+                "nome": "Branco",
+                "id": "1789392533213_aaer"
+              },
+              {
+                "id": "1789395772057_rfl5",
+                "nome": "cores",
+                "cor": "#000000",
+                "preco": 2.53
+              }
+            ],
+            "nome": "190g Kids",
+            "id": "1789396218208_cl6h",
+            "referencia": "BC560015",
+            "tipoId": "tp1"
+          }
+        ],
+        "portes": 3,
+        "nome": "Tejobrinde",
+        "id": "1789036056090_k6ur"
+      },
+      {
+        "portes": 0,
+        "nome": "Material do cliente",
+        "materiais": [
+          {
+            "nome": "Material do cliente",
+            "id": "1789036926273_9i0g",
+            "variantes": [
+              {
+                "nome": "Sem cor",
+                "id": "1789036926273_gzlu",
+                "preco": 0,
+                "cor": "#ffffff"
+              }
+            ]
+          }
+        ],
+        "id": "1789036898471_121o"
+      },
+      {
+        "materiais": [
+          {
+            "tipoId": "tp1",
+            "referencia": "THC LUANDA",
+            "id": "1789463910432_szka",
+            "variantes": [
+              {
+                "nome": "Branco",
+                "id": "1789463910432_lc7m",
+                "preco": 1.47,
+                "cor": "#ffffff"
+              },
+              {
+                "id": "1789463910432_6je4",
+                "preco": 1.76,
+                "cor": "#000000",
+                "nome": "Cores"
+              }
+            ],
+            "nome": "150g T-shirt Unisexo"
+          },
+          {
+            "id": "1789463972072_hphf",
+            "tipoId": "tp1",
+            "nome": "190g T-shirt Unissexo",
+            "variantes": [
+              {
+                "cor": "#ffffff",
+                "id": "1789463910432_lc7m",
+                "preco": 2.14,
+                "nome": "Branco"
+              },
+              {
+                "nome": "Cores",
+                "id": "1789463910432_6je4",
+                "preco": 2.34,
+                "cor": "#000000"
+              }
+            ],
+            "referencia": "THC ANKARA"
+          },
+          {
+            "id": "1789464026816_m2az",
+            "variantes": [
+              {
+                "nome": "Branco",
+                "id": "1789463910432_lc7m",
+                "preco": 2.14,
+                "cor": "#ffffff"
+              },
+              {
+                "nome": "Cores",
+                "cor": "#000000",
+                "preco": 2.34,
+                "id": "1789463910432_6je4"
+              }
+            ],
+            "tipoId": "tp1",
+            "referencia": "THC ANKARA WOMEN",
+            "nome": "190g T-shirt Mulher"
+          },
+          {
+            "tipoId": "tp1",
+            "variantes": [
+              {
+                "id": "1789463910432_lc7m",
+                "nome": "Branco",
+                "cor": "#ffffff",
+                "preco": 1.69
+              },
+              {
+                "id": "1789463910432_6je4",
+                "cor": "#000000",
+                "preco": 2.03,
+                "nome": "Cores"
+              }
+            ],
+            "referencia": "THC ANKARA KIDS",
+            "nome": "190g T-shirt Kids",
+            "id": "1789464069864_j7w7"
+          },
+          {
+            "variantes": [
+              {
+                "preco": 1.47,
+                "id": "1789463910432_lc7m",
+                "nome": "Branco",
+                "cor": "#ffffff"
+              },
+              {
+                "cor": "#000000",
+                "nome": "Cores",
+                "preco": 1.76,
+                "id": "1789463910432_6je4"
+              }
+            ],
+            "referencia": "THC SOFIA",
+            "nome": "150g T-shirt Mulher",
+            "id": "1789464114536_a2sp",
+            "tipoId": "tp1"
+          },
+          {
+            "nome": "150g T-shirt Kids",
+            "referencia": "THC QUITO",
+            "id": "1789464162584_hw67",
+            "tipoId": "tp1",
+            "variantes": [
+              {
+                "nome": "Branco",
+                "cor": "#ffffff",
+                "preco": 1.28,
+                "id": "1789463910432_lc7m"
+              },
+              {
+                "preco": 1.52,
+                "cor": "#000000",
+                "nome": "Cores",
+                "id": "1789463910432_6je4"
+              }
+            ]
+          },
+          {
+            "id": "1789557382094_0426",
+            "nome": "Sweatshirt unissexo com capuz",
+            "tipoId": "tp3",
+            "variantes": [
+              {
+                "id": "1789557382094_nat8",
+                "preco": 9.17,
+                "nome": "Todas Cores",
+                "cor": "#ffffff"
+              }
+            ],
+            "referencia": "THC PHOENIX"
+          },
+          {
+            "variantes": [
+              {
+                "nome": "Todas Cores",
+                "cor": "#ffffff",
+                "preco": 11.21,
+                "id": "1789557382094_nat8"
+              }
+            ],
+            "id": "1789557440478_aub4",
+            "nome": "Sweatshirt com fecho e capuz",
+            "tipoId": "tp3",
+            "referencia": "THC AMSTERDAM"
+          }
+        ],
+        "nome": "THClothes",
+        "portes": 5.95,
+        "id": "1789463839384_kvs0"
+      }
+    ],
+    "tipos": [
+      {
+        "nome": "T-Shirt",
+        "id": "tp1"
+      },
+      {
+        "nome": "Polo",
+        "id": "tp2"
+      },
+      {
+        "nome": "Sweats",
+        "id": "tp3"
+      },
+      {
+        "id": "1789392572565_5pnt",
+        "nome": "canecas"
+      }
+    ]
+  },
+  "orcamentos": [
+    {
+      "total": "145,23 €",
+      "material": "190g T-shirt Unissexo",
+      "dataGuardado": "14/09/2026, 15:49:38",
+      "data": "14/09/2026",
+      "altura": 35,
+      "tecnica": "DTF",
+      "precoUn": "12,10 €",
+      "cliente": {
+        "nome": "Rui Espírito Santo",
+        "id": "1789053602464_y4a6",
+        "email": "",
+        "contacto": ""
+      },
+      "cor": "Branco",
+      "id": "1789397378100_9tcf",
+      "lucroTotal": "78,00 €",
+      "quantidade": 12,
+      "lucroUn": "6,50 €",
+      "numero": "#2026-0004",
+      "tipo": "T-Shirt",
+      "fornecedor": "Tejobrinde",
+      "referencia": "BC560303"
+    },
+    {
+      "fornecedor": "Tejobrinde",
+      "lucroUn": "7,00 €",
+      "referencia": "BC560301",
+      "dataGuardado": "14/09/2026, 15:50:30",
+      "material": "150g T-shirt Unissexo",
+      "data": "14/09/2026",
+      "lucroTotal": "7,00 €",
+      "quantidade": 1,
+      "numero": "#2026-0004",
+      "cor": "Branco",
+      "id": "1789397430356_yqk6",
+      "precoUn": "13,43 €",
+      "cliente": {
+        "nome": "Nelson Santos",
+        "contacto": "",
+        "email": "nmgsantos27@gmail.com",
+        "id": "1789053574049_l7qv"
+      },
+      "tipo": "T-Shirt",
+      "altura": 10,
+      "total": "13,43 €",
+      "tecnica": "DTF"
+    },
+    {
+      "total": "13,43 €",
+      "id": "1789397461557_3mef",
+      "lucroUn": "7,00 €",
+      "numero": "#2026-0005",
+      "tipo": "T-Shirt",
+      "dataGuardado": "14/09/2026, 15:51:01",
+      "lucroTotal": "7,00 €",
+      "quantidade": 1,
+      "cor": "Branco",
+      "data": "14/09/2026",
+      "altura": 10,
+      "tecnica": "DTF",
+      "precoUn": "13,43 €",
+      "material": "150g T-shirt Unissexo",
+      "fornecedor": "Tejobrinde",
+      "cliente": {
+        "id": "1789053574049_l7qv",
+        "nome": "Nelson Santos",
+        "contacto": "",
+        "email": "nmgsantos27@gmail.com"
+      },
+      "referencia": "BC560301"
+    },
+    {
+      "id": "1789398016516_5dix",
+      "tecnica": "DTF",
+      "tipo": "",
+      "material": "150g T-shirt Unissexo",
+      "precoUn": "13,92 €",
+      "altura": 10,
+      "cliente": {
+        "email": "nmgsantos27@gmail.com",
+        "nome": "Nelson Santos",
+        "id": "1789053574049_l7qv",
+        "contacto": ""
+      },
+      "numero": "#2026-0005",
+      "fornecedor": "Tejobrinde",
+      "referencia": "",
+      "total": "13,92 €",
+      "dataGuardado": "14/09/2026, 16:00:16",
+      "data": "14/09/2026",
+      "lucroTotal": "7,00 €",
+      "cor": "Branco",
+      "quantidade": 1,
+      "lucroUn": "7,00 €"
+    },
+    {
+      "tecnica": "DTF",
+      "data": "14/09/2026",
+      "fornecedor": "Tejobrinde",
+      "referencia": "",
+      "cliente": {
+        "nome": "Nelson Santos",
+        "email": "nmgsantos27@gmail.com",
+        "contacto": "",
+        "id": "1789053574049_l7qv"
+      },
+      "precoUn": "13,92 €",
+      "numero": "#2026-0006",
+      "lucroTotal": "7,00 €",
+      "quantidade": 1,
+      "dataGuardado": "14/09/2026, 22:51:31",
+      "cor": "Branco",
+      "altura": 10,
+      "material": "150g T-shirt Unissexo",
+      "tipo": "",
+      "total": "13,92 €",
+      "id": "1789422691576_cjce",
+      "lucroUn": "7,00 €"
+    },
+    {
+      "numero": "#2026-0008",
+      "material": "150g T-shirt Unissexo",
+      "referencia": "",
+      "lucroUn": "7,00 €",
+      "tipo": "",
+      "fornecedor": "Tejobrinde",
+      "total": "13,92 €",
+      "cor": "Branco",
+      "dataGuardado": "14/09/2026, 22:58:02",
+      "quantidade": 1,
+      "lucroTotal": "7,00 €",
+      "precoUn": "13,92 €",
+      "cliente": {
+        "nome": "Nelson Santos",
+        "email": "nmgsantos27@gmail.com",
+        "contacto": "",
+        "id": "1789053574049_l7qv"
+      },
+      "data": "14/09/2026",
+      "tecnica": "DTF",
+      "id": "1789423082799_ic1d",
+      "altura": 10
+    },
+    {
+      "cliente": {
+        "nome": "Ana Santos",
+        "contacto": "",
+        "email": "anasacotes32@gmail.com",
+        "id": "1789392332357_3vv9"
+      },
+      "precoUn": "13,92 €",
+      "material": "150g T-shirt Unissexo",
+      "total": "13,92 €",
+      "numero": "#2026-0009",
+      "tecnica": "DTF",
+      "tipo": "",
+      "cor": "Branco",
+      "dataGuardado": "14/09/2026, 22:58:23",
+      "data": "14/09/2026",
+      "lucroUn": "7,00 €",
+      "altura": 10,
+      "referencia": "",
+      "id": "1789423103979_t8hy",
+      "fornecedor": "Tejobrinde",
+      "quantidade": 1,
+      "lucroTotal": "7,00 €"
+    },
+    {
+      "lucroUn": "6,50 €",
+      "altura": 35,
+      "data": "15/09/2026",
+      "quantidade": 12,
+      "lucroTotal": "78,00 €",
+      "dataGuardado": "15/09/2026, 00:17:09",
+      "referencia": "BC560303",
+      "fornecedor": "Tejobrinde",
+      "cor": "Branco",
+      "cliente": {
+        "nome": "Rui Espírito Santo",
+        "email": "",
+        "contacto": "",
+        "id": "1789053602464_y4a6"
+      },
+      "precoUn": "11,60 €",
+      "total": "139,15 €",
+      "tipo": "T-Shirt",
+      "id": "1789427829167_pp8o",
+      "tecnica": "DTF",
+      "numero": "#2026-0010",
+      "material": "190g T-shirt Unissexo"
+    },
+    {
+      "cliente": {
+        "nome": "Florinhas Alto do Minho",
+        "id": "1789557475718_zcbu",
+        "contacto": "",
+        "email": ""
+      },
+      "precoUn": "25,39 €",
+      "quantidade": 2,
+      "lucroTotal": "14,00 €",
+      "id": "1789557520870_kuch",
+      "data": "16/09/2026",
+      "tecnica": "DTF",
+      "numero": "#2026-0011",
+      "referencia": "THC AMSTERDAM",
+      "fornecedor": "THClothes",
+      "altura": 15,
+      "dataGuardado": "16/09/2026, 12:18:40",
+      "lucroUn": "7,00 €",
+      "tipo": "Sweats",
+      "margemAplicada": 7,
+      "cor": "Todas Cores",
+      "escalaoMargemTexto": "1–9 un",
+      "material": "Sweatshirt com fecho e capuz",
+      "total": "50,79 €"
+    },
+    {
+      "lucroUn": "6,50 €",
+      "cor": "Branco",
+      "altura": 25,
+      "tipo": "T-Shirt",
+      "id": "1789558384719_7pqi",
+      "material": "190g T-shirt Unissexo",
+      "cliente": {
+        "email": "",
+        "contacto": "",
+        "nome": "Bruno Sousa - Pinta Progresso",
+        "id": "1789509163179_n6gh"
+      },
+      "referencia": "BC560303",
+      "precoUn": "10,78 €",
+      "fornecedor": "Tejobrinde",
+      "data": "16/09/2026",
+      "total": "323,43 €",
+      "quantidade": 30,
+      "lucroTotal": "195,00 €",
+      "escalaoMargemTexto": "25–49 un",
+      "margemAplicada": 6.5,
+      "tecnica": "DTF",
+      "dataGuardado": "16/09/2026, 12:33:04",
+      "numero": "#2026-0012"
+    },
+    {
+      "numero": "#2026-0013",
+      "data": "16/09/2026",
+      "lucroUn": "7,00 €",
+      "escalaoMargemTexto": "1–9 un",
+      "margemAplicada": 7,
+      "material": "Material do cliente",
+      "cor": "Sem cor",
+      "portesPersonalizados": false,
+      "total": "16,52 €",
+      "quantidade": 2,
+      "dataGuardado": "16/09/2026, 13:08:36",
+      "lucroTotal": "14,00 €",
+      "precoUn": "8,26 €",
+      "id": "1789560516039_p2k4",
+      "cliente": {
+        "email": "",
+        "id": "1789557876382_wte5",
+        "nome": "Auto Dinamicassertiva",
+        "contacto": ""
+      },
+      "referencia": "",
+      "fornecedor": "Material do cliente",
+      "tecnica": "DTF",
+      "portesAplicados": 0,
+      "tipo": "",
+      "altura": 20
+    },
+    {
+      "escalaoMargemTexto": "1–9 un",
+      "data": "18/09/2026",
+      "id": "1789767411511_xxh1",
+      "dataGuardado": "18/09/2026, 22:36:51",
+      "margemAplicada": 7,
+      "lucroTotal": "7,00 €",
+      "quantidade": 1,
+      "portesAplicados": 3,
+      "portesPersonalizados": false,
+      "material": "150g T-shirt Unissexo",
+      "lucroUn": "7,00 €",
+      "fornecedor": "Tejobrinde",
+      "referencia": "",
+      "altura": 10,
+      "cor": "Branco",
+      "numero": "#2026-0014",
+      "total": "13,73 €",
+      "tecnica": "DTF",
+      "precoUn": "13,73 €",
+      "tipo": "",
+      "cliente": {
+        "id": "1789392332357_3vv9",
+        "contacto": "",
+        "email": "anasacotes32@gmail.com",
+        "nome": "Ana Santos"
+      }
+    }
+  ],
+  "clientes": [
+    {
+      "id": "1789053574049_l7qv",
+      "nome": "Nelson Santos",
+      "contacto": "",
+      "email": "nmgsantos27@gmail.com"
+    },
+    {
+      "id": "1789053602464_y4a6",
+      "nome": "Rui Espírito Santo",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "id": "1789392332357_3vv9",
+      "nome": "Ana Santos",
+      "contacto": "",
+      "email": "anasacotes32@gmail.com"
+    },
+    {
+      "id": "1789420659556_rprt",
+      "nome": "CSAluminios",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "id": "1789509163179_n6gh",
+      "nome": "Bruno Sousa - Pinta Progresso",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "id": "1789513306159_ib4z",
+      "nome": "10AfioNotável",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "id": "1789557475718_zcbu",
+      "nome": "Florinhas Alto do Minho",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "id": "1789557876382_wte5",
+      "nome": "Auto Dinamicassertiva",
+      "contacto": "",
+      "email": ""
+    }
+  ],
+  "contador": "{\"ano\":2026,\"numero\":14}",
+  "escaloes": [
+    {
+      "margem": 7,
+      "ate": 9,
+      "de": 1
+    },
+    {
+      "margem": 6.8,
+      "de": 10,
+      "ate": 24
+    },
+    {
+      "de": 25,
+      "margem": 6.5,
+      "ate": 49
+    },
+    {
+      "ate": 99,
+      "de": 50,
+      "margem": 5.5
+    },
+    {
+      "de": 100,
+      "margem": 4,
+      "ate": 999999
+    }
+  ]
+}
